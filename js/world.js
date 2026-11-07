@@ -99,12 +99,13 @@ function updatePlayer(dt) {
   if (!isBlocked(player.x + dx, player.y)) player.x += dx;
   if (!isBlocked(player.x, player.y + dy)) player.y += dy;
 
-  // Tell once why the club gate is closed; tell again after walking away.
-  const nearGate = Math.hypot(player.x - CLUB_GATE_POINT.x, player.y - CLUB_GATE_POINT.y) < 24;
-  if (!isClubOpen() && nearGate && !player.toldAboutGate) {
+  // Only when the hero walks up into the closed club gate, tell why; tell again after walking away.
+  const walkingIntoGate = dy < 0 && !isClubOpen() && isClubGateTile(player.x, player.y + dy - 3);
+  if (walkingIntoGate && !player.toldAboutGate) {
     player.toldAboutGate = true;
     openDialog(CLUB_CLOSED_LINES);
   }
+  const nearGate = Math.hypot(player.x - CLUB_GATE_POINT.x, player.y - CLUB_GATE_POINT.y) < 32;
   if (!nearGate) player.toldAboutGate = false;
 }
 
