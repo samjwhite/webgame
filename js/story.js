@@ -33,6 +33,7 @@ function newQuest() {
     discoDone: false,
     grandpaLine: 0,
     grandmaLine: 0,
+    statueLooks: 0,
   };
 }
 
@@ -109,6 +110,7 @@ function talkToGrandma() {
 }
 
 function grandmaChatter() {
+  if (quest.metLads && quest.outfit !== "sport") return TRACKSUIT_HINT;
   if (quest.beersDrunk > 0 && quest.grandmaLine % 2 === 0) {
     quest.grandmaLine += 1;
     return "А чим це від тебе тхне? Ой, дитино, дитино... Увесь у діда.";
@@ -123,14 +125,17 @@ function grandmaChatter() {
   return line;
 }
 
+const TRACKSUIT_HINT = "Ти ж у тих джинсах пішов! Мама тобі в рюкзак спортивний костюм клала, той, з полосками. Рюкзак коло сарая стоїть.";
+
 function wakeUpLines() {
-  if (quest.beatings === 1) {
-    return [
+  const lines = quest.beatings === 1
+    ? [
       "Ой лишенько! Хто ж тебе так розмалював, дитино?",
       "Клубні, кажеш? Та то ж Толік з Вовчиком. Вони кожне літо всіх городських так зустрічають. До весілля заживе.",
-    ];
-  }
-  return ["Знов?! Та ти в мене як той Буратіно — всі шишки твої. Приклади мідний п'ятак, поможе."];
+    ]
+    : ["Знов?! Та ти в мене як той Буратіно — всі шишки твої. Приклади мідний п'ятак, поможе."];
+  if (quest.outfit !== "sport") lines.push(TRACKSUIT_HINT);
+  return lines;
 }
 
 // ---------- Valya, the shop ----------
@@ -173,7 +178,10 @@ function talkToValya() {
 function sellBeer() {
   if (quest.money < BEER_PRICE) {
     const jobHint = quest.unload === "done" ? "" : " Або мені ящики потягай.";
-    return say([`Пиво по дві гривні, сонечко. Бесплатно тіки сир у мишоловці. Йди в баби Гані колорадів визбирай.${jobHint}`]);
+    return say([
+      `Пиво по дві гривні, сонечко. Бесплатно тіки сир у мишоловці. Йди в баби Гані колорадів визбирай.${jobHint}`,
+      "І в зошит не записую, не проси. Знаю я вас, городських: сьогодні тут, а завтра там — і десять гривень тю-тю.",
+    ]);
   }
   quest.money -= BEER_PRICE;
   quest.beersDrunk += 1;
@@ -254,6 +262,22 @@ function useMoped() {
   ], "ride");
 }
 
+const STATUE_LINES = [
+  [
+    "Пам'ятник посеред площі. Лисувата голова, рука вперед, а під носом — вуса, явно домальовані пізніше.",
+    "Кажуть, колись тут стояв Ленін. А як прийшла незалежність, грошей на нового в сільраді не знайшли — домалювали вуса, і готово.",
+    "Тепер і не розбереш: чи то Ленін, чи то Шевченко.",
+  ],
+  ["На постаменті свіжою фарбою: «Т. Г. Шевченко». А знизу, як придивитися, ще проступає «В. І.»"],
+  ["Голуби, здається, теж не розібрались, хто це. Але сідають на нього однаково охоче."],
+];
+
+function useStatue() {
+  const lines = STATUE_LINES[quest.statueLooks % STATUE_LINES.length];
+  quest.statueLooks += 1;
+  return say(lines);
+}
+
 function useTruck() {
   if (quest.carrying) return say(["Руки вже зайняті. Неси ящик Валі."]);
   quest.carrying = true;
@@ -264,10 +288,23 @@ function useTruck() {
 
 function missingForDisco() {
   const missing = [];
-  if (quest.outfit !== "sport") missing.push("Серий: Шо це за джинси, як у бібліотекаря? Свої в спортивках ходять, понял?");
-  if (quest.beersDrunk < BEERS_NEEDED) missing.push("Вовчик: І трезвий, як стьоклишко. Від своїх «Славутичем» пахне, а від тебе — бабиними пиріжками.");
+  if (quest.outfit !== "sport") missing.push("Серий: Шо це за джинси, як у бібліотекаря? Свої в спортивках ходять, поняв?");
+  if (quest.beersDrunk === 0) {
+    missing.push("Вовчик: І трезвий, як стьоклишко. Від своїх «Славутичем» пахне, а від тебе — бабиними пиріжками.");
+  } else if (quest.beersDrunk < BEERS_NEEDED) {
+    missing.push(`Вовчик: Пивком пахне, але слабенько. ${quest.beersDrunk === 1 ? "Одна пляшка" : "Дві пляшки"} — то для дівчат.`);
+  }
   if (!quest.arrivedOnMoped) missing.push("Толік: І пішком притопав. Свої на дискотеку на моторі приїжджають, а не на своїх двох.");
   return missing;
+}
+
+// The lads comment on what the hero already got right.
+function whatLadsNotice() {
+  const lines = [];
+  if (quest.outfit === "sport") lines.push("Серий: О, «Адідас» натягнув. Уже шось.");
+  if (quest.beersDrunk >= BEERS_NEEDED) lines.push("Вовчик: І «Славутичем» од тебе тягне, по-нашому.");
+  if (quest.arrivedOnMoped) lines.push("Толік: І на «Карпатах» притарахтів — уважаю.");
+  return lines;
 }
 
 function talkToLads() {
@@ -293,6 +330,7 @@ function talkToLads() {
 
   return say([
     ...greeting,
+    ...whatLadsNotice(),
     ...missing,
     "Вовчик: Хрін тобі, а не дискотека.",
     "Серий: Ну шо, бля, сам напросився.",

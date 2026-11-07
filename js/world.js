@@ -24,6 +24,7 @@ const places = {
   shed: { id: "shed", x: SHED_DOOR.x, y: SHED_DOOR.y },
   backpack: { id: "backpack", x: 196, y: 152 },
   truck: { id: "truck", x: 720, y: 268 },
+  statue: { id: "statue", x: 464, y: 228 },
 };
 
 let chickens = [];
@@ -166,7 +167,7 @@ function isMopedNearLads() {
 
 // Everything the player can use right now, as targets with a world position.
 function currentTargets() {
-  const targets = [...npcs, places.well, places.shed];
+  const targets = [...npcs, places.well, places.shed, places.statue];
   if (quest.backpackDropped) targets.push(places.backpack);
   if (quest.unload === "working") targets.push(places.truck);
   if (quest.mopedFound && !quest.riding) targets.push({ id: "moped", x: quest.moped.x, y: quest.moped.y });
