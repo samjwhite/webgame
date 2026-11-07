@@ -7,6 +7,7 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 - Village of **Makitryne**, Poltava region, Ukraine, **summer 2003** (Kuchma era).
 - Lived-in and weathered but cared for: whitewashed houses with blue window frames, wavy asbestos-slate roofs with moss, chipped plaster showing brick, wooden picket fences, yellow gas pipes, concrete bus stop with a faded mosaic, Soviet-era vehicles. Signs are in Ukrainian ("Продукти", "Будинок культури").
 - Warm, nostalgic, gently ironic. Never grim, never "gopnik" or criminal. Never a Japanese or fairy-tale village.
+- **Approved style reference:** `tools/art/reference/loc_yard.png`, grandma's yard. The owner's words: more sense than the old map, and the patchwork fence and the gas pipe along it look truly authentic. Draw new locations to match it.
 - Our own look, not a copy of *Stardew Valley*, *Cast n Chill* or any other game: visible pixels, soft dithering, earthy palette (ochre, dusty green, faded blue, whitewash, rust), late-afternoon light, dark outlines on characters and props.
 - Yards are inspired by real Poltava village yards: authentic and Ukrainian, with no folk-costume kitsch ("шароварщина"), no cute tidy sheds and no neat decorative flowerbeds.
 - Plants and trees are those of the Middle Dnieper and Poltava region (forest-steppe), not generic game foliage or anything from Japanese-style games. The list is in [ART_HANDOFF_LOCATIONS.md](ART_HANDOFF_LOCATIONS.md).

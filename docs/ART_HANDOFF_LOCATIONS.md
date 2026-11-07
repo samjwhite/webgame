@@ -10,6 +10,8 @@
 
 **Status:** cats, dogs and the shop scene are delivered and in the game on `dev`. Every animal coat is used. Grandma's walking sheet is being done with Codex as a candidate. Other characters' movement comes later.
 
+**Approved style:** `tools/art/reference/loc_yard.png`. The owner approved this yard and wants everything else in this style. It is in the game on `dev`.
+
 ## Art direction (from the product owner)
 
 - **Our own look.** Do not copy Stardew Valley or Cast n Chill, or any other game. This has to be a design of its own.

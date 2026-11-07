@@ -37,7 +37,7 @@ TEXTS.en = {
       "Drop your things over there by the shed. Nobody steals here, this isn't Kyiv... well, hardly anybody.",
       "Now run to the well and fetch me some water. We'll have a cup of tea after your trip.",
     ],
-    waterWait: "The well's right over there, to the right. Turn the crank, not your tongue.",
+    waterWait: "The well's right over there, to the left. Turn the crank, not your tongue.",
     waterDone: [
       "Ooh, now that's water! Not like your city tap water — stinks of bleach.",
       "Listen, sweetheart, the potatoes are crawling with Colorado beetles. Pick them into a jar, or they'll eat everything down to the roots.",

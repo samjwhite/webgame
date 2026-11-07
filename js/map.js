@@ -16,41 +16,46 @@ const LOCATIONS = {
     art: "locYard",
     backdrop: "#24452a",
     mapOrigin: { x: 96, y: 0 },
+    mapSpot: { x: 200, y: 110 },
     solids: [
-      [0, 52, 333, 83], // trees along the top
-      [0, 83, 26, 182], // trees on the left
-      [25, 83, 146, 150], // grandma's house
-      [13, 150, 96, 181], [112, 150, 168, 181], // flowers and fence in front of the house, gap to the door
-      [146, 98, 196, 148], // shed
-      [0, 179, 4, 198], // the path west leads nowhere yet
-      [0, 199, 91, 270], // fence and trees south-west
-      [91, 218, 214, 270], // the neighbours' roof
-      [172, 207, 181, 213], // power pole
-      [207, 166, 238, 181], // short fence by the potatoes
-      [259, 220, 298, 246], // well ring
-      [294, 83, 333, 159], [304, 159, 333, 270], // bushes on the right
-      [214, 261, 259, 270], [300, 261, 333, 270], // either side of the path south
+      [0, 0, 660, 26], // trees along the top
+      [0, 26, 60, 160], // trees left of the house
+      [60, 26, 344, 172], // grandma's house
+      [183, 153, 254, 185], // bench and buckets
+      [342, 144, 365, 181], // rain barrel
+      [344, 26, 440, 127], // cellar mound and walnut tree
+      [440, 26, 507, 110], // woodpile
+      [507, 26, 660, 112], // shed
+      [0, 160, 150, 252], // apple tree
+      [0, 252, 97, 330], [97, 295, 130, 330], // bushes along the west fence
+      [97, 254, 144, 280], // chopping block
+      [181, 252, 228, 286], // well ring
+      [378, 188, 384, 196], // washing line post
+      [443, 161, 471, 185], // laundry basket
+      [482, 112, 615, 211], // summer kitchen
+      [615, 112, 660, 406], // east fence
+      [327, 205, 620, 331], // vegetable garden, fenced off
+      [0, 330, 264, 406], [374, 330, 660, 406], // south fence, gate in the middle
+      [264, 336, 374, 406], // beyond the gate
     ],
     exits: [
-      { id: "toStreet", area: [259, 265, 300, 270], to: "street", spawn: { x: 406, y: 55 }, dir: "down" },
+      { id: "toStreet", area: [295, 328, 345, 336], to: "street", spawn: { x: 406, y: 55 }, dir: "down" },
       {
         id: "toHouse",
-        area: [96, 150, 112, 155],
+        area: [275, 172, 308, 178],
         to: "house",
         spawn: { x: 130, y: 268 },
         dir: "up",
         closed: () => (quest.riding ? T().yard.noMopedInside : null),
       },
     ],
-    props: [{ art: "houseDoor", x: 104, y: 150 }],
-    occluders: [
-      { art: "occludeYardWell", x: 242, y: 168, baseY: 246 },
-      { art: "occludeYardPole", x: 170, y: 136, baseY: 213 },
-    ],
+    props: [],
+    occluders: [{ art: "occludeYardWell", x: 161, y: 193, baseY: 286 }],
     lights: [
-      { x: 177, y: 139, radius: 52 },
-      { x: 62, y: 135, radius: 22 },
-      { x: 88, y: 135, radius: 22 },
+      { x: 43, y: 125, radius: 60 },
+      { x: 137, y: 135, radius: 30 },
+      { x: 195, y: 135, radius: 30 },
+      { x: 320, y: 130, radius: 30 },
     ],
   },
 
@@ -70,7 +75,7 @@ const LOCATIONS = {
       [205, 78, 229, 116], // fridge
       [150, 165, 200, 184], // table
     ],
-    exits: [{ id: "toYard", area: [108, 279, 152, 285], to: "yard", spawn: { x: 104, y: 164 }, dir: "down" }],
+    exits: [{ id: "toYard", area: [108, 279, 152, 285], to: "yard", spawn: { x: 291, y: 205 }, dir: "down" }],
     props: [
       { art: "houseBed", x: 41, y: 112 },
       { art: "houseTv", x: 103, y: 108 },
@@ -184,7 +189,7 @@ const LOCATIONS = {
       [381, 222, 390, 234], [672, 222, 682, 234], // power poles
     ],
     exits: [
-      { id: "toYard", area: [390, 46, 422, 49], to: "yard", spawn: { x: 280, y: 257 }, dir: "up" },
+      { id: "toYard", area: [390, 46, 422, 49], to: "yard", spawn: { x: 320, y: 318 }, dir: "up" },
       {
         id: "toClub",
         area: [572, 108, 624, 113],
@@ -243,7 +248,7 @@ function lockedLines(id) {
 }
 
 // Grandma's potato beds.
-const GARDEN_AREA = [195, 84, 265, 151];
+const GARDEN_AREA = [327, 205, 460, 331];
 
 function isInside(x, y, [left, top, right, bottom]) {
   return x >= left && x < right && y >= top && y < bottom;

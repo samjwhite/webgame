@@ -15,7 +15,6 @@ LOCATION_SCALE = 0.65
 
 # Location name -> crop box in reference/village_map.png. All tall enough to fill a phone screen.
 CROPS = {
-    "yard": (192, 0, 704, 432),
     "club": (680, 60, 1120, 524),
     "street": (0, 320, 1536, 752),
     "stop": (1070, 592, 1536, 1024),
@@ -27,16 +26,14 @@ CROPS = {
 # Shapes are relative to the box: ("rect", box), ("poly", points) or ("ellipse", box).
 # None means the object is told from its background by colour (the statue on the plain paving).
 WELL_SHAPE = [
-    ("poly", [(7, 1), (58, 1), (65, 23), (1, 24)]),  # roof
-    ("rect", (1, 24, 65, 28)),  # beam under the roof
-    ("rect", (9, 24, 18, 76)),  # posts
-    ("rect", (52, 24, 59, 76)),
-    ("rect", (18, 33, 54, 39)),  # crank axle
-    ("rect", (28, 33, 41, 41)),  # drum
-    ("rect", (32, 41, 40, 53)),  # bucket
-    ("ellipse", (10, 46, 54, 58)),  # ring: top, body, bottom
-    ("rect", (10, 52, 54, 71)),
-    ("ellipse", (10, 64, 54, 78)),
+    ("poly", [(14, 0), (64, 0), (78, 28), (0, 28)]),  # roof
+    ("rect", (13, 28, 20, 66)),  # posts
+    ("rect", (60, 28, 67, 66)),
+    ("rect", (20, 34, 60, 42)),  # crank axle
+    ("rect", (39, 42, 47, 68)),  # bucket
+    ("ellipse", (20, 57, 67, 75)),  # ring: top, body, bottom
+    ("rect", (20, 66, 67, 88)),
+    ("ellipse", (20, 80, 67, 94)),
 ]
 
 
@@ -47,8 +44,7 @@ def pole_shape(width, height):
 
 OCCLUDERS = {
     "yard": {
-        "occlude_yard_well": ((242, 168, 307, 247), WELL_SHAPE),
-        "occlude_yard_pole": ((170, 137, 183, 215), pole_shape(13, 78)),
+        "occlude_yard_well": ((161, 193, 239, 287), WELL_SHAPE),
     },
     "club": {"occlude_club_statue": ((144, 156, 170, 212), None)},
     "street": {
@@ -58,10 +54,11 @@ OCCLUDERS = {
 }
 
 # Bits of a crop covered with another bit of it, before scaling: location -> [(from box, to corner)].
-# The yard's picture has no way to grandma's door, so a path is laid through the flowers and fence.
-PATCHES = {
-    "yard": [((148, 281, 172, 306), (148, 256)), ((148, 281, 172, 306), (148, 231))],
-}
+PATCHES = {}
+
+# Approved art: grandma's yard. Scaled so her door is a little taller than the hero; the road is cut off.
+YARD_SCALE = 0.43
+YARD_BOTTOM = 945
 
 
 # The old shop stands in the picture right beside the road. The shop is its own location now, set back
@@ -335,16 +332,6 @@ def varenyky():
     return s
 
 
-def door():
-    s = Sprite(20, 40)
-    s.rect(1, 0, 18, 39, "#2f5d7c")
-    s.rect(3, 2, 14, 15, "#3f7296")
-    s.rect(3, 20, 14, 17, "#3f7296")
-    s.rect(15, 20, 2, 2, "#d9c56a")
-    s.outline()
-    return s
-
-
 def furniture(sprite):
     """Furniture is drawn large here and scaled to fit the 44 px hero."""
     size = (round(sprite.w * FURNITURE_SCALE), round(sprite.h * FURNITURE_SCALE))
@@ -441,11 +428,17 @@ def build(out_world):
         for art, (part, shapes) in OCCLUDERS.get(name, {}).items():
             occluder(picture, part, shapes).save(f"{out_world}/{art}.png", optimize=True)
 
+    yard = load("loc_yard.png")
+    yard = yard.crop((0, 0, yard.width, YARD_BOTTOM))
+    yard = limit_palette(yard.resize((round(yard.width * YARD_SCALE), round(YARD_BOTTOM * YARD_SCALE)), Image.Resampling.BOX), 200)
+    yard.save(f"{out_world}/loc_yard.png", optimize=True)
+    for art, (part, shapes) in OCCLUDERS["yard"].items():
+        occluder(yard, part, shapes).save(f"{out_world}/{art}.png", optimize=True)
+
     shop_scene().save(f"{out_world}/loc_shop.png", optimize=True)
     shop_closed().save(f"{out_world}/shop_closed.png", optimize=True)
 
     room_background().save(f"{out_world}/loc_house.png")
-    door().save(f"{out_world}/house_door.png")
     for name, make in (("bed", bed), ("tv", tv), ("fridge", fridge), ("stove", stove),
                        ("borscht", borscht), ("table", table), ("varenyky", varenyky)):
         furniture(make()).save(f"{out_world}/house_{name}.png")

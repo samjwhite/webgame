@@ -37,7 +37,7 @@ TEXTS.it = {
       "Lascia la roba lì, vicino alla rimessa. Qui non siamo a Kyiv, non ruba nessuno... o quasi.",
       "E adesso corri al pozzo a prendermi un po' d'acqua. Ci facciamo un tè dopo il viaggio.",
     ],
-    waterWait: "Il pozzo è proprio lì, a destra. Gira la manovella, non la lingua.",
+    waterWait: "Il pozzo è proprio lì, a sinistra. Gira la manovella, non la lingua.",
     waterDone: [
       "Ah, questa sì che è acqua! Mica come quella del vostro rubinetto, che puzza di cloro.",
       "Senti, tesoro, le patate sono piene di dorifore. Raccoglile in un barattolo, sennò si mangiano tutto fino alle radici.",
