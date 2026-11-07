@@ -25,7 +25,7 @@ const ART_FILES = {
   heroMoped: "world/hero_moped.png",
   grandmaWalk: "world/grandma_walk.png",
   seller: "world/seller.png",
-  grandpa: "world/grandpa.png",
+  grandpaSit: "world/grandpa_sit.png",
   ladRed: "world/lad_red.png",
   ladSquat: "world/lad_squat.png",
   ladCap: "world/lad_cap.png",

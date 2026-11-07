@@ -56,7 +56,7 @@ SPRITES = {
     "grandma": ("collage.png", (698, 565, 800, 775), 40, 25),
     "seller": ("collage.png", (806, 565, 910, 775), 40, 25),
     "backpack": ("sheet_club.png", (928, 452, 1108, 624), 14, 45),
-    "moped": ("sheet_club.png", (1140, 396, 1488, 640), 22, 60),
+    "moped": ("sheet_club.png", (1140, 396, 1488, 640), 28, 60),
     "truck": ("sheet_club.png", (24, 684, 432, 916), 34, 45),
     "shed_open": ("sheet_club.png", (468, 388, 896, 640), 26, 45),
 }
@@ -85,7 +85,7 @@ APP_ICON_SIZES = (180, 192, 512)
 CHICKEN_COLUMNS = [225, 408, 536, 662, 776, 870, 1000, 1100, 1196, 1292, 1434]
 CHICKEN_WINDOW_W = 130
 CHICKEN_BANDS = {"rooster": (22, 190), "hen_white": (200, 330), "hen_ginger": (350, 475), "hen_black": (492, 625)}
-CHICKEN_SCALE = 0.12
+CHICKEN_SCALE = 0.09
 
 # Hero on the moped (reference/moped_sheet.png): rows right (6), left (6), up (1), down (1).
 MOPED_ROWS = [

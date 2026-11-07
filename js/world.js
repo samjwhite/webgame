@@ -53,13 +53,13 @@ let butterflies = [];
 let cloudShadows = [];
 
 // Cats and dogs, cut by tools/art/animals.py. Grids of one row per coat, one column per pose; they face right.
-const CAT_CELL = { w: 36, h: 26 };
-const DOG_CELL = { w: 36, h: 32 };
+const CAT_CELL = { w: 24, h: 16 };
+const DOG_CELL = { w: 24, h: 21 };
 const CAT_COAT = { tabby: 0, cream: 1, calico: 2 };
 const CAT_POSE = { stand: 0, sit: 1, sleep: 2, walkA: 3, walkB: 4, washA: 5, washB: 6 };
 const CAT_WALK_SPEED = 11;
 const CAT_NOTICES_HERO = 75;
-const CAT_STOPS_FROM_HERO = 20;
+const CAT_STOPS_FROM_HERO = 14;
 const CAT_STROLL = 30;
 const DOG_COAT = { ginger: 0, blackTan: 1, white: 2, grey: 3 };
 const DOG_POSE = { stand: 0, sit: 1, sleep: 2, walkA: 3, walkB: 4, sniff: 5, bark: 6 };
@@ -664,7 +664,7 @@ function drawNpc(ctx, npc, time) {
     return;
   }
   if (npc.sprite === "grandpa") {
-    drawFrame(ctx, ART.grandpa, Math.floor(time / 450) % 4, 28, npc.x - 14, npc.y - 41);
+    drawFrame(ctx, ART.grandpaSit, Math.floor(time / 450) % 4, 28, npc.x - 14, npc.y - ART.grandpaSit.height + 3);
     return;
   }
   drawStanding(ctx, ART[npc.sprite], npc.x, npc.y, npc.x > player.x + 30);

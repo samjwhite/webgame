@@ -49,6 +49,8 @@ Suggestions to check against real references, not a required list:
 
 Everything in game pixels. **Real-world proportions matter most: the owner rejected art where the hero looked like a small child next to the objects.** The hero and grandma are about 40–44 tall. So a door is a little taller than the hero (about 24 wide and 50 tall), a bench about 47 wide, a well ring about 38 wide, a window sill below the hero's shoulders. Check every object next to the hero before delivering.
 
+Sizes in the game, against people 40 px tall: a sitting cat about 12 tall and a standing cat about 18 long, a dog about 16 tall, a hen about 10 tall, a moped about 39 long. **A tree should be three or four times a person's height**: on the old map trees are barely one and a half, and the owner noticed. Did Petro also needs a real sitting sprite for his bench; he is only squashed by code for now.
+
 - **Location picture:** 768×512 (draw at 1536×1024, the pipeline scales by 0.5). Top-down view with the same camera angle as the current art. Minimum height 290 so a phone screen is filled. The game is played in portrait, so important things should not sit only at the far edges.
 - **Ground layer:** the location picture contains only what the hero walks on or never walks behind: ground, paths, water, grass.
 - **Object sprites:** each on a flat `#26222f` background or transparency, clearly separated, with no labels. Say where each object's foot line is. The hero walks behind anything above that line, and clean separate sprites are what make him disappear behind an object's real outline rather than a square.

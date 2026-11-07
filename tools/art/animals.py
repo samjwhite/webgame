@@ -17,8 +17,9 @@ ENCLOSED_TOLERANCE = 22
 CAT_SHEET = "incoming/yard_cats_v3.png"
 CAT_ROWS = [(30, 305), (345, 640), (680, 975)]
 CAT_COLUMNS = [(60, 480), (600, 900), (1065, 1435)]
-CAT_SCALE = 0.08
-CAT_CELL = (36, 26)
+# Sizes against people, who are 40 px tall: a sitting cat comes to about their knee.
+CAT_SCALE = 0.045
+CAT_CELL = (24, 16)
 CAT_OUTLINE = (34, 24, 20, 255)
 
 # village_dogs_sheet.png. Rows: ginger, black and tan, white with brown, grey shaggy.
@@ -26,8 +27,8 @@ CAT_OUTLINE = (34, 24, 20, 255)
 DOG_SHEET = "incoming/village_dogs_sheet.png"
 DOG_ROWS = [(118, 256), (328, 492), (562, 726), (788, 952)]
 DOG_COLUMNS = [(22, 197), (205, 358), (362, 535), (540, 718), (722, 902), (908, 1062), (1066, 1212), (1252, 1424)]
-DOG_SCALE = 0.2
-DOG_CELL = (36, 32)
+DOG_SCALE = 0.13
+DOG_CELL = (24, 21)
 # Every dog stands on a baked-in strip of earth and grass this many source pixels tall: it is removed.
 DOG_GROUND_BAND = 16
 
@@ -137,13 +138,28 @@ def moved(cell, split, top_shift, bottom_shift):
     return result
 
 
+# Did Petro on his bench, TEMPORARY until a sitting sprite is drawn: his standing frames with the
+# thighs taken out, so he sits lower with his feet on the ground.
+GRANDPA_FRAMES = 4
+GRANDPA_THIGHS = (27, 35)
+
+
+def grandpa_sitting(out_world):
+    strip = Image.open(f"{out_world}/grandpa.png").convert("RGBA")
+    top, bottom = GRANDPA_THIGHS
+    result = Image.new("RGBA", (strip.width, strip.height - (bottom - top)))
+    result.alpha_composite(strip.crop((0, 0, strip.width, top)), (0, 0))
+    result.alpha_composite(strip.crop((0, bottom, strip.width, strip.height)), (0, top))
+    return result
+
+
 def cat_sheet():
     """Rows by coat. Columns: stand, sit, sleep, walk A, walk B, wash A, wash B."""
     sheet = load(CAT_SHEET)
     w, h = CAT_CELL
     result = Image.new("RGBA", (w * 7, h * len(CAT_ROWS)))
-    legs = h - 8
-    head = h - 12
+    legs = h - 5
+    head = h - 8
     for r, (top, bottom) in enumerate(CAT_ROWS):
         stand, sit, sleep = [frame(sheet, (left, top, right, bottom), CAT_SCALE, CAT_CELL) for left, right in CAT_COLUMNS]
         cells = [
@@ -160,6 +176,7 @@ def cat_sheet():
 
 def build(out_world):
     grandma_sheet(out_world).save(f"{out_world}/grandma_walk.png")
+    grandpa_sitting(out_world).save(f"{out_world}/grandpa_sit.png")
     cat_sheet().save(f"{out_world}/cats.png")
     grid(DOG_SHEET, DOG_ROWS, DOG_COLUMNS, DOG_SCALE, DOG_CELL, remove_ground).save(f"{out_world}/dogs.png")
 
