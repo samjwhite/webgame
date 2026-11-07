@@ -1,11 +1,16 @@
 const BEETLE_COUNT = 8;
 
-const quest = {
-  stage: "arrive",
-  hasWater: false,
-  beetlesCaught: 0,
-  hasGroceries: false,
-};
+function newQuest() {
+  return {
+    stage: "arrive",
+    hasWater: false,
+    beetlesCaught: 0,
+    hasGroceries: false,
+    grandpaLine: 0,
+  };
+}
+
+const quest = newQuest();
 
 const INTRO_LINES = [
   "Літо 2003-го. Полтавщина.",
@@ -17,8 +22,8 @@ const GRANDPA_LINES = [
   "Ех, онучку, оце в мої часи трактор був — не те що тепер.",
   "Ввечері футбол по телевізору — «Динамо» грає!",
   "Маршрутка на Полтаву — о сьомій ранку. Не проспи.",
+  "Бачив лелеку на стовпі? Кажуть, на щастя.",
 ];
-let grandpaLineIndex = 0;
 
 function talkToGrandma() {
   if (quest.stage === "arrive") {
@@ -31,23 +36,22 @@ function talkToGrandma() {
 
   if (quest.stage === "water") {
     if (!quest.hasWater) {
-      return ["Криниця у дворі, біля хати. Відро там стоїть."];
+      return ["Криниця у дворі, праворуч від хати. Відро там стоїть."];
     }
     quest.stage = "beetles";
-    spawnBeetles();
     return [
       "Дякую, дитино! Отака вода — не те, що в місті з крана.",
-      "А тепер біда: колорадів на картоплі повно. Позбирай їх, га?",
+      "А тепер біда: колорадів на картоплі повно. Позбирай їх у банку, га?",
     ];
   }
 
   if (quest.stage === "beetles") {
     if (quest.beetlesCaught < BEETLE_COUNT) {
-      return ["Ще є колоради, я ж бачу! Город — за хатою."];
+      return ["Ще є колоради, я ж бачу! Город — під хатою."];
     }
     quest.stage = "shop";
     return [
-      "Молодець! Ось тобі п'ять гривень.",
+      "Повна банка! Молодець! Ось тобі п'ять гривень.",
       "Збігай у магазин до Валі: хліба візьми і «Мівіну» собі.",
     ];
   }
@@ -78,17 +82,17 @@ function talkToValya() {
 }
 
 function talkToGrandpa() {
-  const line = GRANDPA_LINES[grandpaLineIndex];
-  grandpaLineIndex = (grandpaLineIndex + 1) % GRANDPA_LINES.length;
+  const line = GRANDPA_LINES[quest.grandpaLine % GRANDPA_LINES.length];
+  quest.grandpaLine += 1;
   return [line];
 }
 
-function useWell() {
-  if (quest.stage === "water" && !quest.hasWater) {
-    quest.hasWater = true;
-    return ["Ти покрутив корбу. Повне відро холодної води!"];
-  }
-  return ["Вода в криниці холодна-холодна."];
+function needsWater() {
+  return quest.stage === "water" && !quest.hasWater;
+}
+
+function needsBeetles() {
+  return quest.stage === "beetles" && quest.beetlesCaught < BEETLE_COUNT;
 }
 
 function currentObjective() {
@@ -98,9 +102,7 @@ function currentObjective() {
     case "water":
       return quest.hasWater ? "Віднеси воду бабусі." : "Набери води з криниці у дворі.";
     case "beetles":
-      return quest.beetlesCaught < BEETLE_COUNT
-        ? `Збери колорадів на городі: ${quest.beetlesCaught}/${BEETLE_COUNT}`
-        : "Повернись до бабусі.";
+      return needsBeetles() ? "Збери колорадів на городі." : "Покажи банку бабусі.";
     case "shop":
       return quest.hasGroceries ? "Неси покупки бабусі." : "Купи хліб і «Мівіну» у Валі в магазині.";
     default:

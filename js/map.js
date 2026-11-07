@@ -1,6 +1,6 @@
 // Legend:
 // .  grass         ,  flowers       =  dirt road      T  tree
-// #  fence         R  slate roof    H  house wall     D  house door
+// #  fence         R  house roof    H  house wall     D  house door
 // r  shop roof     h  shop wall     d  shop door      P  potato garden
 // W  well          B  bus stop      ~  pond           b  bench
 const MAP = [
@@ -25,6 +25,14 @@ const MAP = [
   "T.~~~~~~...T...................T",
   "T..~~~~..........,.........T...T",
   "T..............................T",
+  "T.....,.........T..............T",
+  "T..T.............,.......T.....T",
+  "T.........,....................T",
+  "T...................,.....,....T",
+  "T......T.....,.................T",
+  "T..,..............T........T...T",
+  "T..........,...................T",
+  "T....T...........,.............T",
   "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
 ];
 
@@ -39,9 +47,8 @@ function tileAt(col, row) {
   return MAP[row][col];
 }
 
-function isSolidAt(px, py) {
-  const letter = tileAt(Math.floor(px / TILE), Math.floor(py / TILE));
-  return SOLID_TILES.includes(letter);
+function isSolidTile(px, py) {
+  return SOLID_TILES.includes(tileAt(Math.floor(px / TILE), Math.floor(py / TILE)));
 }
 
 function findTiles(letter) {
@@ -54,7 +61,13 @@ function findTiles(letter) {
   return found;
 }
 
-function renderMap() {
+// Same pseudo-random number for the same tile every time.
+function tileNoise(col, row) {
+  const n = Math.sin(col * 12.9898 + row * 78.233) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+function renderGround() {
   const canvas = document.createElement("canvas");
   canvas.width = MAP_COLS * TILE;
   canvas.height = MAP_ROWS * TILE;
@@ -62,8 +75,106 @@ function renderMap() {
 
   for (let row = 0; row < MAP_ROWS; row++) {
     for (let col = 0; col < MAP_COLS; col++) {
-      drawTile(ctx, MAP[row][col], col, row);
+      const letter = MAP[row][col];
+      const x = col * TILE;
+      const y = row * TILE;
+      const variant = Math.floor(tileNoise(col, row) * 4);
+
+      if (letter === "=") {
+        drawFrame(ctx, ART.road, variant % 3, TILE, x, y);
+        drawRoadEdges(ctx, col, row);
+      } else if (letter === "P") {
+        drawFrame(ctx, ART.soil, 0, TILE, x, y);
+      } else if (letter === ",") {
+        drawFrame(ctx, ART.flowers, variant % 2, TILE, x, y);
+      } else {
+        drawFrame(ctx, ART.grass, variant, TILE, x, y);
+      }
     }
   }
   return canvas;
+}
+
+function drawRoadEdges(ctx, col, row) {
+  const x = col * TILE;
+  const y = row * TILE;
+  ctx.fillStyle = "#5e9442";
+  for (let i = 0; i < TILE; i += 2) {
+    const tuft = 1 + Math.floor(tileNoise(col + i, row) * 3);
+    if (tileAt(col, row - 1) !== "=") ctx.fillRect(x + i, y, 2, tuft);
+    if (tileAt(col, row + 1) !== "=") ctx.fillRect(x + i, y + TILE - tuft, 2, tuft);
+  }
+}
+
+function drawPondEdges(ctx, col, row) {
+  const x = col * TILE;
+  const y = row * TILE;
+  if (tileAt(col, row - 1) !== "~") {
+    ctx.fillStyle = "#2f6a8a";
+    ctx.fillRect(x, y, TILE, 3);
+  }
+  ctx.fillStyle = "#d2b285";
+  if (tileAt(col, row + 1) !== "~") ctx.fillRect(x, y + TILE - 2, TILE, 2);
+  if (tileAt(col - 1, row) !== "~") ctx.fillRect(x, y, 2, TILE);
+  if (tileAt(col + 1, row) !== "~") ctx.fillRect(x + TILE - 2, y, 2, TILE);
+}
+
+// Objects are drawn sorted by baseY so characters can walk behind them.
+function sprite(img, frameWidth, x, y, baseY, extra) {
+  return { img, frameWidth, x, y, baseY, frame: 0, ...extra };
+}
+
+function buildObjects() {
+  const objects = [];
+
+  findTiles("T").forEach(({ col, row }) => {
+    const baseY = row * TILE + 14;
+    if (tileNoise(col, row) < 0.25) {
+      objects.push(sprite(ART.poplars, 20, col * TILE - 2, row * TILE - 26, baseY, { frame: col % 2 }));
+    } else {
+      objects.push(sprite(ART.trees, 32, col * TILE - 8, row * TILE - 22, baseY, { frame: (col + row) % 2 }));
+    }
+  });
+
+  findTiles("#").forEach(({ col, row }) => {
+    const horizontal = tileAt(col - 1, row) === "#" || tileAt(col + 1, row) === "#";
+    let frame = 2;
+    if (horizontal) frame = tileNoise(col, row) < 0.2 ? 1 : 0;
+    objects.push(sprite(ART.fence, 16, col * TILE, row * TILE, row * TILE + 13, { frame }));
+  });
+
+  findTiles("P").forEach(({ col, row }) => {
+    objects.push(sprite(ART.potato, 14, col * TILE + 1, row * TILE + 1, row * TILE + 12, { animate: 900 }));
+  });
+
+  objects.push(sprite(ART.house, 104, 44, 8, 80));
+  objects.push(sprite(ART.shopBuilding, 120, 284, 200, 272));
+  objects.push(sprite(ART.wellBuilding, 24, 172, 48, 80));
+  objects.push(sprite(ART.busStop, 56, 428, 152, 190));
+  objects.push(sprite(ART.bench, 24, 412, 256, 268));
+
+  const decorations = [
+    { img: ART.sunflower, w: 14, col: 10, row: 2, animate: 1400 },
+    { img: ART.sunflower, w: 14, col: 11, row: 2, animate: 1500 },
+    { img: ART.sunflower, w: 14, col: 12, row: 3, animate: 1300 },
+    { img: ART.trees, w: 32, col: 12, row: 7, frame: 2 },
+    { img: ART.haystack, w: 30, col: 17, row: 7 },
+    { img: ART.haystack, w: 30, col: 8, row: 23 },
+    { img: ART.stork, w: 24, col: 24, row: 5, animate: 1800 },
+  ];
+  decorations.forEach((d) => {
+    const footX = d.col * TILE + 8;
+    const footY = d.row * TILE + 14;
+    objects.push(sprite(d.img, d.w, footX - d.w / 2, footY - d.img.height + 2, footY, {
+      frame: d.frame || 0,
+      animate: d.animate,
+      solid: { x: footX - 5, y: footY - 6, w: 10, h: 7 },
+    }));
+  });
+
+  for (let col = 1; col <= 16; col++) {
+    objects.push(sprite(ART.gasPipe, 16, col * TILE, 14 * TILE - 4, 14 * TILE + 10, { frame: col % 3 === 0 ? 1 : 0 }));
+  }
+
+  return objects;
 }

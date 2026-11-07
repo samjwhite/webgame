@@ -2,6 +2,7 @@ const input = {
   moveX: 0,
   moveY: 0,
   actionPressed: false,
+  tap: null,
   joystick: null,
 };
 
@@ -20,13 +21,10 @@ window.addEventListener("keyup", (event) => {
   keysDown.delete(event.code);
 });
 
-function setupTouchControls(canvas, actionButton, dialog) {
+function setupTouchControls(canvas, actionButton, dialogElement) {
   canvas.addEventListener("pointerdown", (event) => {
-    if (!dialog.hidden) {
-      input.actionPressed = true;
-      return;
-    }
     canvas.setPointerCapture(event.pointerId);
+    input.tap = { x: event.clientX, y: event.clientY };
     input.joystick = { id: event.pointerId, startX: event.clientX, startY: event.clientY, dx: 0, dy: 0 };
   });
 
@@ -50,8 +48,8 @@ function setupTouchControls(canvas, actionButton, dialog) {
     input.actionPressed = true;
   });
 
-  dialog.addEventListener("pointerdown", () => {
-    input.actionPressed = true;
+  dialogElement.addEventListener("pointerdown", () => {
+    input.tap = { x: -1, y: -1 };
   });
 }
 
@@ -83,8 +81,10 @@ function readMovement() {
   input.moveY = y;
 }
 
-function consumeAction() {
-  const pressed = input.actionPressed;
+// Returns the action press and tap of this frame, then clears them.
+function takeInput() {
+  const result = { action: input.actionPressed, tap: input.tap };
   input.actionPressed = false;
-  return pressed;
+  input.tap = null;
+  return result;
 }
