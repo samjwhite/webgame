@@ -6,7 +6,6 @@ Coordinates in js/map.js are game pixels of these scaled pictures.
 """
 
 import os
-import random
 from PIL import Image, ImageDraw, ImageFilter
 
 from lib import Sprite
@@ -96,18 +95,6 @@ def tile(sample, width, height):
     return result
 
 
-def scatter(sample, width, height, patch=7, seed=3):
-    """Cover an area with small random pieces of a sample: no visible repeat, for grass and bare earth."""
-    rng = random.Random(seed)
-    result = Image.new("RGB", (width, height))
-    for y in range(0, height, patch):
-        for x in range(0, width, patch):
-            left = rng.randrange(sample.width - patch)
-            top = rng.randrange(sample.height - patch)
-            result.paste(sample.crop((left, top, left + patch, top + patch)), (x, y))
-    return result
-
-
 def lay_texture(picture, box, sample, margin=3, blur=2):
     """Fill box with a repeated sample, soft at the edges, so it does not look like a pasted rectangle."""
     width, height = box[2] - box[0], box[3] - box[1]
@@ -132,7 +119,6 @@ SHOP_SCENE = "incoming/village_shop_beer_garden.png"
 SHOP_SCALE = 0.26  # makes the shop door a little taller than the 44 px hero
 SHOP_SCENE_BOTTOM = 905  # the road in the scene is cut off: the shop is reached by its own path
 SHOP_SIZE = (376, 300)
-SHOP_GRASS = (250, 978, 450, 1014)  # in village_map.png, at the scale of the outdoor locations
 SHOP_PATH = (150, 226, 190, 300)
 # Night: the door shut with a padlock and the seller gone from her window. Boxes in the scene's pixels.
 SHOP_CLOSED_BOX = (400, 345, 790, 548)
@@ -148,20 +134,19 @@ def shop_scene():
     size = (round(scene.width * SHOP_SCALE), round(SHOP_SCENE_BOTTOM * SHOP_SCALE))
     top = scene.crop((0, 0, scene.width, SHOP_SCENE_BOTTOM)).resize(size, Image.Resampling.BOX)
     picture = Image.new("RGB", SHOP_SIZE)
-    village = load("village_map.png")
-    meadow = village.crop(SHOP_GRASS)
-    grass = meadow.resize((round(meadow.width * LOCATION_SCALE), round(meadow.height * LOCATION_SCALE)), Image.Resampling.BOX)
-    picture.paste(scatter(grass, SHOP_SIZE[0], SHOP_SIZE[1] - size[1] + 12), (0, size[1] - 12))
+    strip = Sprite(SHOP_SIZE[0], SHOP_SIZE[1] - size[1] + 12, "#7f8a3c")
+    strip.speckle(0, 0, strip.w, strip.h, ["#6f7c34", "#8d9745", "#5f6e30"], 0.35, 5)
+    picture.paste(strip.img.convert("RGB"), (0, size[1] - 12))
     # The scene's bottom edge fades into the grass.
     fade = Image.new("L", size, 255)
     draw_fade = ImageDraw.Draw(fade)
     for row in range(10):
         draw_fade.line((0, size[1] - 1 - row, size[0], size[1] - 1 - row), fill=round(255 * row / 10))
     picture.paste(top, (0, 0), fade)
-    bare = village.crop(PATH_SAMPLE)
-    earth = bare.resize((round(bare.width * LOCATION_SCALE), round(bare.height * LOCATION_SCALE)), Image.Resampling.BOX)
     width, height = SHOP_PATH[2] - SHOP_PATH[0], SHOP_PATH[3] - SHOP_PATH[1]
-    lay_texture(picture, SHOP_PATH, scatter(earth, width, height), 2, 1)
+    earth = Sprite(width, height, "#a8794e")
+    earth.speckle(0, 0, width, height, ["#9a6d45", "#b58a5e", "#8f6440"], 0.3, 9)
+    lay_texture(picture, SHOP_PATH, earth.img.convert("RGB"), 3, 2)
     return limit_palette(picture, 200)
 
 

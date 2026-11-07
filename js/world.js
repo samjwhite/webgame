@@ -8,6 +8,7 @@ const CLUB_PARKING = { location: "club", x: 172, y: 268 };
 const SHED_DOOR = { x: 183, y: 156 };
 const CHICKEN_YARD = { left: 188, right: 253, top: 185, bottom: 244 };
 const NEAR_GARDEN = 12;
+const SHOP_STEPS = [88, 140, 166, 182]; // the shop's steps and door, plus a stride in front of them
 const FADE_TIME = 0.18;
 const DEBUG = location.search.includes("debug");
 
@@ -22,7 +23,7 @@ function here() {
 // dayOnly: goes home for the night.
 const npcs = [
   { id: "grandma", location: "yard", sprite: "grandma", x: 208, y: 205, talk: talkToGrandma, dayOnly: true, passable: true, walker: true, dir: "down", walking: false },
-  { id: "valya", location: "shop", sprite: "seller", x: 150, y: 172, inWindow: true, passable: true, talk: talkToValya, dayOnly: true },
+  { id: "valya", location: "shop", sprite: "seller", x: 127, y: 170, area: SHOP_STEPS, inWindow: true, passable: true, talk: talkToValya, dayOnly: true },
   { id: "grandpa", location: "pond", sprite: "grandpa", x: 212, y: 50, talk: talkToGrandpa, dayOnly: true },
   { id: "lads", location: "club", sprite: "ladRed", x: 120, y: 163, talk: talkToLads },
   { id: "lads", location: "club", sprite: "ladSquat", x: 192, y: 164, talk: talkToLads },
@@ -39,7 +40,7 @@ const places = {
   backpack: { id: "backpack", location: "yard", x: 197, y: 159 },
   truck: { id: "truck", location: "shop", x: 118, y: 226 },
   statue: { id: "statue", location: "club", x: 157, y: 260 },
-  shopDoor: { id: "shopDoor", location: "shop", x: 127, y: 176 },
+  shopDoor: { id: "shopDoor", location: "shop", x: 127, y: 170, area: SHOP_STEPS },
   bed: { id: "bed", location: "house", x: 41, y: 124 },
   tv: { id: "tv", location: "house", x: 103, y: 122 },
   borscht: { id: "borscht", location: "house", x: 164, y: 120 },
@@ -455,7 +456,10 @@ function nearestTarget() {
   let best = null;
   let bestScore = Infinity;
   for (const target of currentTargets()) {
-    const distance = Math.hypot(target.x - player.x, target.y - player.y);
+    // A target with an area is used from anywhere inside it, and only there.
+    const distance = target.area
+      ? (isInside(player.x, player.y, target.area) ? 0 : Infinity)
+      : Math.hypot(target.x - player.x, target.y - player.y);
     if (distance >= TALK_DISTANCE) continue;
     // Someone who walks about never gets in the way of things that stay put.
     const score = target.walker && !besideGrandma ? distance + WALKER_GIVES_WAY : distance;

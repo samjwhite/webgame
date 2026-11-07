@@ -80,6 +80,8 @@ Sprites: Будинок культури as one piece, including a door that can
 
 ### 4. Shop "Продукти" (A)
 
+**To redraw, from the owner:** the proportions of this scene are off and the grass and path are placeholders. Chairs are nearly as tall as the 44 px hero when they should reach his waist, and the tables are too large with them. Keep the design, but make the furniture human-sized against the door, and draw real grass and a real earth path of some length leading up from the south into a roomier yard, with the shop further back to the north and no road in the picture.
+
 **Delivered and in the game:** `incoming/village_shop_beer_garden.png`, with its road cut off and a temporary path added, because the owner wants a path leading up into the yard, the shop set back to the north. Please redraw that south edge properly: a path of some length from the road into the yard. Still wanted as separate sprites, because they are baked into the scene: seller in the window, dog, tables and chairs (delivered in `shop_beer_garden_props.png`, not used yet), and a closed door with padlock (a rough one is painted by code).
 
 Exit: path south to the road.
