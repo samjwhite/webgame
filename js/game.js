@@ -1,12 +1,18 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const objectiveBox = document.getElementById("objective");
+const objectiveText = document.getElementById("objective-text");
+const moneyText = document.getElementById("money");
+const checklist = document.getElementById("checklist");
+const checkBeer = document.querySelector("#check-beer span");
+const checkSuit = document.querySelector("#check-suit span");
+const checkMoped = document.querySelector("#check-moped span");
 const actionButton = document.getElementById("action-button");
 const menu = document.getElementById("menu");
 const continueButton = document.getElementById("continue-button");
 const newGameButton = document.getElementById("new-game-button");
 
-// "title", "intro", "world" or "closeup"
+// "title", "world" or "closeup"
 let mode = "title";
 let view = { width: 0, height: 0, scale: 2 };
 let stage = { x: 0, y: 0 };
@@ -18,42 +24,101 @@ function finishCloseup() {
   saveGame();
 }
 
-function finishIntro() {
-  mode = "world";
-  saveGame();
+function showPicture(picture, lines, onClose, effect) {
+  mode = "closeup";
+  startPictureScene(picture, effect);
+  openDialog(lines, onClose || finishCloseup);
 }
 
 function startNewGame() {
   clearSave();
   Object.assign(quest, newQuest());
-  resetPlayer(null);
+  placePlayer(START_POSITION);
+  resetChickens();
   menu.hidden = true;
-  mode = "intro";
-  startIntroScene();
-  openDialog(INTRO_LINES, () => {
-    closeup.busLeaving = true;
-  });
+  showPicture("intro", INTRO_LINES);
 }
 
 function continueGame() {
   const saved = loadSave();
   Object.assign(quest, newQuest(), saved.quest);
-  resetPlayer(saved.player);
+  placePlayer(saved.player);
+  resetChickens();
   menu.hidden = true;
   closeup.type = null;
   mode = "world";
 }
 
+function onAllChickensHerded() {
+  quest.stage = "moped";
+  quest.mopedFound = true;
+  showPicture("shed", shedFoundLines());
+}
+
+function getBeaten() {
+  showPicture("talkLads", BEATEN_LINES, () => {
+    quest.beatings += 1;
+    if (quest.riding) {
+      quest.riding = false;
+      quest.moped = { ...CLUB_PARKING };
+    }
+    placePlayer(WAKE_UP_POSITION);
+    showPicture("talkGrandma", wakeUpLines());
+  }, "hit");
+}
+
+function goToDisco() {
+  showPicture("disco", DISCO_LINES, () => {
+    quest.discoDone = true;
+    finishCloseup();
+  }, "disco");
+}
+
+// What happens after a dialog, as named by the story (see story.js).
+function afterTalk(next) {
+  if (next === "beaten") getBeaten();
+  else if (next === "disco") goToDisco();
+  else finishCloseup();
+}
+
+const TALK_ACTIONS = {
+  backpack: useBackpack,
+  shed: useShed,
+  truck: useTruck,
+  moped: useMoped,
+};
+
 function useTarget(target) {
-  mode = "closeup";
   if (target.id === "well") {
+    mode = "closeup";
     startWellScene();
-  } else if (target.id === "garden") {
-    startGardenScene();
-  } else {
-    startTalkScene(target.id);
-    openDialog(target.talk(), finishCloseup);
+    return;
   }
+  if (target.id === "garden") {
+    mode = "closeup";
+    startGardenScene();
+    return;
+  }
+
+  if (TALK_ACTIONS[target.id]) {
+    const result = TALK_ACTIONS[target.id]();
+    if (result.next === "ride") {
+      showPicture("road", result.lines);
+    } else {
+      openDialog(result.lines, saveGame);
+    }
+    return;
+  }
+
+  if (target.id === "lads") quest.arrivedOnMoped = isMopedNearLads();
+  const result = target.talk();
+  showPicture(TALK_PICTURES[target.id], result.lines, () => afterTalk(result.next));
+}
+
+function getOffMoped() {
+  quest.riding = false;
+  quest.moped = { x: player.x, y: player.y + 1 };
+  saveGame();
 }
 
 // Converts a screen tap into stage pixel coordinates.
@@ -77,13 +142,14 @@ function update(dt) {
     const target = nearestTarget();
     actionButton.classList.toggle("ready", target !== null);
     if (action && target) useTarget(target);
+    else if (action && quest.riding) getOffMoped();
 
     saveTimer += dt;
     if (saveTimer > 5) {
       saveTimer = 0;
       saveGame();
     }
-  } else if (mode === "closeup" || mode === "intro" || mode === "title") {
+  } else {
     actionButton.classList.remove("ready");
     updateCloseup(dt, action, tapOnStage(tap));
   }
@@ -109,9 +175,21 @@ function draw(time) {
   }
 
   objectiveBox.hidden = mode !== "world";
-  const objective = currentObjective();
-  if (objectiveBox.textContent !== objective) objectiveBox.textContent = objective;
+  updateHud();
   actionButton.hidden = mode === "title";
+}
+
+function setText(element, text) {
+  if (element.textContent !== text) element.textContent = text;
+}
+
+function updateHud() {
+  setText(objectiveText, currentObjective());
+  setText(moneyText, quest.money > 0 || quest.metLads ? `Гроші: ${quest.money} грн` : "");
+  checklist.hidden = !quest.metLads || quest.discoDone;
+  setText(checkBeer, `${quest.beersDrunk >= BEERS_NEEDED ? "☑" : "☐"} Випити 3 «Славутича» (${quest.beersDrunk}/${BEERS_NEEDED})`);
+  setText(checkSuit, `${quest.outfit === "sport" ? "☑" : "☐"} Вдягти спортивний костюм`);
+  setText(checkMoped, `${quest.riding ? "☑" : "☐"} Приїхати на мопеді «Карпати»`);
 }
 
 function drawJoystick() {
@@ -167,7 +245,8 @@ function loop(time) {
 }
 
 function showTitle() {
-  startTitleScene();
+  mode = "title";
+  startPictureScene("title");
   continueButton.hidden = !loadSave();
   menu.hidden = false;
 }

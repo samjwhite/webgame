@@ -1,4 +1,4 @@
-// Close-up scenes: dialogs, the well, the garden and the title screen.
+// Close-up scenes: pictures (dialogs, title, story moments) and the well and garden mini-games.
 // Mini-game scenes are 192x144; picture scenes take the size of their picture.
 const STAGE_W = 192;
 const STAGE_H = 144;
@@ -7,6 +7,7 @@ const TALK_PICTURES = {
   grandma: "talkGrandma",
   valya: "talkSeller",
   grandpa: "talkGrandpa",
+  lads: "talkLads",
 };
 
 // Same bush list as GARDEN_BUSHES in tools/art/scenes.py: [x, y, size].
@@ -21,20 +22,25 @@ const JAR_MOUTH = { x: 17, y: 108 };
 
 const closeup = {
   type: null,
-  npcId: null,
+  picture: null,
+  effect: null,
   crank: 0,
   crankTarget: 0,
   done: false,
   beetles: [],
   caught: 0,
   hand: null,
-  busX: 104,
-  busLeaving: false,
 };
 
+// effect: null, "disco" (moving lights) or "hit" (red flashes).
+function startPictureScene(picture, effect) {
+  closeup.type = "picture";
+  closeup.picture = picture;
+  closeup.effect = effect || null;
+}
+
 function startTalkScene(npcId) {
-  closeup.type = "talk";
-  closeup.npcId = npcId;
+  startPictureScene(TALK_PICTURES[npcId]);
 }
 
 function startWellScene() {
@@ -61,22 +67,12 @@ function startGardenScene() {
   closeup.beetles = usable.sort(() => Math.random() - 0.5).slice(0, BEETLE_COUNT);
 }
 
-function startTitleScene() {
-  closeup.type = "title";
-}
-
-function startIntroScene() {
-  closeup.type = "intro";
-  closeup.busX = 116;
-  closeup.busLeaving = false;
-}
-
 function stageSize() {
-  let picture = null;
-  if (closeup.type === "talk") picture = ART[TALK_PICTURES[closeup.npcId]];
-  if (closeup.type === "title") picture = ART.sceneTitle;
-  if (closeup.type === "intro") picture = ART.sceneBusStop;
-  return picture ? { w: picture.width, h: picture.height } : { w: STAGE_W, h: STAGE_H };
+  if (closeup.type === "picture") {
+    const picture = ART[closeup.picture];
+    return { w: picture.width, h: picture.height };
+  }
+  return { w: STAGE_W, h: STAGE_H };
 }
 
 // ---------- update ----------
@@ -84,10 +80,6 @@ function stageSize() {
 function updateCloseup(dt, action, tap) {
   if (closeup.type === "well") updateWell(dt, action, tap);
   if (closeup.type === "garden") updateGarden(dt, action, tap);
-  if (closeup.type === "intro" && closeup.busLeaving) {
-    closeup.busX += 70 * dt;
-    if (closeup.busX > STAGE_W + 10) finishIntro();
-  }
 }
 
 function updateWell(dt, action, tap) {
@@ -159,9 +151,8 @@ function updateGarden(dt, action, tap) {
   } else {
     hand.state = "idle";
     if (closeup.caught >= BEETLE_COUNT) {
-      quest.beetlesCaught = BEETLE_COUNT;
       closeup.done = true;
-      openDialog(["Банка повна колорадів! Треба показати бабусі."], finishCloseup);
+      openDialog([finishBeetleJar()], finishCloseup);
     }
   }
 }
@@ -175,12 +166,29 @@ function drawSky(ctx, skyName, time) {
   ctx.drawImage(ART.clouds, Math.round(ART.clouds.width - offset), 2);
 }
 
-function drawTalkScene(ctx) {
-  ctx.drawImage(ART[TALK_PICTURES[closeup.npcId]], 0, 0);
-  if (closeup.npcId === "valya" && quest.hasGroceries) ctx.drawImage(ART.groceries, 98, 132);
-  if (closeup.npcId === "grandma" && quest.stage === "done") {
-    ctx.fillStyle = "rgba(255, 110, 40, 0.22)";
-    ctx.fillRect(0, 0, ART.talkGrandma.width, ART.talkGrandma.height);
+function drawPictureScene(ctx, time) {
+  const picture = ART[closeup.picture];
+  ctx.drawImage(picture, 0, 0);
+  if (closeup.picture === "talkSeller" && quest.hasGroceries) ctx.drawImage(ART.groceries, 98, 132);
+
+  if (closeup.effect === "disco") {
+    const colors = ["255, 60, 200", "60, 200, 255", "255, 220, 60"];
+    ctx.globalCompositeOperation = "lighter";
+    colors.forEach((color, i) => {
+      const x = picture.width / 2 + Math.sin(time / 500 + i * 2.1) * picture.width * 0.4;
+      const y = picture.height * 0.6 + Math.cos(time / 700 + i) * picture.height * 0.25;
+      const light = ctx.createRadialGradient(x, y, 0, x, y, 30);
+      light.addColorStop(0, `rgba(${color}, 0.35)`);
+      light.addColorStop(1, `rgba(${color}, 0)`);
+      ctx.fillStyle = light;
+      ctx.fillRect(0, 0, picture.width, picture.height);
+    });
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  if (closeup.effect === "hit" && Math.floor(time / 120) % 3 === 0) {
+    ctx.fillStyle = "rgba(200, 20, 20, 0.45)";
+    ctx.fillRect(0, 0, picture.width, picture.height);
   }
 }
 
@@ -221,12 +229,6 @@ function drawGardenScene(ctx, time) {
   }
 }
 
-function drawIntroScene(ctx, time) {
-  ctx.drawImage(ART.sceneBusStop, 0, 0);
-  const bounce = closeup.busLeaving ? Math.floor(time / 90) % 2 : 0;
-  ctx.drawImage(ART.marshrutka, Math.round(closeup.busX), 52 - bounce);
-}
-
 function drawStage(ctx, stage, time) {
   const { w, h } = stageSize();
   ctx.fillStyle = "#2a1d17";
@@ -234,15 +236,14 @@ function drawStage(ctx, stage, time) {
   ctx.fillStyle = "#fbf6ea";
   ctx.fillRect(stage.x - 2, stage.y - 2, w + 4, h + 4);
 
+  const shake = closeup.effect === "hit" ? Math.round(Math.sin(time / 25) * 2) : 0;
   ctx.save();
-  ctx.translate(stage.x, stage.y);
+  ctx.translate(stage.x + shake, stage.y);
   ctx.beginPath();
   ctx.rect(0, 0, w, h);
   ctx.clip();
-  if (closeup.type === "talk") drawTalkScene(ctx);
+  if (closeup.type === "picture") drawPictureScene(ctx, time);
   if (closeup.type === "well") drawWellScene(ctx, time);
   if (closeup.type === "garden") drawGardenScene(ctx, time);
-  if (closeup.type === "title") ctx.drawImage(ART.sceneTitle, 0, 0);
-  if (closeup.type === "intro") drawIntroScene(ctx, time);
   ctx.restore();
 }

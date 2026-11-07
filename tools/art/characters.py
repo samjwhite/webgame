@@ -1,25 +1,10 @@
-"""Walking characters for the top-down world: 16x24 frames, rows = down, left, right, up."""
+"""Grandpa for the top-down world (no reference picture yet): 16x24 frames, rows = down, left, right, up."""
 
 from lib import Sprite, grid
 
 SKIN = ["skin_dark", "skin_shade", "skin"]
 
 PEOPLE = {
-    "player": {
-        "hair": ["wood_dark", "wood", "wood_light"], "style": "short",
-        "top": ["blue_dark", "blue", "blue_light"], "stripes": "white",
-        "legs": ["outline", "blue_dark", "blue"], "shoes": "white", "skirt": False,
-    },
-    "grandma": {
-        "hair": ["hay_dark", "hay_light", "white"], "style": "scarf",
-        "top": ["wood_dark", "wood", "wood_light"],
-        "legs": ["purple_dark", "purple", "purple_light"], "shoes": "outline", "skirt": True,
-    },
-    "valya": {
-        "hair": ["red_dark", "red", "red_light"], "style": "scarf",
-        "top": ["pink", "white", "white"], "apron": "blue",
-        "legs": ["blue_dark", "blue", "blue_light"], "shoes": "outline", "skirt": True,
-    },
     "grandpa": {
         "hair": ["wood_dark", "wood", "wood_light"], "style": "cap",
         "top": ["hay_dark", "hay", "hay_light"],

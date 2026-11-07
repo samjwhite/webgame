@@ -137,3 +137,40 @@ body {
 #new-game-button {
   background: #8e2f28;
 }
+
+#money {
+  margin-top: 4px;
+  color: #f0c64a;
+}
+
+#money:empty {
+  display: none;
+}
+
+#checklist {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 2px solid #8a5d3c;
+  font-size: 12px;
+}
+
+#checklist[hidden] {
+  display: none;
+}
+
+.checklist-title {
+  margin-bottom: 4px;
+  color: #f0c64a;
+}
+
+#checklist > div:not(.checklist-title) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+#checklist img {
+  height: 18px;
+  image-rendering: pixelated;
+}
