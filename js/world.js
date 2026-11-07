@@ -73,6 +73,7 @@ function isBlocked(x, y) {
     [x + 4, y],
   ];
   if (corners.some(([cx, cy]) => isSolidTile(cx, cy))) return true;
+  if (!isClubOpen() && corners.some(([cx, cy]) => isClubGateTile(cx, cy))) return true;
   return npcs.some((npc) => Math.hypot(npc.x - x, npc.y - y) < 8);
 }
 
@@ -95,6 +96,14 @@ function updatePlayer(dt) {
 
   if (!isBlocked(player.x + dx, player.y)) player.x += dx;
   if (!isBlocked(player.x, player.y + dy)) player.y += dy;
+
+  // Tell once why the club gate is closed; tell again after walking away.
+  const nearGate = Math.hypot(player.x - CLUB_GATE_POINT.x, player.y - CLUB_GATE_POINT.y) < 24;
+  if (!isClubOpen() && nearGate && !player.toldAboutGate) {
+    player.toldAboutGate = true;
+    openDialog(CLUB_CLOSED_LINES);
+  }
+  if (!nearGate) player.toldAboutGate = false;
 }
 
 function updateChickens(dt) {
@@ -168,7 +177,7 @@ function isMopedNearLads() {
 // Everything the player can use right now, as targets with a world position.
 function currentTargets() {
   const targets = [...npcs, places.well, places.shed, places.statue];
-  if (quest.backpackDropped) targets.push(places.backpack);
+  if (quest.backpackShown) targets.push(places.backpack);
   if (quest.unload === "working") targets.push(places.truck);
   if (quest.mopedFound && !quest.riding) targets.push({ id: "moped", x: quest.moped.x, y: quest.moped.y });
   return targets;
@@ -267,7 +276,7 @@ function drawWorld(ctx, view, time, target) {
 
   npcs.forEach((npc) => add(npc.y, () => drawNpc(ctx, npc, time)));
   add(player.y, () => drawPlayer(ctx, time));
-  if (quest.backpackDropped) add(places.backpack.y, () => drawStanding(ctx, ART.backpack, places.backpack.x, places.backpack.y));
+  if (quest.backpackShown) add(places.backpack.y, () => drawStanding(ctx, ART.backpack, places.backpack.x, places.backpack.y));
   if (quest.mopedFound && !quest.riding) add(quest.moped.y, () => drawStanding(ctx, ART.moped, quest.moped.x, quest.moped.y));
   if (quest.unload === "working") add(places.truck.y, () => drawStanding(ctx, ART.truck, places.truck.x, places.truck.y));
   add(cat.y, () => drawFrame(ctx, ART.cat, Math.floor(time / 1200) % 2, 18, cat.x - 9, cat.y - 11));

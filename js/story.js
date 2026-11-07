@@ -7,7 +7,8 @@ const JAR_REWARD = 2;
 const UNLOAD_REWARD = 4;
 
 // Grandma's errands, in order.
-const GRANDMA_STAGES = ["arrive", "water", "beetles", "shop", "chickens", "moped", "done"];
+// "evening" waits until the hero has met the lads at the club and got their list.
+const GRANDMA_STAGES = ["arrive", "water", "beetles", "shop", "evening", "chickens", "moped", "done"];
 
 function newQuest() {
   return {
@@ -17,7 +18,7 @@ function newQuest() {
     hasGroceries: false,
     chickensHerded: 0,
     money: 0,
-    backpackDropped: false,
+    backpackShown: false,
     outfit: "city",
     beersDrunk: 0,
     mopedFound: false,
@@ -61,10 +62,9 @@ function talkToGrandma() {
   switch (quest.stage) {
     case "arrive":
       quest.stage = "water";
-      quest.backpackDropped = true;
       return say([
         "Ой, хто ж це приїхав! Онучок мій! Та який здоровий став — у вашому городі, мабуть, тіки ковбасу їсте.",
-        "Рюкзака кинь отам, коло сарая. У нас тут не Київ, не крадуть... ну, майже.",
+        "Речі кидай отам, коло сарая. У нас тут не Київ, не крадуть... ну, майже.",
         "А тепер збігай до криниці, принеси водички. Чайку поп'єм з дороги.",
       ]);
 
@@ -87,9 +87,16 @@ function talkToGrandma() {
 
     case "shop":
       if (!quest.hasGroceries) return say(["Магазин — за клубом, коло пшениці. Валю не проґавиш, її на всю вулицю чуть."]);
-      quest.stage = "chickens";
+      quest.stage = "evening";
       return say([
         "Хлібчик свіженький! Сідай, вареники з вишнями вже на столі.",
+        "Кажуть, сьогодні в клубі дискотека. Сходи, подивись на нашу молодь.",
+      ]);
+
+    case "evening":
+      if (!quest.metLads) return say(["Іди вже до клубу, хоч подивишся, як наші гуляють."]);
+      quest.stage = "chickens";
+      return say([
         "Ой, а кури! Порозбігались по двору, а шуліка вже кружляє. Загони їх у сарай, поки я посуду помию.",
       ]);
 
@@ -101,7 +108,7 @@ function talkToGrandma() {
       return say([
         "А, побачив дідового «Карпата»? Він на йому ще в колгосп на роботу їздив, царство йому небесне.",
         "Бери, раз уже знайшов. Тіки не вбийся, бо я тебе потім сама вб'ю.",
-        "Кажуть, сьогодні в клубі дискотека. Ти тіки з місцевими не задирайся, бо вони в нас... ну, побачиш.",
+        "Ти тіки з місцевими не задирайся, бо вони в нас... ну, сам бачив.",
         "Ага, і як ще колорадів назбираєш — дам дві гривні за банку.",
       ]);
 
@@ -111,7 +118,7 @@ function talkToGrandma() {
 }
 
 function grandmaChatter() {
-  if (quest.metLads && quest.outfit !== "sport") return TRACKSUIT_HINT;
+  if (quest.metLads && quest.outfit !== "sport") return tracksuitHint();
   if (quest.beersDrunk > 0 && quest.grandmaLine % 2 === 0) {
     quest.grandmaLine += 1;
     return "А чим це від тебе тхне? Ой, дитино, дитино... Увесь у діда.";
@@ -126,7 +133,11 @@ function grandmaChatter() {
   return line;
 }
 
-const TRACKSUIT_HINT = "Ти ж у тих джинсах пішов! Мама тобі в рюкзак спортивний костюм клала, той, з полосками. Рюкзак коло сарая стоїть.";
+// The backpack with the tracksuit appears by the shed only once grandma mentions it.
+function tracksuitHint() {
+  quest.backpackShown = true;
+  return "Ти ж у тих джинсах пішов! Мама тобі в рюкзак спортивний костюм клала, той, з полосками. Рюкзак коло сарая стоїть.";
+}
 
 function wakeUpLines() {
   const lines = quest.beatings === 1
@@ -135,7 +146,7 @@ function wakeUpLines() {
       "Клубні, кажеш? Та то ж Толік з Вовчиком. Вони кожне літо всіх городських так зустрічають. До весілля заживе.",
     ]
     : ["Знов?! Та ти в мене як той Буратіно — всі шишки твої. Приклади мідний п'ятак, поможе."];
-  if (quest.outfit !== "sport") lines.push(TRACKSUIT_HINT);
+  if (quest.outfit !== "sport") lines.push(tracksuitHint());
   return lines;
 }
 
@@ -366,6 +377,13 @@ const DISCO_LINES = [
 
 // ---------- Objective text ----------
 
+// The club square opens after grandma's first errand.
+function isClubOpen() {
+  return stageReached("beetles");
+}
+
+const CLUB_CLOSED_LINES = ["Спершу до бабусі зайди, з дороги ж. Клуб нікуди не дінеться."];
+
 function needsWater() {
   return quest.stage === "water" && !quest.hasWater;
 }
@@ -397,6 +415,8 @@ function currentObjective() {
       return quest.beetlesCaught < BEETLE_COUNT ? "Збери колорадів на городі." : "Покажи банку бабусі.";
     case "shop":
       return quest.hasGroceries ? "Неси покупки бабусі." : "Купи хліб і «Мівіну» у Валі в магазині.";
+    case "evening":
+      return quest.metLads ? "Поговори з бабусею." : "Ввечері дискотека в Будинку культури.";
     case "chickens":
       return `Загони курей у сарай: ${quest.chickensHerded}/${CHICKEN_COUNT}`;
     case "moped":

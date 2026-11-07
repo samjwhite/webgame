@@ -49,6 +49,17 @@ const WALKABLE_AREAS = [
   [10, 21, 13, 24],
 ];
 
+// Gap in the club square fence, closed until grandma's first errand is done.
+const CLUB_GATE = [27, 15, 29, 15];
+const CLUB_GATE_POINT = { x: 28.5 * 16, y: 16.5 * 16 };
+
+function isClubGateTile(px, py) {
+  const [left, top, right, bottom] = CLUB_GATE;
+  const col = Math.floor(px / TILE);
+  const row = Math.floor(py / TILE);
+  return col >= left && col <= right && row >= top && row <= bottom;
+}
+
 // Grandma's potato beds.
 const GARDEN_AREA = [15, 4, 19, 7];
 
