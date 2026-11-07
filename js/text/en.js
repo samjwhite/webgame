@@ -21,6 +21,7 @@ TEXTS.en = {
     wellLower: "Turn the crank to lower the bucket: press A or tap the screen.",
     wellFull: "A full bucket of ice-cold water! Makes your teeth ache.",
     wellCold: "The well water is cold, really cold.",
+    day: (n, night) => `Day ${n}${night ? " · night" : ""}`,
     garden: (n, total) => `Pick the beetles into the jar: ${n}/${total}`,
   },
 
@@ -60,6 +61,10 @@ TEXTS.en = {
       "And don't pick fights with the local lads, they're... well, you've seen them.",
       "Oh, and if you pick another jar of beetles — two hryvnias a jar.",
     ],
+    morning: [
+      "Up at last, party boy? I heard you trip over the doorstep last night.",
+      "Sit down and eat, then I'll tell you what needs doing. There's enough work here for the whole summer, child.",
+    ],
     chatter: [
       "The beetles are back again. Fill a jar and I'll give you two hryvnias.",
       "Where are you off to, all dressed up? Oh, dancing... Well, off you go.",
@@ -79,12 +84,12 @@ TEXTS.en = {
       "Well, well, look who's come! Hanya's grandson, the city boy! Oh, skinny as a noodle!",
       "Bread? Fresh, came in this morning. Take the chicken Mivina, it's the tastiest. Five hryvnias, exactly.",
     ],
-    waitingForCrate: "The crates won't walk in by themselves, sunshine. The truck's out on the road.",
+    waitingForCrate: "The crates won't walk in by themselves, sunshine. The truck's right there by the fence.",
     crateIn: (left) => `That's it! Put it right there. ${left} more to go.`,
     unloadDone: "All done? Now that's a man! Here's your four hryvnias — honestly earned.",
     unloadAsk: [
       "Listen, sunshine, the delivery truck's come and the driver, wouldn't you know it, put his back out.",
-      "Carry the crates from the truck to me and I'll give you four hryvnias. The truck's on the road by the shop.",
+      "Carry the crates from the truck to me and I'll give you four hryvnias. The truck's right there by the fence.",
     ],
     idle: "Got bread, got sugar, got matches. No grooms, though — they've all gone off to Poltava.",
     noMoney: "Beer's two hryvnias, sunshine. Only cheese in a mousetrap comes free. Go pick beetles for Granny Hanya.",
@@ -154,6 +159,8 @@ TEXTS.en = {
     jarFirst: "The jar is full of beetles! Time to show Grandma.",
     jarMore: "Another jar of beetles! Grandma calls from the doorstep: \"Good boy! Here's two hryvnias.\"",
     clubClosed: ["Go and see Grandma first, you've only just arrived. The club isn't going anywhere."],
+    noMopedInside: ["A moped in the house? Grandma would throw you both back out. Get off it first."],
+    shopClosed: ["A padlock on the door and a piece of cardboard: \"Closed. Come back in the morning.\" Even Valya can't be heard at night."],
   },
 
   lads: {
@@ -173,7 +180,7 @@ TEXTS.en = {
       "Seryi: The cow has to go out to pasture at five. That's our disco after the disco.",
     ],
     welcome: [
-      "Tolik: Now that's more like it! Come on in, just don't step on the girls' feet.",
+      "Tolik: Now that's more like it! Look, it's evening already, the disco's about to start. Come on in, just don't step on the girls' feet.",
       "Vovchyk: Have some sunflower seeds, Granny Lyuba roasted them.",
       "Seryi: And keep away from Svetka from the third house — we've shared a school desk since first grade.",
     ],
@@ -197,11 +204,76 @@ TEXTS.en = {
   disco: [
     "Lights flashing, the mirror ball spinning, the speakers thumping so hard the windows rattle.",
     "You dance like never before. Tonight you're not a city boy. Tonight you're one of them.",
-    "End of part two. To be continued...",
   ],
 
+  places: {
+    yard: "Grandma's cottage",
+    house: "Indoors",
+    club: "The club and square",
+    shop: "The shop",
+    stop: "The bus stop",
+    pond: "The pond",
+    street: "The village road",
+    mykola: "Grandpa Mykola's yard",
+    lyuba: "Granny Lyuba's yard",
+    svitka: "Svetka's house",
+    closed: "closed",
+    closedYet: (name) => `${name}: the gate is shut and nobody's about. Maybe some other time.`,
+  },
+
+  house: {
+    bedDay: "Sleep in the daytime? Grandma would decide you're ill and give you a spoonful of some tincture.",
+    bedNight: ["The bed creaks like an old gate. You drop onto the pillow and never hear that stupid rooster in the yard."],
+    tvDay: "It's soap operas on every channel in the daytime. TSN is on in the evening.",
+    tvOver: "That's the end of the bulletin. Next up: washing powder ads and somebody's soap. You switch the TV off.",
+    borscht: [
+      "A pot of borscht on the stove, still warm. Next to it a note: \"Eat, you're skinny. Sour cream's in the fridge. Gran's asleep.\"",
+      "You eat two platefuls and the world gets better.",
+    ],
+    borschtDone: "Another plate just won't fit. Maybe tomorrow.",
+    varenyky: [
+      "Under a towel, a bowl of sour cherry varenyky, the ones Grandma mentioned. They're even better cold.",
+      "You eat the lot. Juice on your chin, conscience clear.",
+    ],
+    fridge: ["The old Dnipro hums like a tractor. You shut the door, and it shudders and hums even louder."],
+    fridgeItems: ["Sour cream", "Pickles", "Salo", "Sausage", "Eggs", "Milk"],
+  },
+
+  tsn: [
+    [
+      "The TV warms up for a whole minute, then the titles swim out of the snow: TSN, on 1+1.",
+      "Newsreader: Good evening. The main story today is bread. The winter wheat froze across vast areas, so there will be far less grain this year.",
+      "Newsreader: Viktor Yanukovych's government urges everyone not to panic. The public has calmly and without any panic carried all the flour and groats out of the shops.",
+      "Newsreader: The government promises to punish traders for unjustifiably dear bread. You think of Valya and feel truly sorry for the government.",
+      "Newsreader: Parliament has allowed Ukrainian peacekeepers to go to Iraq, around one thousand seven hundred of them. The Socialists are against.",
+      "Newsreader: They say it's over fifty degrees out there. In Makitryne that counts as good haymaking weather.",
+    ],
+    [
+      "TSN carries on. The picture drifts a little, so you thump the side of the set. It helps.",
+      "Newsreader: Sport. In May Andriy Shevchenko scored the deciding penalty in the Champions League final, and Milan won the cup. Since then every village has found an old man who personally taught him to shoot.",
+      "Newsreader: Culture. Ukraine went to Eurovision for the first time. Oleksandr Ponomaryov, \"Hasta la vista\", Riga, fourteenth place.",
+      "Newsreader: Opinion in Poltava region holds that with a song about a cherry orchard and a plate of varenyky, it would have been first.",
+      "Newsreader: Politics. This year Leonid Kuchma also chairs the CIS Council of Heads of State. Pensions, meanwhile, are also chairing something: the list of Europe's smallest.",
+      "Newsreader: And the weather. Tomorrow, heat in Poltava region. The Colorado beetle is pleased. Good night.",
+    ],
+  ],
+
+  nightfall: [
+    "The sun sets behind the wheat. The moon rises over the club, and one by one the street lamps flicker on along the road.",
+    "Valya padlocks the shop. The village goes quiet, except for the club, where someone's already testing the speakers.",
+  ],
+
+  afterDisco: ["The disco's over. Night, crickets, your ears still thumping. Time to go home: Grandma said she'd leave supper in the house."],
+
+  sleep: ["You sleep.", "You dream that Tolik sells you to Valya for two hryvnias, and a Colorado beetle reads the news on TV."],
+
+  morning: (day) => [`Day ${day}. The sun climbs in through the window, the rooster's yelling outside and something's frying in the kitchen.`],
+
   objective: {
-    end: "End of part two. To be continued...",
+    goHome: "It's night. Go home to Grandma's cottage.",
+    goToBed: "Go to bed. Supper and the news if you like.",
+    morning: "A new day. Talk to Grandma in the yard.",
+    morningLater: "New tasks: to be continued.",
     carryCrate: "Carry the crate to Valya's shop.",
     arrive: "Find Grandma's cottage — by the well, at the north end of the village.",
     water: "Fetch water from the well.",

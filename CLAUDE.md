@@ -15,7 +15,9 @@ If a user asks for both visual design and implementation, describe the sequence 
 Core paths:
 - `README.md`: game and build instructions
 - `js/assets.js`: asset registry
-- `js/map.js`: map dimensions and collision
+- `js/map.js`: the locations: walls, exits, props, night lights, locked places
+- `tools/art/locations.py`: temporary location art until the designer's art is approved (`docs/ART_HANDOFF_LOCATIONS.md`)
+- `docs/TSN_FACTS.md`: rules and sources for the TV news jokes
 - `tools/art/build.py`: art build entry point
 - `tools/art/reference.py`: image conversion and crop configuration
 - `tools/art/reference/`: source artwork

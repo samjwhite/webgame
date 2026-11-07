@@ -7,8 +7,12 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 - Village of **Makitryne**, Poltava region, Ukraine, **summer 2003** (Kuchma era).
 - Lived-in and weathered but cared for: whitewashed houses with blue window frames, wavy asbestos-slate roofs with moss, chipped plaster showing brick, wooden picket fences, yellow gas pipes, concrete bus stop with a faded mosaic, Soviet-era vehicles. Signs are in Ukrainian ("Продукти", "Будинок культури").
 - Warm, nostalgic, gently ironic. Never grim, never "gopnik" or criminal. Never a Japanese or fairy-tale village.
-- Visual reference: cosy detailed pixel art in the spirit of *Cast n Chill* and *Stardew Valley*: visible pixels, soft dithering, earthy palette (ochre, dusty green, faded blue, whitewash, rust), late-afternoon light, dark outlines on characters and props.
+- Our own look, not a copy of *Stardew Valley*, *Cast n Chill* or any other game: visible pixels, soft dithering, earthy palette (ochre, dusty green, faded blue, whitewash, rust), late-afternoon light, dark outlines on characters and props.
+- Yards are inspired by real Poltava village yards: authentic and Ukrainian, with no folk-costume kitsch ("шароварщина"), no cute tidy sheds and no neat decorative flowerbeds.
+- Plants and trees are those of the Middle Dnieper and Poltava region (forest-steppe), not generic game foliage or anything from Japanese-style games. The list is in [ART_HANDOFF_LOCATIONS.md](ART_HANDOFF_LOCATIONS.md).
+- Everything seen or mentioned exists in 2003: nothing from later, and nothing kept from the Soviet past as decoration. Old Soviet-made things are fine when they are simply still in use, aged and repaired.
 - Avoid: photorealism, smooth vector shading, blurry anti-aliased edges, glossy or new-looking objects, anything after 2003, text except short Ukrainian signs.
+- The village is a set of separate full-screen locations, each with its own art and every object as its own sprite. The current request for the designer: [ART_HANDOFF_LOCATIONS.md](ART_HANDOFF_LOCATIONS.md). Location pictures in the game are temporary until that art is approved.
 
 ## Characters (approved looks)
 
@@ -50,13 +54,13 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 ### Village dogs
 
 - Draw several distinct mixed-breed yard dogs (дворняги). Vary their silhouettes, ear shapes, and coat markings so the dogs read as different individuals at game scale. Use the established earthy palette, dark outlines, and visible pixel clusters.
-- Include a seated pose for the shop dog. Follow the shared sprite-sheet conventions below for separation, scale, and ground line. Frame dimensions, animation layout, and crop coordinates are pending an implementation spec.
+- Include a seated pose for the shop dog. Follow the shared sprite-sheet conventions below for separation, scale, and ground line. In the game they are cut by `tools/art/animals.py` at 36×32 cells, facing right.
 
 ### Village yard cats
 
 - Ordinary semi-stray village cats have natural adult proportions, scruffy coats, muted colors, and irregular markings. The approved designs are a shaggy brown-gray tabby, a cream-white cat with a black cap and a dark spot beneath its nose, and a calico with uneven rust and charcoal patches.
 - Awake cats generally have neutral expressions and relaxed ears. The standing tabby is the single angry variant, with narrowed eyes and ears angled outward. Sleeping cats look relaxed.
-- The approved source sheet (`yard_cats_v3.png`, delivered in chat) is 1536×1024 with nine separated sprites on a dark background. Rows follow the coat order above. Columns show standing, seated, and curled sleeping poses. The PNG is pending upload. Game frame dimensions, crop coordinates, and alignment are pending integration checks.
+- The approved source sheet (`yard_cats_v3.png`, delivered in chat) is 1536×1024 with nine separated sprites on a dark background. Rows follow the coat order above. Columns show standing, seated, and curled sleeping poses. In the game they are cut by `tools/art/animals.py` from `incoming/yard_cats_v3.png` at 26×18 cells, facing right.
 
 ## Technical specs (game pixels after processing)
 

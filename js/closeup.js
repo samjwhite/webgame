@@ -32,7 +32,8 @@ const closeup = {
   hand: null,
 };
 
-// effect: null, "disco" (moving lights) or "hit" (red flashes).
+// effect: null, "disco" (moving lights), "hit" (red flashes), "night" (village after dark),
+// "tv" (the news on the screen), "sleep" or "dawn" (the bedroom at night or at sunrise).
 function startPictureScene(picture, effect) {
   closeup.type = "picture";
   closeup.picture = picture;
@@ -210,10 +211,84 @@ function drawPictureScene(ctx, time) {
     ctx.globalCompositeOperation = "source-over";
   }
 
+  if (closeup.effect === "night") drawNightfall(ctx, picture);
+  if (closeup.effect === "tv") drawNewsScreen(ctx, time);
+  if (closeup.effect === "fridge") drawFridgeShelves(ctx);
+  if (closeup.effect === "sleep") drawSleeping(ctx, picture, time);
+  if (closeup.effect === "dawn") drawDawn(ctx, picture);
+
   if (closeup.effect === "hit" && Math.floor(time / 120) % 3 === 0) {
     ctx.fillStyle = "rgba(200, 20, 20, 0.45)";
     ctx.fillRect(0, 0, picture.width, picture.height);
   }
+}
+
+function drawNightfall(ctx, picture) {
+  ctx.globalCompositeOperation = "multiply";
+  ctx.fillStyle = "#3a4a86";
+  ctx.fillRect(0, 0, picture.width, picture.height);
+  ctx.globalCompositeOperation = "source-over";
+  drawMoon(ctx, picture.width - 26, 22);
+}
+
+// The picture on the TV in the temporary tsn.png. The channel's look is the art designer's job.
+const NEWS_SCREEN = { x: 36, y: 20, w: 120, h: 86 };
+
+function drawNewsScreen(ctx, time) {
+  const { x, y, w, h } = NEWS_SCREEN;
+  ctx.fillStyle = "#1d3560";
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = "#c8323c";
+  ctx.fillRect(x, y + h - 22, w, 14);
+  ctx.fillStyle = "#fff8e8";
+  ctx.font = "bold 22px monospace";
+  ctx.textBaseline = "top";
+  ctx.fillText("ТСН", x + 36, y + 18);
+  ctx.font = "bold 9px monospace";
+  ctx.fillText("1+1", x + w - 24, y + 4);
+  // Old set: a dark band rolls down the screen and the picture flickers a little.
+  ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+  ctx.fillRect(x, y + Math.floor(time / 40) % h, w, 8);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
+  for (let line = 0; line < h; line += 2) ctx.fillRect(x, y + line, w, 1);
+}
+
+// What is in the fridge: fridge_items.png is a strip of 40x40 pictures, captions come from the text files.
+const FRIDGE_ITEM = 40;
+const FRIDGE_COLUMNS = [16, 76, 136];
+const FRIDGE_ROWS = [10, 76];
+
+function drawFridgeShelves(ctx) {
+  ctx.font = "bold 8px monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  T().house.fridgeItems.forEach((caption, i) => {
+    const x = FRIDGE_COLUMNS[i % 3];
+    const y = FRIDGE_ROWS[Math.floor(i / 3)];
+    drawFrame(ctx, ART.fridgeItems, i, FRIDGE_ITEM, x, y);
+    ctx.fillStyle = "#2a1d17";
+    ctx.fillRect(x - 10, y + 43, FRIDGE_ITEM + 20, 11);
+    ctx.fillStyle = "#fff8e8";
+    ctx.fillText(caption, x + FRIDGE_ITEM / 2, y + 45);
+  });
+  ctx.textAlign = "left";
+}
+
+function drawSleeping(ctx, picture, time) {
+  ctx.fillStyle = "#c8d6ff";
+  ctx.font = "bold 10px monospace";
+  ctx.textBaseline = "top";
+  ["z", "Z", "z"].forEach((letter, i) => {
+    const rise = (time / 60 + i * 14) % 42;
+    ctx.fillText(letter, 60 + i * 9 + Math.sin(rise / 6) * 2, 84 - rise);
+  });
+}
+
+function drawDawn(ctx, picture) {
+  ctx.globalCompositeOperation = "lighter";
+  ctx.fillStyle = "rgba(255, 170, 90, 0.42)";
+  ctx.fillRect(0, 0, picture.width, picture.height);
+  ctx.globalCompositeOperation = "source-over";
 }
 
 function drawWellScene(ctx) {

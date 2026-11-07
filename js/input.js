@@ -21,6 +21,11 @@ window.addEventListener("keyup", (event) => {
   keysDown.delete(event.code);
 });
 
+// A key released while the page is out of focus never reports it, and the hero would walk on alone.
+window.addEventListener("blur", () => {
+  keysDown.clear();
+});
+
 function setupTouchControls(canvas, actionButton, dialogElement) {
   canvas.addEventListener("pointerdown", (event) => {
     canvas.setPointerCapture(event.pointerId);

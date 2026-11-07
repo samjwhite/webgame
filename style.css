@@ -306,3 +306,52 @@ body {
   width: 100%;
   height: 100%;
 }
+
+#day-text {
+  margin-bottom: 2px;
+  color: #c8d6ff;
+  font-size: 12px;
+}
+
+#location-name {
+  position: fixed;
+  left: 50%;
+  bottom: calc(40px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  max-width: calc(100% - 220px);
+  padding: 3px 8px;
+  background: rgba(43, 29, 20, 0.7);
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  pointer-events: none;
+}
+
+#location-name[hidden] {
+  display: none;
+}
+
+.map-label,
+.map-locked {
+  position: absolute;
+  font-size: clamp(8px, 2vw, 13px);
+  line-height: 1.15;
+  text-align: center;
+}
+
+.map-label {
+  transform: translate(-50%, -50%);
+  padding: 1px 4px;
+  background: rgba(43, 29, 20, 0.8);
+  white-space: nowrap;
+}
+
+.map-locked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  background: rgba(20, 16, 22, 0.72);
+  color: #c9c4ba;
+  white-space: pre-line;
+}

@@ -25,7 +25,7 @@ function newQuest() {
     mopedRidden: false,
     riding: false,
     arrivedOnMoped: false,
-    moped: { x: 236, y: 156 },
+    moped: { location: "yard", x: 224, y: 190 },
     unload: "none",
     cratesCarried: 0,
     carrying: false,
@@ -34,10 +34,21 @@ function newQuest() {
     discoDone: false,
     grandpaLine: 0,
     statueLooks: 0,
+    day: 1,
+    time: "day",
+    unlocked: {},
+    ateBorscht: false,
+    ateVarenyky: false,
+    newsWatched: 0,
+    metGrandmaToday: false,
   };
 }
 
 const quest = newQuest();
+
+function isNight() {
+  return quest.time === "night";
+}
 
 function stageReached(stage) {
   return GRANDMA_STAGES.indexOf(quest.stage) >= GRANDMA_STAGES.indexOf(stage);
@@ -64,6 +75,10 @@ function say(lines, next) {
 
 function talkToGrandma() {
   const text = T().grandma;
+  if (quest.day > 1 && !quest.metGrandmaToday) {
+    quest.metGrandmaToday = true;
+    return say(text.morning);
+  }
   switch (quest.stage) {
     case "arrive":
       quest.stage = "water";
@@ -210,6 +225,53 @@ function useStatue() {
   return say(pickRandom("statue", lines.slice(1)));
 }
 
+function useShopDoor() {
+  return say(T().yard.shopClosed);
+}
+
+// ---------- Inside grandma's house ----------
+
+function useBed() {
+  if (!isNight() || !quest.discoDone) return say([T().house.bedDay]);
+  return say(T().house.bedNight, "sleep");
+}
+
+// The evening news comes on at night; each bulletin is told once, then it is over.
+function useTv() {
+  const text = T().house;
+  if (!isNight()) return say([text.tvDay]);
+  const bulletin = T().tsn[quest.newsWatched];
+  if (!bulletin) return say([text.tvOver]);
+  quest.newsWatched += 1;
+  return say(bulletin, "tv");
+}
+
+function useBorscht() {
+  const text = T().house;
+  if (quest.ateBorscht) return say([text.borschtDone]);
+  quest.ateBorscht = true;
+  return say(text.borscht);
+}
+
+function useVarenyky() {
+  quest.ateVarenyky = true;
+  return say(T().house.varenyky);
+}
+
+function useFridge() {
+  return say(T().house.fridge, "fridge");
+}
+
+// A new day: tonight's food and news are back, and grandma has something to say.
+function startNewDay() {
+  quest.day += 1;
+  quest.time = "day";
+  quest.ateBorscht = false;
+  quest.ateVarenyky = false;
+  quest.newsWatched = 0;
+  quest.metGrandmaToday = false;
+}
+
 function useTruck() {
   if (quest.carrying) return say([T().yard.handsFull]);
   quest.carrying = true;
@@ -280,7 +342,9 @@ function canCollectBeetles() {
 
 function currentObjective() {
   const text = T().objective;
-  if (quest.discoDone) return text.end;
+  if (isNight() && quest.discoDone) return currentLocation === "house" ? text.goToBed : text.goHome;
+  if (quest.day > 1) return quest.metGrandmaToday ? text.morningLater : text.morning;
+  if (quest.discoDone) return text.goHome;
   if (quest.carrying) return text.carryCrate;
   switch (quest.stage) {
     case "arrive":

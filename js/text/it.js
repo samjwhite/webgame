@@ -21,6 +21,7 @@ TEXTS.it = {
     wellLower: "Gira la manovella per calare il secchio: premi A o tocca lo schermo.",
     wellFull: "Un secchio pieno d'acqua gelida! Fa male ai denti.",
     wellCold: "L'acqua del pozzo è fredda, freddissima.",
+    day: (n, night) => `Giorno ${n}${night ? " · notte" : ""}`,
     garden: (n, total) => `Metti i coleotteri nel barattolo: ${n}/${total}`,
   },
 
@@ -60,6 +61,10 @@ TEXTS.it = {
       "E non litigare coi ragazzi del posto, che sono... beh, li hai visti.",
       "Ah, e se raccogli un altro barattolo di dorifore — due grivnie a barattolo.",
     ],
+    morning: [
+      "Ti sei svegliato, festaiolo? Ti ho sentito inciampare sulla soglia, stanotte.",
+      "Siediti e mangia, poi ti dico cosa c'è da fare. Di lavoro qui, figliolo, ce n'è per tutta l'estate.",
+    ],
     chatter: [
       "Le dorifore sono tornate. Riempi un barattolo e ti do due grivnie.",
       "Dove vai così elegante? Ah, a ballare... Va bene, vai.",
@@ -79,12 +84,12 @@ TEXTS.it = {
       "Ma guarda chi c'è! Il nipote di Hanja, quello di città! Oh, magro come uno spaghetto!",
       "Il pane? Fresco, arrivato stamattina. La Mivina prendila al pollo, è la più buona. Fanno cinque grivnie, giuste giuste.",
     ],
-    waitingForCrate: "Le casse non camminano da sole, tesoro. Il camion è sulla strada.",
+    waitingForCrate: "Le casse non camminano da sole, tesoro. Il camion è lì, vicino al recinto.",
     crateIn: (left) => `Così! Mettila lì. Ne mancano ancora ${left}.`,
     unloadDone: "Finito? Questo sì che è un uomo! Ecco le tue quattro grivnie — guadagnate onestamente.",
     unloadAsk: [
       "Senti, tesoro, è arrivato il camion della merce e l'autista, guarda un po', si è bloccato la schiena.",
-      "Portami le casse dal camion e ti do quattro grivnie. Il camion è sulla strada, vicino al negozio.",
+      "Portami le casse dal camion e ti do quattro grivnie. Il camion è lì, vicino al recinto.",
     ],
     idle: "Pane c'è, zucchero c'è, fiammiferi ci sono. Fidanzati no — sono andati tutti a Poltava.",
     noMoney: "La birra costa due grivnie, tesoro. Gratis c'è solo il formaggio nella trappola. Vai a raccogliere dorifore dalla nonna Hanja.",
@@ -154,6 +159,8 @@ TEXTS.it = {
     jarFirst: "Il barattolo è pieno di dorifore! Bisogna farlo vedere alla nonna.",
     jarMore: "Un altro barattolo di dorifore! La nonna dalla porta: \"Bravo! Eccoti due grivnie\".",
     clubClosed: ["Prima passa dalla nonna, sei appena arrivato. Il circolo non scappa."],
+    noMopedInside: ["Il motorino in casa? La nonna vi butta fuori tutti e due. Prima scendi."],
+    shopClosed: ["Un lucchetto alla porta e un cartone: \"Chiuso. Torna domattina.\" Di notte non si sente nemmeno Valja."],
   },
 
   lads: {
@@ -173,7 +180,7 @@ TEXTS.it = {
       "Seryj: La mucca va portata al pascolo alle cinque. Ecco la nostra discoteca dopo la discoteca.",
     ],
     welcome: [
-      "Tolik: Ecco, così va meglio! Entra, ma non pestare i piedi alle ragazze.",
+      "Tolik: Ecco, così va meglio! Guarda, è già sera, la discoteca sta per cominciare. Entra, ma non pestare i piedi alle ragazze.",
       "Vovchyk: Tieni, semi di girasole, li ha tostati nonna Ljuba.",
       "Seryj: E stai lontano da Svetka della terza casa — siamo compagni di banco dalla prima elementare.",
     ],
@@ -197,11 +204,76 @@ TEXTS.it = {
   disco: [
     "Luci che lampeggiano, la palla a specchi che gira, le casse che pompano così forte che tremano i vetri.",
     "Balli come mai in vita tua. Stasera non sei quello di città. Stasera sei uno di loro.",
-    "Fine della seconda parte. Continua...",
   ],
 
+  places: {
+    yard: "La casa della nonna",
+    house: "In casa",
+    club: "Il circolo e la piazza",
+    shop: "Il negozio",
+    stop: "La fermata dell'autobus",
+    pond: "Lo stagno",
+    street: "La strada del villaggio",
+    mykola: "Il cortile di nonno Mykola",
+    lyuba: "Il cortile di nonna Ljuba",
+    svitka: "La casa di Svetka",
+    closed: "chiuso",
+    closedYet: (name) => `${name}: il cancello è chiuso e non si vede nessuno. Magari un'altra volta.`,
+  },
+
+  house: {
+    bedDay: "Dormire di giorno? La nonna penserà che sei malato e ti darà un cucchiaio di qualche intruglio.",
+    bedNight: ["Il letto cigola come un vecchio cancello. Cadi sul cuscino e non senti più quello stupido gallo in cortile."],
+    tvDay: "Di giorno su tutti i canali ci sono le telenovelas. Il TSN va in onda la sera.",
+    tvOver: "Il notiziario è finito. Adesso pubblicità di detersivi e una telenovela qualsiasi. Spegni il televisore.",
+    borscht: [
+      "Sui fornelli una pentola di borsch ancora calda. Accanto un biglietto: \"Mangia, che sei magro. La panna acida è in frigo. La nonna dorme.\"",
+      "Ne mangi due piatti, e il mondo migliora.",
+    ],
+    borschtDone: "Un altro piatto proprio non ci sta. Magari domani.",
+    varenyky: [
+      "Sotto un canovaccio, una ciotola di varenyky alle amarene, proprio quelli di cui parlava la nonna. Freddi sono ancora più buoni.",
+      "Li mangi tutti. Succo sul mento, coscienza pulita.",
+    ],
+    fridge: ["Il vecchio Dnipro ronza come un trattore. Chiudi lo sportello: sussulta e ronza ancora più forte."],
+    fridgeItems: ["Panna acida", "Cetrioli", "Lardo", "Salame", "Uova", "Latte"],
+  },
+
+  tsn: [
+    [
+      "Il televisore si scalda per un minuto buono, poi dalla neve emerge la sigla: TSN, su 1+1.",
+      "Annunciatrice: Buonasera. La notizia del giorno è il pane. Quest'inverno il grano invernale è gelato su aree enormi, quindi quest'anno ce ne sarà molto meno.",
+      "Annunciatrice: Il governo di Viktor Janukovych invita a non farsi prendere dal panico. La popolazione, calma e senza alcun panico, ha portato via dai negozi farina e cereali.",
+      "Annunciatrice: Il governo promette punizioni ai commercianti per il pane ingiustificatamente caro. Pensi a Valja e provi una sincera pena per il governo.",
+      "Annunciatrice: Il parlamento ha autorizzato l'invio in Iraq di peacekeeper ucraini, circa millesettecento. I socialisti sono contrari.",
+      "Annunciatrice: Dicono che laggiù ci siano più di cinquanta gradi. A Makitryne è considerato un bel tempo per il fieno.",
+    ],
+    [
+      "Il TSN continua. L'immagine balla un po', così dai un colpo al televisore sul fianco. Funziona.",
+      "Annunciatrice: Sport. A maggio Andrij Shevchenko ha segnato il rigore decisivo nella finale di Champions League, e il Milan ha vinto la coppa. Da allora ogni villaggio ha trovato un vecchio che gli ha insegnato personalmente a tirare.",
+      "Annunciatrice: Cultura. L'Ucraina è andata per la prima volta all'Eurovision. Oleksandr Ponomarjov, \"Hasta la vista\", Riga, quattordicesimo posto.",
+      "Annunciatrice: Nella regione di Poltava si ritiene che con una canzone sul ciliegeto e un piatto di varenyky sarebbe arrivato primo.",
+      "Annunciatrice: Politica. Quest'anno Leonid Kuchma presiede anche il Consiglio dei capi di Stato della CSI. Le pensioni, nel frattempo, presiedono anch'esse qualcosa: la lista delle più basse d'Europa.",
+      "Annunciatrice: E il meteo. Domani caldo nella regione di Poltava. La dorifora è contenta. Buonanotte.",
+    ],
+  ],
+
+  nightfall: [
+    "Il sole tramonta dietro il grano. Sul circolo sorge la luna, e lungo la strada i lampioni si accendono uno dopo l'altro.",
+    "Valja mette il lucchetto al negozio. Il villaggio tace, tranne il circolo, dove qualcuno sta già provando le casse.",
+  ],
+
+  afterDisco: ["La discoteca è finita. Notte, grilli, nelle orecchie rimbomba ancora. È ora di tornare a casa: la nonna ha detto che lascerà la cena in casa."],
+
+  sleep: ["Dormi.", "Sogni che Tolik ti vende a Valja per due grivnie, e che una dorifora legge il telegiornale."],
+
+  morning: (day) => [`Giorno ${day}. Il sole entra dalla finestra, fuori il gallo urla e dalla cucina arriva odore di fritto.`],
+
   objective: {
-    end: "Fine della seconda parte. Continua...",
+    goHome: "È notte. Torna a casa della nonna.",
+    goToBed: "Vai a dormire. Cena e telegiornale, se vuoi.",
+    morning: "Un nuovo giorno. Parla con la nonna in cortile.",
+    morningLater: "Nuovi compiti: continua...",
     carryCrate: "Porta la cassa al negozio di Valja.",
     arrive: "Trova la casa della nonna — vicino al pozzo, a nord del villaggio.",
     water: "Prendi l'acqua dal pozzo.",

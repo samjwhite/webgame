@@ -23,6 +23,7 @@
       <span data-text="ui.tasks"></span><span id="objective-arrow">▲</span>
     </button>
     <div id="objective-body">
+      <div id="day-text"></div>
       <div id="objective-text"></div>
       <div id="money"></div>
       <div id="checklist" hidden>
@@ -34,11 +35,14 @@
     </div>
   </div>
 
+  <div id="location-name" hidden></div>
+
   <button id="map-button" data-text="ui.map" hidden></button>
 
   <div id="map-view" hidden>
     <div id="map-frame">
       <img src="art/ui/village_map.png?v=dev" id="map-image" alt="">
+      <div id="map-labels"></div>
       <div id="map-marker"></div>
     </div>
     <p data-text="ui.mapClose"></p>

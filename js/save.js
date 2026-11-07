@@ -1,9 +1,11 @@
 const SAVE_KEY = "lito-v-seli-save";
+// Raise this whenever location coordinates change: older saves then restart from grandma's yard.
+const SAVE_VERSION = 5;
 
 // Storage can be blocked (private mode), so every call is wrapped and failures are ignored.
 function saveGame() {
   try {
-    const data = { quest, player: { x: player.x, y: player.y, dir: player.dir } };
+    const data = { version: SAVE_VERSION, quest, location: currentLocation, player: { x: player.x, y: player.y, dir: player.dir } };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
   } catch (error) {
     console.warn("Game not saved", error);
