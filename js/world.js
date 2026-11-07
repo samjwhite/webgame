@@ -227,7 +227,8 @@ function drawPlayer(ctx, time) {
 
 function drawNpc(ctx, npc) {
   if (npc.sprite === "grandpa") {
-    ctx.drawImage(ART.grandpa, 0, 0, 16, 24, Math.round(npc.x - 8), Math.round(npc.y - 22), 16, 24);
+    // Grandpa is still the small hand-drawn sprite, so draw him at the height of the others.
+    ctx.drawImage(ART.grandpa, 0, 0, 16, 24, Math.round(npc.x - 13), Math.round(npc.y - 37), 26, 39);
     return;
   }
   drawStanding(ctx, ART[npc.sprite], npc.x, npc.y, npc.x > player.x + 30);
@@ -307,7 +308,7 @@ function drawSolidGrid(ctx) {
 
 function drawHint(ctx, target, time) {
   const x = Math.round(target.x) - 3;
-  const y = Math.round(target.y) - 36 + (Math.floor(time / 300) % 2);
+  const y = Math.round(target.y) - 50 + (Math.floor(time / 300) % 2);
   ctx.fillStyle = "#2a1d17";
   ctx.fillRect(x - 1, y - 1, 8, 11);
   ctx.fillStyle = "#fbf6ea";
