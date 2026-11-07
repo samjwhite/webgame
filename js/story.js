@@ -33,9 +33,7 @@ function newQuest() {
     beatings: 0,
     discoDone: false,
     grandpaLine: 0,
-    grandmaLine: 0,
     statueLooks: 0,
-    ladsLine: 0,
   };
 }
 
@@ -50,6 +48,16 @@ const INTRO_LINES = [
   "Жовтий «Богдан» 212-го маршруту чхнув, видихнув і висадив тебе з рюкзаком на зупинці села Макітрине.",
   "Бабуся живе в хаті коло криниці, на північному краю села. Ну, з Богом.",
 ];
+
+// Small talk that does not move a quest is picked at random, never the same line twice in a row.
+const lastPicked = {};
+
+function pickRandom(name, lines) {
+  let index = Math.floor(Math.random() * lines.length);
+  if (lines.length > 1 && index === lastPicked[name]) index = (index + 1) % lines.length;
+  lastPicked[name] = index;
+  return lines[index];
+}
 
 // Each talk returns { lines, next }. `next` names what happens after the dialog (see game.js).
 function say(lines, next) {
@@ -119,18 +127,13 @@ function talkToGrandma() {
 
 function grandmaChatter() {
   if (quest.metLads && quest.outfit !== "sport") return tracksuitHint();
-  if (quest.beersDrunk > 0 && quest.grandmaLine % 2 === 0) {
-    quest.grandmaLine += 1;
-    return "А чим це від тебе тхне? Ой, дитино, дитино... Увесь у діда.";
-  }
   const lines = [
     "Колоради знов лізуть. Назбираєш банку — дам дві гривні.",
     "Ти куди такий нарядний? А, на танці... Ну, з Богом.",
     "Їж, бо худий, як та жердина. У городі вас там, мабуть, не годують.",
   ];
-  const line = lines[quest.grandmaLine % lines.length];
-  quest.grandmaLine += 1;
-  return line;
+  if (quest.beersDrunk > 0) lines.push("А чим це від тебе тхне? Ой, дитино, дитино... Увесь у діда.");
+  return pickRandom("grandma", lines);
 }
 
 // The backpack with the tracksuit appears by the shed only once grandma mentions it.
@@ -208,10 +211,10 @@ function sellBeer() {
 
 // ---------- Grandpa Petro ----------
 
-// For now grandpa only shares life wisdom. Each talk gives the next line.
+// For now grandpa only shares life wisdom: a greeting once, then random sayings.
+const GRANDPA_GREETING = "О, Ганин онук! Сідай коло мене, послухай діда Петра — поганого не скажу.";
+
 const GRANDPA_LINES = [
-  "О, Ганин онук! Сідай коло мене, послухай діда Петра — поганого не скажу.",
-  "Ех, онучку, у мої часи на танці в чоботях ходили, начищених до блиску. А я й досі в тому костюмі, шо на весіллі був. Ше як новий!",
   "Запам'ятай: хто рано встає, той корову доїть. А хто пізно — той її шукає по всьому селу.",
   "Наша молодь не зла, просто приглядається. Мене самого, як з армії прийшов, пів року за свого не мали.",
   "Гроші — то діло наживне. А здоров'я у Валі в магазині не купиш, хоч вона й каже, шо в неї все є.",
@@ -226,17 +229,23 @@ const GRANDPA_LINES = [
   "Небо червоне на вечір — завтра вітер буде. Це тобі краще за всякий прогноз по телевізору.",
   "У ставку в нас сом живе, здоровий, як кабан. Сам бачив. Ну, майже бачив.",
   "Маршрутка на Полтаву — о сьомій ранку. Як після дискотеки встанеш — то ти герой.",
+  "Кучма по телевізору знов каже, шо жити стало краще. Я йому вірю. Тіки пенсію хай би сам на неї пожив.",
+  "Оце при Кучмі все подорожчало, крім моєї пенсії. Вона, бач, стабільна. Стабільно маленька.",
+  "Була колись ковбаса по тридцять копійок — і з м'ясом! А тепер шо? Папір з запахом.",
+  "Ти «Докторську» колись їв справжню? Отож. А я їв. Ото була ковбаса — на всю хату пахла.",
+  "Таку техніку, як раніше, вже не роблять. Мій «ЮМЗ» тридцять год ореш — і хоч би шо. А тепер усе пластмасове.",
+  "Холодильник «Дніпро» в Гані з сімдесят дев'ятого стоїть. Гуде, як трактор, але морозить! А нові — рік, і на смітник.",
+  "Жука скоро бризкати треба, бо пожере картоплю. Я раніше «Децисом» бризкав — так він після того ше й прибавив.",
+  "Колорад — він як податкова: скіки не трави, а все одно прийде.",
 ];
 
 
 function talkToGrandpa() {
-  // After the first round, skip the greeting line.
-  const index = quest.grandpaLine < GRANDPA_LINES.length
-    ? quest.grandpaLine
-    : 1 + ((quest.grandpaLine - 1) % (GRANDPA_LINES.length - 1));
-  const line = GRANDPA_LINES[index];
-  quest.grandpaLine += 1;
-  return say([line]);
+  if (quest.grandpaLine === 0) {
+    quest.grandpaLine = 1;
+    return say([GRANDPA_GREETING]);
+  }
+  return say([pickRandom("grandpa", GRANDPA_LINES)]);
 }
 
 // ---------- Things in the yard ----------
@@ -285,9 +294,10 @@ const STATUE_LINES = [
 ];
 
 function useStatue() {
-  const lines = STATUE_LINES[quest.statueLooks % STATUE_LINES.length];
+  const first = quest.statueLooks === 0;
   quest.statueLooks += 1;
-  return say(lines);
+  if (first) return say(STATUE_LINES[0]);
+  return say(pickRandom("statue", STATUE_LINES.slice(1)));
 }
 
 function useTruck() {
@@ -331,9 +341,7 @@ const LADS_FRIEND_LINES = [
 
 function talkToLads() {
   if (quest.discoDone) {
-    const line = LADS_FRIEND_LINES[quest.ladsLine % LADS_FRIEND_LINES.length];
-    quest.ladsLine += 1;
-    return say([line]);
+    return say([pickRandom("lads", LADS_FRIEND_LINES)]);
   }
   const missing = missingForDisco();
   const firstTime = !quest.metLads;
