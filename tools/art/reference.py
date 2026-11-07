@@ -27,8 +27,6 @@ SCENES = {
 
 # Sprites cut from sheets: output name -> (reference file, crop box, height in game pixels, background tolerance)
 SPRITES = {
-    "hero_city": ("collage.png", (18, 565, 108, 775), 40, 25),
-    "hero_sport": ("collage.png", (160, 565, 248, 775), 40, 25),
     "hero_moped": ("collage.png", (266, 565, 454, 775), 42, 45),
     "lad_red": ("collage.png", (456, 565, 534, 760), 40, 25),
     "lad_squat": ("collage.png", (526, 600, 628, 760), 30, 45),
@@ -49,6 +47,17 @@ ICONS = {
     "moped": ("sheet_club.png", (1130, 386, 1498, 640)),
 }
 ICON_HEIGHT = 32
+
+
+# Hero animation sheets: 4 walking rows (down, up, left, right) of 8 frames, idle frames on the right.
+HERO_SHEETS = {"hero_city": "hero_city_sheet.png", "hero_sport": "hero_sport_sheet.png"}
+HERO_COLUMNS = [200, 324, 448, 570, 692, 816, 936, 1058]
+HERO_ROW_TOPS = [24, 240, 444, 646]
+HERO_IDLE_COLUMNS = [1350, 1462, 1574, 1686]
+HERO_WINDOW = (124, 194)
+HERO_FRAME = (28, 44)
+
+APP_ICON_SIZES = (180, 192, 512)
 
 
 def load(name):
@@ -129,12 +138,68 @@ def sprite(img, height):
     return result
 
 
+def cut_out_gradient(img, step=14, total=80):
+    """Like cut_out, but follows a background that slowly changes colour (glow behind the figure)."""
+    rgba = img.convert("RGBA")
+    pixels = rgba.load()
+    w, h = rgba.size
+    ref = pixels[0, 0]
+    edges = [(x, y) for x in range(w) for y in (0, h - 1)] + [(x, y) for y in range(h) for x in (0, w - 1)]
+    stack = [(point, pixels[point]) for point in edges]
+    seen = set()
+    while stack:
+        (x, y), previous = stack.pop()
+        if (x, y) in seen or not (0 <= x < w and 0 <= y < h):
+            continue
+        color = pixels[x, y]
+        if sum(abs(color[i] - previous[i]) for i in range(3)) > step:
+            continue
+        if sum(abs(color[i] - ref[i]) for i in range(3)) > total:
+            continue
+        seen.add((x, y))
+        pixels[x, y] = (0, 0, 0, 0)
+        for neighbour in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            stack.append((neighbour, color))
+    return rgba
+
+
+def hero_frame(sheet, center_x, top):
+    w, h = HERO_WINDOW
+    window = cut_out_gradient(sheet.crop((center_x - w // 2, top, center_x + w // 2, top + h)))
+    small = window.resize(HERO_FRAME, Image.Resampling.BOX)
+    alpha = keep_largest_shape(small.getchannel("A").point(lambda a: 255 if a > 90 else 0))
+    color = limit_palette(small.convert("RGB"), 40).convert("RGBA")
+    color.putalpha(alpha)
+    return color
+
+
+def hero_animation(file):
+    """One sheet: rows down, up, left, right (8 frames each), then 4 idle frames."""
+    sheet = load(file)
+    rows = [[hero_frame(sheet, x, top) for x in HERO_COLUMNS] for top in HERO_ROW_TOPS]
+    rows.append([hero_frame(sheet, x, HERO_ROW_TOPS[0]) for x in HERO_IDLE_COLUMNS])
+    fw, fh = HERO_FRAME
+    result = Image.new("RGBA", (fw * len(HERO_COLUMNS), fh * len(rows)))
+    for r, frames in enumerate(rows):
+        for c, frame in enumerate(frames):
+            result.alpha_composite(frame, (c * fw, r * fh))
+    return result
+
+
+def app_icons(out_icons):
+    img = load("icon.png")
+    inset = round(img.width * 0.04)
+    img = img.crop((inset, inset, img.width - inset, img.height - inset))
+    for size in APP_ICON_SIZES:
+        img.resize((size, size), Image.Resampling.LANCZOS).save(f"{out_icons}/icon-{size}.png")
+
+
 def icon(img):
     width = round(img.width * ICON_HEIGHT / img.height)
     return limit_palette(img.resize((width, ICON_HEIGHT), Image.Resampling.BOX), 32)
 
 
-def build(out_scenes, out_world, out_ui):
+def build(out_scenes, out_world, out_ui, out_icons):
     for name, (file, box) in SCENES.items():
         img = load(file)
         if box:
@@ -150,3 +215,8 @@ def build(out_scenes, out_world, out_ui):
 
     for name, (file, box) in ICONS.items():
         icon(load(file).crop(box)).save(f"{out_ui}/{name}.png")
+
+    for name, file in HERO_SHEETS.items():
+        hero_animation(file).save(f"{out_world}/{name}.png")
+
+    app_icons(out_icons)

@@ -44,6 +44,9 @@ const ART_FILES = {
   jar: "scenes/jar.png",
 };
 
+// Replaced with the commit id on deploy, so phones load fresh files instead of old cached ones.
+const ART_VERSION = "dev";
+
 const ART = {};
 
 function loadArt() {
@@ -55,7 +58,7 @@ function loadArt() {
         resolve();
       };
       img.onerror = () => reject(new Error("Cannot load art/" + file));
-      img.src = "art/" + file;
+      img.src = "art/" + file + "?v=" + ART_VERSION;
     });
   });
   return Promise.all(loading);
