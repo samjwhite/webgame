@@ -103,7 +103,7 @@ function updatePlayer(dt) {
   const walkingIntoGate = dy < 0 && !isClubOpen() && isClubGateTile(player.x, player.y + dy - 3);
   if (walkingIntoGate && !player.toldAboutGate) {
     player.toldAboutGate = true;
-    openDialog(CLUB_CLOSED_LINES);
+    openDialog(T().yard.clubClosed);
   }
   const nearGate = Math.hypot(player.x - CLUB_GATE_POINT.x, player.y - CLUB_GATE_POINT.y) < 32;
   if (!nearGate) player.toldAboutGate = false;

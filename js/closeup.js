@@ -110,8 +110,8 @@ function updateWell(dt, action, tap) {
   if (action || tap) closeup.crankTarget = Math.min(WELL_TURN_FRAMES, closeup.crankTarget + 2);
   closeup.crank = Math.min(closeup.crankTarget, closeup.crank + WELL_CRANK_SPEED * dt);
   showHint(closeup.wellDirection === "raise"
-    ? "Крути корбу, щоб витягти відро: тисни A або торкайся екрана."
-    : "Крути корбу, щоб опустити відро: тисни A або торкайся екрана.");
+    ? T().ui.wellRaise
+    : T().ui.wellLower);
   if (closeup.crank >= WELL_TURN_FRAMES) {
     closeup.done = true;
     if (closeup.onWellDone) closeup.onWellDone();
@@ -144,7 +144,7 @@ function handPosition() {
 function updateGarden(dt, action, tap) {
   const hand = closeup.hand;
   if (closeup.done) return;
-  showHint(`Збирай колорадів у банку: ${closeup.caught}/${BEETLE_COUNT}`);
+  showHint(T().ui.garden(closeup.caught, BEETLE_COUNT));
 
   if (hand.state === "idle" || hand.state === "back") {
     const beetle = (tap || action) && pickBeetle(tap);
