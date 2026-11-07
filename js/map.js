@@ -147,27 +147,39 @@ function buildObjects() {
     objects.push(sprite(ART.potato, 14, col * TILE + 1, row * TILE + 1, row * TILE + 12, { animate: 900 }));
   });
 
-  objects.push(sprite(ART.house, 104, 44, 8, 80));
-  objects.push(sprite(ART.shopBuilding, 120, 284, 200, 272));
-  objects.push(sprite(ART.wellBuilding, 24, 172, 48, 80));
-  objects.push(sprite(ART.busStop, 56, 428, 152, 190));
-  objects.push(sprite(ART.bench, 24, 412, 256, 268));
-
-  const decorations = [
-    { img: ART.sunflower, w: 14, col: 10, row: 2, animate: 1400 },
-    { img: ART.sunflower, w: 14, col: 11, row: 2, animate: 1500 },
-    { img: ART.sunflower, w: 14, col: 12, row: 3, animate: 1300 },
-    { img: ART.trees, w: 32, col: 12, row: 7, frame: 2 },
-    { img: ART.haystack, w: 30, col: 17, row: 7 },
-    { img: ART.haystack, w: 30, col: 8, row: 23 },
-    { img: ART.stork, w: 24, col: 24, row: 5, animate: 1800 },
+  // Big objects: [image, center x, bottom y]. Their solid area comes from the map letters.
+  const buildings = [
+    [ART.house, 96, 82],
+    [ART.shopBuilding, 344, 274],
+    [ART.wellBuilding, 184, 82],
+    [ART.busStop, 456, 192],
+    [ART.bench, 424, 270],
   ];
-  decorations.forEach((d) => {
-    const footX = d.col * TILE + 8;
-    const footY = d.row * TILE + 14;
-    objects.push(sprite(d.img, d.w, footX - d.w / 2, footY - d.img.height + 2, footY, {
-      frame: d.frame || 0,
-      animate: d.animate,
+  buildings.forEach(([img, centerX, bottomY]) => {
+    objects.push(sprite(img, img.width, centerX - img.width / 2, bottomY - img.height, bottomY - 2));
+  });
+
+  // Small decorations standing on a tile: [image, col, row, frame width, animation speed]
+  const decorations = [
+    [ART.sunflowers, 10, 2],
+    [ART.sunflowers, 12, 2],
+    [ART.mallows, 13, 3],
+    [ART.mallows, 2, 5],
+    [ART.logs, 9, 3],
+    [ART.appleTree, 12, 7],
+    [ART.haystack, 17, 7],
+    [ART.haystack, 8, 23],
+    [ART.bush, 16, 3],
+    [ART.bush, 5, 20],
+    [ART.bush, 20, 25],
+    [ART.stork, 24, 5, 24, 1800],
+  ];
+  decorations.forEach(([img, col, row, frameWidth, animate]) => {
+    const width = frameWidth || img.width;
+    const footX = col * TILE + 8;
+    const footY = row * TILE + 14;
+    objects.push(sprite(img, width, footX - width / 2, footY - img.height + 2, footY, {
+      animate,
       solid: { x: footX - 5, y: footY - 6, w: 10, h: 7 },
     }));
   });

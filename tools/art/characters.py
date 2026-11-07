@@ -11,19 +11,19 @@ PEOPLE = {
         "legs": ["outline", "blue_dark", "blue"], "shoes": "white", "skirt": False,
     },
     "grandma": {
-        "hair": ["red_dark", "red", "red_light"], "style": "scarf",
-        "top": ["purple_dark", "purple", "purple_light"], "apron": "white",
+        "hair": ["hay_dark", "hay_light", "white"], "style": "scarf",
+        "top": ["wood_dark", "wood", "wood_light"],
         "legs": ["purple_dark", "purple", "purple_light"], "shoes": "outline", "skirt": True,
     },
     "valya": {
-        "hair": ["yellow_dark", "yellow", "yellow_light"], "style": "perm",
-        "top": ["red_dark", "red", "red_light"], "apron": "blue_light",
-        "legs": ["outline", "gray_dark", "gray"], "shoes": "outline", "skirt": True,
+        "hair": ["red_dark", "red", "red_light"], "style": "scarf",
+        "top": ["pink", "white", "white"], "apron": "blue",
+        "legs": ["blue_dark", "blue", "blue_light"], "shoes": "outline", "skirt": True,
     },
     "grandpa": {
-        "hair": ["gray_dark", "gray", "gray_light"], "style": "cap",
-        "top": ["wood_dark", "soil", "soil_light"],
-        "legs": ["outline", "gray_dark", "gray"], "shoes": "outline", "skirt": False,
+        "hair": ["wood_dark", "wood", "wood_light"], "style": "cap",
+        "top": ["hay_dark", "hay", "hay_light"],
+        "legs": ["outline", "wood_dark", "wood"], "shoes": "outline", "skirt": False,
     },
 }
 
