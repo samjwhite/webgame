@@ -11,18 +11,18 @@ const SOLID_AREAS = [
   [6, 8, 12, 8], // grandma's fence
   [15, 3, 23, 3], // garden fence
   [22, 4, 23, 7], // bushes right of the garden
-  [17, 9, 19, 11], // well
+  [18, 10, 19, 11], // well (only the stone ring, so you can walk round it)
   [0, 9, 1, 14], // trees on the left edge
   [2, 9, 6, 13], // left house
   [7, 10, 9, 12], // big tree between houses
   [10, 10, 14, 13], // middle house
   [15, 12, 17, 13], // flower bed
-  [21, 9, 22, 14], // trees left of the club
+  [22, 10, 22, 14], // pine left of the club
   [1, 15, 6, 15], [8, 15, 17, 15], [21, 15, 26, 15], // fences along the road
   [23, 3, 34, 8], // Будинок культури
   [23, 9, 23, 14], // club square, left side
   [34, 9, 35, 14], // club square, right side
-  [27, 10, 30, 13], // statue and flowers
+  [28, 11, 29, 12], // statue pedestal (flowers around it can be walked over)
   [25, 11, 26, 12], [32, 11, 33, 12], // benches on the square
   [30, 15, 35, 15], // club fence right of the gate
   [36, 3, 38, 7], // trees by the shop

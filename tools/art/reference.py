@@ -33,7 +33,6 @@ SCENES = {
 
 # Sprites cut from sheets: output name -> (reference file, crop box, height in game pixels, background tolerance)
 SPRITES = {
-    "hero_moped": ("collage.png", (266, 565, 454, 775), 42, 45),
     "lad_red": ("collage.png", (456, 565, 534, 760), 40, 25),
     "lad_squat": ("collage.png", (526, 600, 628, 760), 30, 45),
     "lad_cap": ("collage.png", (628, 565, 694, 760), 40, 25),
@@ -64,6 +63,22 @@ HERO_WINDOW = (124, 194)
 HERO_FRAME = (28, 44)
 
 APP_ICON_SIZES = (180, 192, 512)
+
+# Chickens (reference/chicken_sheet.png): frames idle, walk x5, peck x4, flap. Centre x of each frame.
+CHICKEN_COLUMNS = [225, 408, 536, 662, 776, 870, 1000, 1100, 1196, 1292, 1434]
+CHICKEN_WINDOW_W = 130
+CHICKEN_BANDS = {"rooster": (22, 190), "hen_white": (200, 330), "hen_ginger": (350, 475), "hen_black": (492, 625)}
+CHICKEN_SCALE = 0.12
+
+# Hero on the moped (reference/moped_sheet.png): rows right (6), left (6), up (1), down (1).
+MOPED_ROWS = [
+    (255, [284, 504, 732, 956, 1180, 1406]),
+    (418, [278, 506, 736, 956, 1182, 1408]),
+    (595, [232]),
+    (595, [844]),
+]
+MOPED_WINDOW = (180, 152)
+MOPED_FRAME = (45, 38)
 
 # Well close-up (reference/well_scene.png and well_sheet.png). Coordinates are in the source pictures.
 WELL_SCENE_BOX = (30, 30, 1506, 994)  # inside the picture frame
@@ -207,6 +222,36 @@ def hero_animation(file):
     return result
 
 
+def glow_frame(sheet, center_x, top, window, size):
+    """Cut one frame from a sheet with a glowing dark background and scale it down."""
+    w, h = window
+    cut = cut_out_gradient(sheet.crop((center_x - w // 2, top, center_x + w // 2, top + h)))
+    small = cut.resize(size, Image.Resampling.BOX)
+    alpha = keep_largest_shape(small.getchannel("A").point(lambda a: 255 if a > 90 else 0))
+    color = limit_palette(small.convert("RGB"), 32).convert("RGBA")
+    color.putalpha(alpha)
+    return color
+
+
+def chicken_strips(out_world):
+    sheet = load("chicken_sheet.png")
+    for name, (top, bottom) in CHICKEN_BANDS.items():
+        window = (CHICKEN_WINDOW_W, bottom - top)
+        size = (round(window[0] * CHICKEN_SCALE), round(window[1] * CHICKEN_SCALE))
+        frames = [glow_frame(sheet, x, top, window, size) for x in CHICKEN_COLUMNS]
+        cut_strip(frames, size).save(f"{out_world}/{name}.png")
+
+
+def moped_riding(out_world):
+    sheet = load("moped_sheet.png")
+    fw, fh = MOPED_FRAME
+    result = Image.new("RGBA", (fw * 6, fh * len(MOPED_ROWS)))
+    for r, (top, columns) in enumerate(MOPED_ROWS):
+        for c, x in enumerate(columns):
+            result.alpha_composite(glow_frame(sheet, x, top, MOPED_WINDOW, MOPED_FRAME), (c * fw, r * fh))
+    result.save(f"{out_world}/hero_moped.png")
+
+
 def app_icons(out_icons):
     img = load("icon.png")
     inset = round(img.width * 0.04)
@@ -331,6 +376,8 @@ def build(out_scenes, out_world, out_ui, out_icons):
         hero_animation(file).save(f"{out_world}/{name}.png")
 
     app_icons(out_icons)
+    chicken_strips(out_world)
+    moped_riding(out_world)
 
     background, front = well_pictures()
     background.save(f"{out_scenes}/well.png")

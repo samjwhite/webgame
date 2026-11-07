@@ -49,10 +49,12 @@ function initWorld() {
 
 function resetChickens() {
   const left = stageReached("moped") ? 0 : CHICKEN_COUNT - quest.chickensHerded;
-  chickens = Array.from({ length: left }, (_, i) => {
-    const x = CHICKEN_YARD.left + 10 + i * 22;
+  const hens = ["henWhite", "henGinger", "henBlack"].slice(CHICKEN_COUNT - left);
+  // The rooster always stays in the yard and is never herded.
+  chickens = ["rooster", ...hens].map((sprite, i) => {
+    const x = CHICKEN_YARD.left + 10 + i * 18;
     const y = CHICKEN_YARD.top + 10 + (i % 2) * 18;
-    return { x, y, targetX: x, targetY: y, wait: i, flip: false, peck: false, running: false };
+    return { sprite, herdable: sprite !== "rooster", x, y, targetX: x, targetY: y, wait: i, flip: false, peck: false, running: false };
   });
 }
 
@@ -109,7 +111,7 @@ function updatePlayer(dt) {
 function updateChickens(dt) {
   const herding = quest.stage === "chickens";
   chickens.forEach((c) => {
-    if (herding && !c.running && Math.hypot(c.x - player.x, c.y - player.y) < 22) {
+    if (herding && c.herdable && !c.running && Math.hypot(c.x - player.x, c.y - player.y) < 22) {
       c.running = true;
       c.targetX = SHED_DOOR.x;
       c.targetY = SHED_DOOR.y;
@@ -136,7 +138,7 @@ function updateChickens(dt) {
     const step = Math.min(distance, (c.running ? 45 : 14) * dt);
     c.x += (dx / distance) * step;
     c.y += (dy / distance) * step;
-    c.flip = dx > 0;
+    c.flip = dx < 0;
     c.peck = false;
   });
 
@@ -207,6 +209,16 @@ function cameraOffset(center, viewSize, mapSize) {
   return snap(Math.max(0, Math.min(snap(center) - snap(viewSize / 2), mapSize - viewSize)));
 }
 
+// Chicken strips: 0 idle, 1-5 walking, 6-9 pecking, 10 wings spread.
+const CHICKEN_FRAMES = 11;
+
+function chickenFrame(c, time) {
+  if (c.running) return Math.floor(time / 150) % 3 === 0 ? 10 : 1 + (Math.floor(time / 70) % 5);
+  if (c.wait <= 0) return 1 + (Math.floor(time / 120) % 5);
+  if (c.peck) return 6 + (Math.floor(time / 160) % 4);
+  return 0;
+}
+
 // Draws a sprite standing with its feet at (x, y).
 function drawStanding(ctx, img, x, y, flip, bob) {
   const left = snap(x - img.width / 2);
@@ -234,11 +246,25 @@ function heroFrame(time) {
   return { row: HERO_ROWS[player.dir], col: 0 };
 }
 
+// Moped sheet: rows right and left (6 frames each), then up and down (1 frame each).
+const MOPED_FRAME_W = 45;
+const MOPED_FRAME_H = 38;
+const MOPED_ROWS = { right: 0, left: 1, up: 2, down: 3 };
+
+function mopedFrame(time) {
+  const row = MOPED_ROWS[player.dir];
+  const sideways = row <= 1;
+  if (sideways && player.moving) return { row, col: Math.floor(time / 90) % 6 };
+  return { row, col: 0 };
+}
+
 function drawPlayer(ctx, time) {
   let top;
   if (quest.riding) {
-    drawStanding(ctx, ART.heroMoped, player.x, player.y, player.dir === "left");
-    top = player.y - ART.heroMoped.height;
+    const { row, col } = mopedFrame(time);
+    top = snap(player.y - MOPED_FRAME_H + 2);
+    ctx.drawImage(ART.heroMoped, col * MOPED_FRAME_W, row * MOPED_FRAME_H, MOPED_FRAME_W, MOPED_FRAME_H,
+      snap(player.x - MOPED_FRAME_W / 2), top, MOPED_FRAME_W, MOPED_FRAME_H);
   } else {
     const sheet = quest.outfit === "sport" ? ART.heroSport : ART.heroCity;
     const { row, col } = heroFrame(time);
@@ -283,12 +309,12 @@ function drawWorld(ctx, view, time, target) {
 
   chickens.forEach((c) => {
     add(c.y, () => {
-      let frame = c.peck && Math.floor(time / 300) % 3 === 0 ? 2 : Math.floor(time / 150) % 2;
-      if (c.wait > 0 && !c.peck) frame = 0;
+      const img = ART[c.sprite];
+      const frameWidth = img.width / CHICKEN_FRAMES;
       ctx.save();
-      ctx.translate(snap(c.x), snap(c.y - 11));
+      ctx.translate(snap(c.x), snap(c.y - img.height + 2));
       if (c.flip) ctx.scale(-1, 1);
-      drawFrame(ctx, ART.chicken, frame, 12, -6, 0);
+      drawFrame(ctx, img, chickenFrame(c, time), frameWidth, -frameWidth / 2, 0);
       ctx.restore();
     });
   });

@@ -1,27 +1,8 @@
-"""Small animated world sprites drawn in code: animals, beetles, crates."""
+"""Small world sprites drawn in code: cat, butterflies, beetles, crates."""
 
 from lib import Sprite, strip
 
 LEAVES = ["leaf_dark", "leaf", "leaf_mid", "leaf_light"]
-
-
-def chicken(frame):
-    s = Sprite(12, 12)
-    s.ellipse(6, 11, 4, 1, (0, 0, 0, 70))
-    body_y = 6 if frame != 2 else 7
-    s.shaded_ellipse(6, body_y, 4, 3, ["cloud_shade", "white", "white"])
-    s.rect(9, body_y - 3, 1, 3, "white")
-    head_x, head_y = (3, body_y - 3) if frame != 2 else (2, body_y + 1)
-    s.shaded_ellipse(head_x, head_y, 2, 2, ["cloud_shade", "white", "white"])
-    s.px(head_x, head_y - 2, "red")
-    s.px(head_x + 1, head_y - 2, "red")
-    s.px(head_x - 2, head_y, "yellow_dark")
-    s.px(head_x - 1, head_y - 1, "black")
-    legs = [(5, 7), (6, 6)][frame % 2]
-    s.px(legs[0], 10, "yellow_dark")
-    s.px(legs[1] + 1, 10, "yellow_dark")
-    s.outline()
-    return s
 
 
 def cat(frame):
@@ -76,7 +57,6 @@ def crate():
 
 
 def build(out):
-    strip([chicken(f) for f in range(3)]).save(f"{out}/chicken.png")
     strip([cat(0), cat(1)]).save(f"{out}/cat.png")
     strip([butterfly(0), butterfly(1)]).save(f"{out}/butterfly.png")
     beetle_small().save(f"{out}/beetle.png")
