@@ -240,31 +240,6 @@ def jar():
     return s
 
 
-def marshrutka():
-    """Yellow minibus that brings you to the village."""
-    s = Sprite(72, 40)
-    s.ellipse(36, 37, 34, 3, (0, 0, 0, 80))
-    s.rect(2, 8, 68, 24, "yellow")
-    s.rect(6, 4, 52, 6, "yellow")
-    s.rect(6, 4, 52, 1, "yellow_light")
-    s.rect(2, 8, 68, 1, "yellow_light")
-    s.rect(2, 26, 68, 6, "yellow_dark")
-    for x in (8, 22, 36):
-        s.rect(x, 11, 12, 9, "glass_dark")
-        s.rect(x, 11, 12, 3, "glass")
-        s.px(x + 1, 12, "glass_shine")
-    s.rect(52, 11, 16, 11, "glass_dark")
-    s.rect(52, 11, 16, 3, "glass")
-    s.rect(50, 10, 1, 22, "yellow_dark")
-    s.rect(4, 22, 66, 1, "red")
-    s.rect(64, 24, 5, 3, "yellow_light")
-    for x in (16, 54):
-        s.shaded_ellipse(x, 32, 6, 6, ["outline", "gray_dark", "gray"])
-        s.shaded_ellipse(x, 32, 2, 2, ["gray", "gray_light", "white"])
-    s.outline()
-    return s
-
-
 def groceries():
     s = Sprite(36, 14)
     s.shaded_ellipse(10, 8, 10, 5, ["wood_dark", "wood", "hay"])
@@ -288,5 +263,4 @@ def build(out):
     beetle_big().save(f"{out}/beetle.png")
     strip([hand(False), hand(True)]).save(f"{out}/hand.png")
     jar().save(f"{out}/jar.png")
-    marshrutka().save(f"{out}/marshrutka.png")
     groceries().save(f"{out}/groceries.png")

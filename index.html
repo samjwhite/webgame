@@ -18,7 +18,16 @@
 <body>
   <canvas id="game"></canvas>
 
-  <div id="objective" hidden></div>
+  <div id="objective" hidden>
+    <div id="objective-text"></div>
+    <div id="money"></div>
+    <div id="checklist" hidden>
+      <div class="checklist-title">Щоб потрапити на дискотеку:</div>
+      <div id="check-beer"><img src="art/ui/beer.png" alt=""><span></span></div>
+      <div id="check-suit"><img src="art/ui/tracksuit.png" alt=""><span></span></div>
+      <div id="check-moped"><img src="art/ui/moped.png" alt=""><span></span></div>
+    </div>
+  </div>
 
   <div id="dialog" hidden>
     <p id="dialog-text"></p>
