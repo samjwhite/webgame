@@ -12,6 +12,12 @@ REFERENCE = os.path.join(HERE, "reference")
 SCENE_WIDTH = 192
 MAP_SCALE = 0.5
 
+# Areas of reference/village_map.png covered with reference/village_map_old.png in the world map.
+MAP_PATCHES = [
+    (0, 0, 232, 276),  # legend
+    (1300, 266, 1360, 312),  # quest marker above the shop
+]
+
 # Close-up pictures: output name -> (reference file, crop box or None)
 SCENES = {
     "talk_grandma": ("grandma.png", None),
@@ -307,6 +313,12 @@ def build(out_scenes, out_world, out_ui, out_icons):
 
     village = load("village_map.png")
     size = (round(village.width * MAP_SCALE), round(village.height * MAP_SCALE))
+    # The "Карта" screen shows the map with its legend and markers.
+    village.resize(size, Image.Resampling.BOX).save(f"{out_ui}/village_map.png")
+    # In the world the legend and the "!" above the shop are covered with the same spots of the old map.
+    old = load("village_map_old.png")
+    for box in MAP_PATCHES:
+        village.paste(old.crop(box), box[:2])
     village.resize(size, Image.Resampling.BOX).save(f"{out_world}/map.png")
 
     for name, (file, box, height, tolerance) in SPRITES.items():
