@@ -26,7 +26,7 @@ window.addEventListener("blur", () => {
   keysDown.clear();
 });
 
-function setupTouchControls(canvas, actionButton, dialogElement) {
+function setupTouchControls(canvas, actionButton) {
   canvas.addEventListener("pointerdown", (event) => {
     canvas.setPointerCapture(event.pointerId);
     input.tap = { x: event.clientX, y: event.clientY };
@@ -53,9 +53,6 @@ function setupTouchControls(canvas, actionButton, dialogElement) {
     input.actionPressed = true;
   });
 
-  dialogElement.addEventListener("pointerdown", () => {
-    input.tap = { x: -1, y: -1 };
-  });
 }
 
 function readMovement() {

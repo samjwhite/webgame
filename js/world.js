@@ -3,11 +3,10 @@ const MOPED_SPEED = 95;
 const TALK_DISTANCE = 22;
 const START = { location: "stop", x: 163, y: 109 };
 const WAKE_UP_SPOT = { location: "yard", x: 245, y: 250 };
-const MORNING_SPOT = { location: "house", x: 80, y: 128 };
+const MORNING_SPOT = { location: "house", x: 110, y: 200 };
 const CLUB_PARKING = { location: "club", x: 172, y: 268 };
 const SHED_DOOR = { x: 420, y: 100 };
 const CHICKEN_YARD = { left: 202, right: 271, top: 185, bottom: 275 };
-const NEAR_GARDEN = 12;
 const SHOP_STEPS = [78, 124, 147, 161]; // the shop's steps and door, plus a stride in front of them
 const FADE_TIME = 0.18;
 const DEBUG = location.search.includes("debug");
@@ -37,15 +36,15 @@ function npcsHere() {
 const places = {
   well: { id: "well", location: "yard", x: 176, y: 256 },
   shed: { id: "shed", location: "yard", x: SHED_DOOR.x, y: SHED_DOOR.y },
-  backpack: { id: "backpack", location: "yard", x: 392, y: 114 },
-  truck: { id: "truck", location: "shop", x: 105, y: 200 },
+  backpack: { id: "backpack", location: "yard", x: 365, y: 118 },
+  truck: { id: "truck", location: "shop", x: 112, y: 208 },
   statue: { id: "statue", location: "club", x: 157, y: 260 },
   shopDoor: { id: "shopDoor", location: "shop", x: 112, y: 150, area: SHOP_STEPS },
-  bed: { id: "bed", location: "house", x: 41, y: 124 },
-  tv: { id: "tv", location: "house", x: 103, y: 122 },
-  borscht: { id: "borscht", location: "house", x: 164, y: 120 },
-  fridge: { id: "fridge", location: "house", x: 217, y: 130 },
-  varenyky: { id: "varenyky", location: "house", x: 175, y: 150 },
+  bed: { id: "bed", location: "house", x: 70, y: 202 },
+  tv: { id: "tv", location: "house", x: 130, y: 170 },
+  borscht: { id: "borscht", location: "house", x: 225, y: 170 },
+  fridge: { id: "fridge", location: "house", x: 300, y: 172 },
+  varenyky: { id: "varenyky", location: "house", x: 250, y: 216 },
 };
 
 let chickens = [];
@@ -479,10 +478,9 @@ function updateWorld(dt) {
   });
 }
 
+// The beds work only when the hero is actually standing on them.
 function isNearGarden() {
-  const [left, top, right, bottom] = GARDEN_AREA;
-  return currentLocation === "yard"
-    && isInside(player.x, player.y, [left - NEAR_GARDEN, top - NEAR_GARDEN, right + NEAR_GARDEN, bottom + NEAR_GARDEN]);
+  return currentLocation === "yard" && isInside(player.x, player.y, GARDEN_AREA);
 }
 
 // The moped counts when it was ridden to the club and stands anywhere on the square.
@@ -708,8 +706,6 @@ function drawWorld(ctx, view, time, target) {
   ctx.translate(-camX, -camY);
   ctx.drawImage(picture, 0, 0);
 
-  if (currentLocation === "yard" && stageReached("moped")) drawStanding(ctx, ART.shedOpen, SHED_DOOR.x, 96);
-
   const drawables = [];
   const add = (y, draw) => drawables.push({ y, draw });
   const addPlace = (place, art) => {
@@ -721,8 +717,8 @@ function drawWorld(ctx, view, time, target) {
   location.props.forEach((prop) => add(prop.y, () => drawStanding(ctx, ART[prop.art], prop.x, prop.y)));
   if (currentLocation === "house") {
     // Food sits on the furniture, so it sorts just in front of it.
-    add(106.5, () => ctx.drawImage(ART.houseBorscht, 156, 68));
-    if (!quest.ateVarenyky) add(184.5, () => ctx.drawImage(ART.houseVarenyky, 167, 158));
+    const plate = quest.ateVarenyky ? ART.housePlate : ART.houseVarenyky;
+    add(205.5, () => ctx.drawImage(plate, snap(250 - plate.width / 2), 182));
   }
   npcsHere().forEach((npc) => add(npc.y, () => drawNpc(ctx, npc, time)));
   (location.scenery || []).forEach((person) => {

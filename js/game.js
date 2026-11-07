@@ -88,13 +88,13 @@ function getBeaten() {
 // The lads let the hero in: the evening has come, and night falls over the village.
 function goToDisco() {
   quest.time = "night";
-  showPicture("title", T().nightfall, () => {
+  showPicture("nightfall", T().nightfall, () => {
     showPicture("disco", T().disco, () => {
       quest.discoDone = true;
       finishCloseup();
       openDialog(T().afterDisco, saveGame);
     }, "disco");
-  }, "night");
+  });
 }
 
 function goToSleep() {
@@ -188,8 +188,9 @@ function update(dt) {
     return;
   }
 
-  if (dialog.open && !dialog.isHint && (action || tap)) {
-    advanceDialog();
+  // Dialogs move on with the A button only; a tap on the screen does nothing here.
+  if (dialog.open && !dialog.isHint) {
+    if (action) advanceDialog();
     action = false;
     tap = null;
   }
@@ -407,7 +408,7 @@ applyLanguageToPage();
 loadArt().then(() => {
   initWorld();
   resize();
-  setupTouchControls(canvas, actionButton, document.getElementById("dialog"));
+  setupTouchControls(canvas, actionButton);
   showTitle();
   requestAnimationFrame((time) => {
     lastTime = time;

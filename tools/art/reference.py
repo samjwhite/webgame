@@ -57,7 +57,7 @@ SPRITES = {
     "seller": ("collage.png", (806, 565, 910, 775), 40, 25),
     "backpack": ("sheet_club.png", (928, 452, 1108, 624), 14, 45),
     "moped": ("sheet_club.png", (1140, 396, 1488, 640), 28, 60),
-    "truck": ("sheet_club.png", (24, 684, 432, 916), 34, 45),
+    "truck": ("sheet_club.png", (24, 684, 432, 916), 52, 45),
     "shed_open": ("sheet_club.png", (468, 388, 896, 640), 26, 45),
 }
 

@@ -30,11 +30,11 @@ const LOCATIONS = {
       [0, 217, 83, 284], [83, 254, 112, 284], // bushes along the west fence
       [83, 219, 124, 241], // chopping block
       [156, 217, 196, 246], // well ring
-      [325, 162, 330, 169], // washing line post
       [381, 139, 405, 159], // laundry basket
       [415, 96, 529, 182], // summer kitchen
       [529, 96, 568, 349], // east fence
-      [281, 176, 533, 285], // vegetable garden, fenced off
+      [281, 190, 289, 285], // the garden's low fence; its way in is at the top
+      [396, 176, 533, 285], // beds beyond the potatoes
       [0, 284, 227, 349], [322, 284, 568, 349], // south fence, gate in the middle
       [227, 289, 322, 349], // beyond the gate
     ],
@@ -44,7 +44,7 @@ const LOCATIONS = {
         id: "toHouse",
         area: [237, 148, 265, 153],
         to: "house",
-        spawn: { x: 130, y: 268 },
+        spawn: { x: 186, y: 226 },
         dir: "up",
         closed: () => (quest.riding ? T().yard.noMopedInside : null),
       },
@@ -66,25 +66,29 @@ const LOCATIONS = {
     mapOrigin: { x: 96, y: 0 },
     mapSpot: { x: 176, y: 100 },
     solids: [
-      [0, 0, 260, 78], // back wall
-      [0, 78, 4, 285], [256, 78, 260, 285], // side walls
-      [0, 280, 108, 285], [152, 280, 260, 285], // bottom wall, doorway in the middle
-      [10, 78, 72, 112], // bed
-      [88, 78, 118, 108], // TV on its cabinet
-      [150, 78, 178, 106], // stove
-      [205, 78, 229, 116], // fridge
-      [150, 165, 200, 184], // table
+      [0, 0, 384, 144], // back wall
+      [0, 144, 40, 170], [0, 170, 30, 195], [0, 195, 20, 256], // left wall, which runs away at an angle
+      [330, 144, 384, 170], [345, 170, 384, 195], [360, 195, 384, 256], // right wall
+      [0, 217, 165, 256], [207, 217, 384, 256], // near wall, doorway in the middle
+      [165, 238, 207, 256], // beyond the doorway
+      [39, 150, 101, 190], // bed
+      [118, 144, 142, 158], // TV on its cabinet
+      [216, 144, 234, 158], // stove
+      [289, 144, 311, 160], // fridge
+      [234, 190, 266, 205], // table
+      [222, 190, 234, 200], // chair
     ],
-    exits: [{ id: "toYard", area: [108, 279, 152, 285], to: "yard", spawn: { x: 250, y: 176 }, dir: "down" }],
+    exits: [{ id: "toYard", area: [170, 232, 202, 238], to: "yard", spawn: { x: 250, y: 176 }, dir: "down" }],
     props: [
-      { art: "houseBed", x: 41, y: 112 },
-      { art: "houseTv", x: 103, y: 108 },
-      { art: "houseStove", x: 164, y: 106 },
-      { art: "houseFridge", x: 217, y: 116 },
-      { art: "houseTable", x: 175, y: 184 },
+      { art: "houseBed", x: 70, y: 190 },
+      { art: "houseTv", x: 130, y: 158 },
+      { art: "houseStove", x: 225, y: 158 },
+      { art: "houseFridge", x: 300, y: 160 },
+      { art: "houseTable", x: 250, y: 205 },
+      { art: "houseChair", x: 228, y: 200 },
     ],
-    occluders: [],
-    lights: [{ x: 175, y: 150, radius: 110 }],
+    occluders: [{ art: "occludeHouseDoor", x: 156, y: 196, baseY: 217 }],
+    lights: [{ x: 250, y: 165, radius: 90 }, { x: 194, y: 60, radius: 40 }],
   },
 
   club: {
@@ -127,9 +131,9 @@ const LOCATIONS = {
       [299, 133, 312, 147], // lamp post
       [296, 150, 327, 183], // beer sign
       [312, 80, 333, 212], // fence
-      [0, 212, 133, 300], [168, 212, 333, 300], // grass either side of the path
+      [0, 212, 156, 300], [188, 212, 333, 300], // grass either side of the path
     ],
-    exits: [{ id: "toStreet", area: [133, 294, 168, 300], to: "street", spawn: { x: 1316, y: 169 }, dir: "down" }],
+    exits: [{ id: "toStreet", area: [156, 294, 188, 300], to: "street", spawn: { x: 1316, y: 169 }, dir: "down" }],
     props: [],
     // Drawn only at night: the shut door and the empty window.
     nightProps: [{ art: "shopClosed", x: 92, y: 79 }],
@@ -202,7 +206,7 @@ const LOCATIONS = {
         dir: "up",
         closed: () => (isClubOpen() ? null : T().yard.clubClosed),
       },
-      { id: "toShop", area: [1304, 151, 1327, 160], to: "shop", spawn: { x: 150, y: 284 }, dir: "up" },
+      { id: "toShop", area: [1304, 151, 1327, 160], to: "shop", spawn: { x: 172, y: 284 }, dir: "up" },
       { id: "toPond", area: [404, 274, 426, 281], to: "pond", spawn: { x: 235, y: 16 }, dir: "down" },
       { id: "toStop", area: [1360, 250, 1378, 255], to: "stop", spawn: { x: 16, y: 16 }, dir: "down" },
       // Locked places: they open as the story goes on (see isPlaceUnlocked).
@@ -248,7 +252,7 @@ function lockedLines(id) {
 }
 
 // Grandma's potato beds.
-const GARDEN_AREA = [281, 176, 396, 285];
+const GARDEN_AREA = [289, 180, 396, 285];
 
 function isInside(x, y, [left, top, right, bottom]) {
   return x >= left && x < right && y >= top && y < bottom;

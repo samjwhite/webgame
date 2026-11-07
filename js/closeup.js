@@ -193,6 +193,7 @@ function drawSky(ctx, skyName, time) {
 
 function drawPictureScene(ctx, time) {
   const picture = ART[closeup.picture];
+  if (closeup.effect === "tv") drawNewsScreen(ctx, time);
   ctx.drawImage(picture, 0, 0);
   if (closeup.picture === "talkSeller" && quest.hasGroceries) ctx.drawImage(ART.groceries, 98, 132);
 
@@ -212,7 +213,6 @@ function drawPictureScene(ctx, time) {
   }
 
   if (closeup.effect === "night") drawNightfall(ctx, picture);
-  if (closeup.effect === "tv") drawNewsScreen(ctx, time);
   if (closeup.effect === "fridge") drawFridgeShelves(ctx);
   if (closeup.effect === "sleep") drawSleeping(ctx, picture, time);
   if (closeup.effect === "dawn") drawDawn(ctx, picture);
@@ -231,26 +231,32 @@ function drawNightfall(ctx, picture) {
   drawMoon(ctx, picture.width - 26, 22);
 }
 
-// The picture on the TV in the temporary tsn.png. The channel's look is the art designer's job.
-const NEWS_SCREEN = { x: 36, y: 20, w: 120, h: 86 };
+// The news shows through the see-through screen of tsn.png. news_frames.png is a strip of pictures:
+// 0 newsreader, 1 frozen wheat, 2 flour queue, 3 peacekeepers, 4 penalty, 5 song contest, 6 summit, 7 weather.
+// One picture for each line of each bulletin in the text files.
+const NEWS_SCREEN = { x: 39, y: 30, w: 96, h: 72 };
+const NEWS_PLAN = [
+  [0, 1, 2, 2, 3, 3],
+  [0, 4, 5, 5, 6, 7],
+];
 
 function drawNewsScreen(ctx, time) {
   const { x, y, w, h } = NEWS_SCREEN;
-  ctx.fillStyle = "#1d3560";
-  ctx.fillRect(x, y, w, h);
+  const plan = NEWS_PLAN[Math.max(0, quest.newsWatched - 1)] || NEWS_PLAN[0];
+  const line = Math.max(0, Math.min(plan.length - 1, plan.length - 1 - dialog.lines.length));
+  ctx.drawImage(ART.newsFrames, plan[line] * w, 0, w, h, x, y, w, h);
   ctx.fillStyle = "#c8323c";
-  ctx.fillRect(x, y + h - 22, w, 14);
+  ctx.fillRect(x + 8, y + h - 16, 22, 9);
   ctx.fillStyle = "#fff8e8";
-  ctx.font = "bold 22px monospace";
+  ctx.font = "bold 8px monospace";
   ctx.textBaseline = "top";
-  ctx.fillText("ТСН", x + 36, y + 18);
-  ctx.font = "bold 9px monospace";
-  ctx.fillText("1+1", x + w - 24, y + 4);
-  // Old set: a dark band rolls down the screen and the picture flickers a little.
-  ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
-  ctx.fillRect(x, y + Math.floor(time / 40) % h, w, 8);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
-  for (let line = 0; line < h; line += 2) ctx.fillRect(x, y + line, w, 1);
+  ctx.fillText("ТСН", x + 10, y + h - 16);
+  ctx.fillText("1+1", x + w - 28, y + 6);
+  // Old set: a dark band rolls down the screen and the picture has lines across it.
+  ctx.fillStyle = "rgba(0, 0, 0, 0.16)";
+  ctx.fillRect(x, y + Math.floor(time / 40) % h, w, 6);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+  for (let row = 0; row < h; row += 2) ctx.fillRect(x, y + row, w, 1);
 }
 
 // What is in the fridge: fridge_items.png is a strip of 40x40 pictures, captions come from the text files.

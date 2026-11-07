@@ -25,7 +25,7 @@ function newQuest() {
     mopedRidden: false,
     riding: false,
     arrivedOnMoped: false,
-    moped: { location: "yard", x: 215, y: 176 },
+    moped: { location: "yard", x: 400, y: 128 },
     unload: "none",
     cratesCarried: 0,
     carrying: false,
