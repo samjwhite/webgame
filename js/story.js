@@ -34,6 +34,7 @@ function newQuest() {
     grandpaLine: 0,
     grandmaLine: 0,
     statueLooks: 0,
+    ladsLine: 0,
   };
 }
 
@@ -307,7 +308,22 @@ function whatLadsNotice() {
   return lines;
 }
 
+// After the disco the lads treat you as one of their own and just chat.
+const LADS_FRIEND_LINES = [
+  "Толік: О, братан! Шо, ше вуха гудуть після дискотеки? Нормально погуляли.",
+  "Вовчик: Сємок хочеш? Свіжі, баба Люба жарила.",
+  "Серий: Светка про тебе питала. Я ж казав — не лізь, поняв? Жартую. Чи ні.",
+  "Толік: Як шо хто з городських приїде — ти з нами на воротах стоїш, ясно?",
+  "Вовчик: «Карпати» твої тарахтять, як трактор Петровича. Уважаю.",
+  "Серий: В суботу знов дискотека. Ти, головне, «Славутича» не забудь.",
+];
+
 function talkToLads() {
+  if (quest.discoDone) {
+    const line = LADS_FRIEND_LINES[quest.ladsLine % LADS_FRIEND_LINES.length];
+    quest.ladsLine += 1;
+    return say([line]);
+  }
   const missing = missingForDisco();
   const firstTime = !quest.metLads;
   quest.metLads = true;
