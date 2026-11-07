@@ -92,7 +92,7 @@ TEXTS.it = {
       "Portami le casse dal camion e ti do quattro grivnie. Il camion è lì, vicino al recinto.",
     ],
     idle: "Pane c'è, zucchero c'è, fiammiferi ci sono. Fidanzati no — sono andati tutti a Poltava.",
-    noMoney: "La birra costa due grivnie, tesoro. Gratis c'è solo il formaggio nella trappola. Vai a raccogliere dorifore dalla nonna Hanja.",
+    noMoney: "Non ti bastano, tesoro. Gratis c'è solo il formaggio nella trappola. Vai a raccogliere dorifore dalla nonna Hanja.",
     noMoneyJob: " Oppure portami le casse.",
     noCredit: "E non segno sul quaderno, non chiedere. Vi conosco, voi di città: oggi qui, domani chissà — e addio dieci grivnie.",
     firstBeer: "Birra? Hai diciott'anni? Eh, vedo, vedo — già spuntano i baffi. Due grivnie.",
@@ -268,6 +268,41 @@ TEXTS.it = {
   sleep: ["Dormi.", "Sogni che Tolik ti vende a Valja per due grivnie, e che una dorifora legge il telegiornale."],
 
   morning: (day) => [`Giorno ${day}. Il sole entra dalla finestra, fuori il gallo urla e dalla cucina arriva odore di fritto.`],
+
+  shop: {
+    title: "Cosa prendi?",
+    price: (n) => `${n} UAH`,
+    leave: "Niente, grazie",
+    bag: (items) => `Nella borsa: ${items}`,
+    goods: {
+      beer: "Birra",
+      bread: "Pane nero",
+      loaf: "Filone",
+      noodles: "Spaghetti",
+      seeds: "Semi",
+      matches: "Fiammiferi",
+      cigarettes: "Sigarette",
+      sugar: "Zucchero",
+      fish: "Scatoletta",
+      oil: "Olio",
+      chocolate: "Cioccolato",
+      sausage: "Salame",
+    },
+    sold: {
+      beer: "Birra.",
+      bread: "Pane di oggi. Prendilo finché è caldo.",
+      loaf: "Un filone bianco, da città. Giusto per te.",
+      noodles: "Basta l'acqua calda. Roba da città, puah.",
+      seeds: "Semi tostati, li ha fatti nonna Ljuba. Non sputare i gusci sul mio portico.",
+      matches: "Fiammiferi. Solo non bruciare la rimessa di tua nonna.",
+      cigarettes: "Sigarette? Tua nonna lo sa? Be', io non ho visto niente.",
+      sugar: "Zucchero, a peso, senza imbrogli. Quasi.",
+      fish: "Scatoletta. Basta per l'inverno. O per stasera.",
+      oil: "Olio nostro, profumato. Portalo a tua nonna.",
+      chocolate: "Oh, e per chi è il cioccolato? Non sarà per Svetka?",
+      sausage: "Salame di oggi. Be', di questa settimana.",
+    },
+  },
 
   hero: {
     places: {

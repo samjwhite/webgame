@@ -20,6 +20,7 @@ const continueButton = document.getElementById("continue-button");
 const newGameButton = document.getElementById("new-game-button");
 const locationName = document.getElementById("location-name");
 const dayText = document.getElementById("day-text");
+const bagText = document.getElementById("bag-text");
 const mapLabels = document.getElementById("map-labels");
 
 // "title", "world" or "closeup"
@@ -111,6 +112,7 @@ function goToSleep() {
 function afterTalk(next) {
   if (next === "beaten") getBeaten();
   else if (next === "disco") goToDisco();
+  else if (next === "shop") openShopMenu();
   else finishCloseup();
 }
 
@@ -200,6 +202,11 @@ function update(dt) {
     action = false;
     tap = null;
   }
+  if (shopMenu.open && !dialog.open) {
+    updateShopMenu(action);
+    action = false;
+    tap = null;
+  }
 
   if (mode === "world" && !dialog.open) {
     updateWorld(dt);
@@ -254,6 +261,8 @@ function setText(element, text) {
 function updateHud() {
   setText(objectiveText, currentObjective());
   setText(dayText, T().ui.day(quest.day, isNight()));
+  setText(bagText, Object.keys(quest.bag).length ? T().shop.bag(bagLine()) : "");
+  shopMenuBox.hidden = !shopMenu.open || dialog.open;
   setText(locationName, T().places[currentLocation]);
   setText(moneyText, quest.money > 0 || quest.metLads ? T().ui.money(quest.money) : "");
   checklist.hidden = !quest.metLads || quest.discoDone;

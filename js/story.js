@@ -42,6 +42,7 @@ function newQuest() {
     newsWatched: 0,
     metGrandmaToday: false,
     foundBeer: false,
+    bag: {},
     heroSaid: {},
   };
 }
@@ -169,25 +170,51 @@ function talkToValya() {
     return say(text.unloadAsk);
   }
 
-  if (quest.metLads && quest.beersDrunk < BEERS_NEEDED) return sellBeer();
-
   sellerCounter = "stock";
-  return say([text.idle]);
+  return say([text.idle], "shop");
 }
 
-function sellBeer() {
+// What the shop sells. Art comes from the goods library, reference/shop_goods.png.
+const SHOP_GOODS = [
+  { id: "beer", art: "goodsBeer", price: BEER_PRICE },
+  { id: "bread", art: "goodsBread", price: 1 },
+  { id: "loaf", art: "goodsLoaf", price: 1 },
+  { id: "noodles", art: "goodsNoodles", price: 1 },
+  { id: "seeds", art: "goodsSeeds", price: 1 },
+  { id: "matches", art: "goodsMatches", price: 1 },
+  { id: "cigarettes", art: "goodsCigarettes", price: 2 },
+  { id: "sugar", art: "goodsSugar", price: 3 },
+  { id: "fish", art: "goodsFish", price: 3 },
+  { id: "oil", art: "goodsOil", price: 4 },
+  { id: "chocolate", art: "goodsChocolate", price: 4 },
+  { id: "sausage", art: "goodsSausage", price: 6 },
+];
+
+// Beer is on offer only once the lads have asked for it, and until the hero has had enough.
+function goodsOnOffer() {
+  return SHOP_GOODS.filter((good) => good.id !== "beer" || (quest.metLads && quest.beersDrunk < BEERS_NEEDED));
+}
+
+function buyGood(id) {
   const text = T().valya;
-  if (quest.money < BEER_PRICE) {
+  const good = SHOP_GOODS.find((g) => g.id === id);
+  if (quest.money < good.price) {
     const jobHint = quest.unload === "done" ? "" : text.noMoneyJob;
-    return say([text.noMoney + jobHint, text.noCredit]);
+    return [text.noMoney + jobHint, text.noCredit];
   }
-  quest.money -= BEER_PRICE;
-  quest.beersDrunk += 1;
-  sellerCounter = "beer";
-  return say([
-    quest.beersDrunk === 1 ? text.firstBeer : text.nextBeer,
-    text.drink(quest.beersDrunk, BEERS_NEEDED),
-  ]);
+  quest.money -= good.price;
+  sellerCounter = id;
+  if (id === "beer") {
+    quest.beersDrunk += 1;
+    return [quest.beersDrunk === 1 ? text.firstBeer : text.nextBeer, text.drink(quest.beersDrunk, BEERS_NEEDED)];
+  }
+  quest.bag[id] = (quest.bag[id] || 0) + 1;
+  return [T().shop.sold[id]];
+}
+
+// The bag, as a line of text: "bread ×2, matches".
+function bagLine() {
+  return Object.entries(quest.bag).map(([id, count]) => T().shop.goods[id] + (count > 1 ? ` ×${count}` : "")).join(", ");
 }
 
 // ---------- Grandpa Petro ----------

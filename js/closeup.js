@@ -276,9 +276,104 @@ function drawFridgeShelves(ctx) {
 const COUNTER_FRONT = 148;
 const COUNTER_GOODS = {
   beer: [["goodsBeer", 124]],
+  bread: [["goodsBread", 120]],
+  loaf: [["goodsLoaf", 120]],
+  noodles: [["goodsNoodles", 124]],
+  seeds: [["goodsSeeds", 124]],
+  matches: [["goodsMatches", 124]],
+  cigarettes: [["goodsCigarettes", 124]],
+  sugar: [["goodsSugar", 124]],
+  fish: [["goodsFish", 124]],
+  oil: [["goodsOil", 124]],
+  chocolate: [["goodsChocolate", 122]],
+  sausage: [["goodsSausage", 120]],
   groceries: [["goodsBread", 106], ["goodsNoodles", 134]],
   stock: [["goodsLoaf", 106], ["goodsSugar", 132], ["goodsMatches", 146]],
 };
+
+// The shop's list: a row for each thing on offer and a last one to leave.
+const SHOP_COLUMNS = 2;
+const shopMenu = { open: false, index: 0, rows: [], moved: false };
+const shopMenuBox = document.getElementById("shop-menu");
+const shopMenuMoney = document.getElementById("shop-money");
+const shopMenuList = document.getElementById("shop-list");
+
+function fillShopMenu() {
+  shopMenu.rows = goodsOnOffer();
+  shopMenu.index = Math.min(shopMenu.index, shopMenu.rows.length);
+  shopMenuMoney.textContent = T().ui.money(quest.money);
+  shopMenuList.textContent = "";
+  shopMenu.rows.forEach((good, index) => {
+    const row = document.createElement("button");
+    row.className = "shop-row";
+    const picture = document.createElement("img");
+    picture.src = `art/${ART_FILES[good.art]}?v=${ART_VERSION}`;
+    picture.alt = "";
+    const name = document.createElement("span");
+    name.textContent = T().shop.goods[good.id];
+    const price = document.createElement("b");
+    price.textContent = T().shop.price(good.price);
+    row.append(picture, name, price);
+    if (quest.money < good.price) row.classList.add("too-dear");
+    row.addEventListener("click", () => shopChoose(index));
+    shopMenuList.append(row);
+  });
+  const leave = document.createElement("button");
+  leave.className = "shop-row shop-leave";
+  leave.textContent = T().shop.leave;
+  leave.addEventListener("click", () => shopChoose(shopMenu.rows.length));
+  shopMenuList.append(leave);
+  markShopRow();
+}
+
+function markShopRow() {
+  Array.from(shopMenuList.children || []).forEach((row, index) => row.classList.toggle("selected", index === shopMenu.index));
+}
+
+function openShopMenu() {
+  sellerCounter = null;
+  shopMenu.open = true;
+  shopMenu.index = 0;
+  fillShopMenu();
+}
+
+function closeShopMenu() {
+  shopMenu.open = false;
+  sellerCounter = null;
+  finishCloseup();
+}
+
+function shopChoose(index) {
+  if (!shopMenu.open || dialog.open) return;
+  const good = shopMenu.rows[index];
+  if (!good) {
+    closeShopMenu();
+    return;
+  }
+  shopMenu.index = index;
+  openDialog(buyGood(good.id), () => {
+    saveGame();
+    fillShopMenu();
+  });
+}
+
+// Arrow keys or the joystick move the selection; A buys what is selected.
+function updateShopMenu(action) {
+  const count = shopMenu.rows.length + 1;
+  const stepX = Math.abs(input.moveX) > 0.5 ? Math.sign(input.moveX) : 0;
+  const stepY = Math.abs(input.moveY) > 0.5 ? Math.sign(input.moveY) : 0;
+  if (!stepX && !stepY) {
+    shopMenu.moved = false;
+  } else if (!shopMenu.moved) {
+    shopMenu.moved = true;
+    const next = shopMenu.index + stepX + stepY * SHOP_COLUMNS;
+    if (next >= 0 && next < count) {
+      shopMenu.index = next;
+      markShopRow();
+    }
+  }
+  if (action) shopChoose(shopMenu.index);
+}
 
 function drawCounterGoods(ctx) {
   (COUNTER_GOODS[sellerCounter] || []).forEach(([art, x]) => {

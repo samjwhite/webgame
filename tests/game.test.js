@@ -242,17 +242,55 @@ test("what is bought stands on the shop's counter", () => {
     kitFinishDialogs();
     Object.assign(quest, { stage: "done", metLads: true, unload: "done", money: 2, beersDrunk: 0 });
     kitUse("valya");
+    const stock = sellerCounter;
+    kitFinishDialogs();
+    const opened = shopMenu.open;
+    shopChoose(shopMenu.rows.findIndex((g) => g.id === "beer"));
     const beer = sellerCounter;
     draw(1000);
     kitFinishDialogs();
-    Object.assign(quest, { beersDrunk: BEERS_NEEDED });
-    kitUse("valya");
-    const stock = sellerCounter;
-    kitFinishDialogs();
-    const missing = Object.values(COUNTER_GOODS).flat().filter(([art]) => !ART[art]).map(([art]) => art);
-    return [groceries, beer, stock, missing];
+    closeShopMenu();
+    const missing = [...Object.values(COUNTER_GOODS).flat().map(([art]) => art), ...SHOP_GOODS.map((g) => g.art)].filter((art) => !ART[art]);
+    const noCounter = SHOP_GOODS.filter((g) => !COUNTER_GOODS[g.id]).map((g) => g.id);
+    return [groceries, opened, beer, stock, missing, noCounter];
   }`);
-  assert.deepStrictEqual(result, ["groceries", "beer", "stock", []]);
+  assert.deepStrictEqual(result, ["groceries", true, "beer", "stock", [], []]);
+});
+
+test("the shop's list: prices, money, the bag, and beer only once it is asked for", () => {
+  const result = game.inGame(`() => {
+    kitGo("shop");
+    Object.assign(quest, { stage: "done", unload: "done", money: 3 });
+    kitUse("valya");
+    kitFinishDialogs();
+    const noBeerYet = !shopMenu.rows.some((g) => g.id === "beer");
+    const tapIgnored = (() => {
+      input.tap = { x: 100, y: 100 };
+      update(0.02);
+      return quest.money === 3 && shopMenu.open;
+    })();
+    shopChoose(shopMenu.rows.findIndex((g) => g.id === "bread"));
+    kitFinishDialogs();
+    const afterBread = [quest.money, quest.bag.bread];
+    shopChoose(shopMenu.rows.findIndex((g) => g.id === "sausage"));
+    const tooDear = [quest.money, quest.bag.sausage === undefined, sellerCounter];
+    kitFinishDialogs();
+    shopMenu.index = shopMenu.rows.length;
+    kitPress();
+    const closed = !shopMenu.open && mode === "world";
+    const bag = bagLine();
+    quest.metLads = true;
+    const beerOffered = goodsOnOffer().some((g) => g.id === "beer");
+    quest.beersDrunk = BEERS_NEEDED;
+    const beerGone = !goodsOnOffer().some((g) => g.id === "beer");
+    return [noBeerYet, tapIgnored, afterBread, tooDear, closed, bag === T().shop.goods.bread, beerOffered, beerGone];
+  }`);
+  assert.deepStrictEqual(result, [true, true, [2, 1], [2, true, "bread"], true, true, true, true]);
+});
+
+test("every good has a name and a line from the seller in every language", () => {
+  const missing = game.inGame(`() => LANGUAGES.flatMap((l) => SHOP_GOODS.filter((g) => !TEXTS[l].shop.goods[g.id] || !TEXTS[l].shop.sold[g.id]).map((g) => l + ":" + g.id))`);
+  assert.deepStrictEqual(missing, []);
 });
 
 test("no moon is drawn over the world at night", () => {
@@ -428,7 +466,7 @@ test("the whole story can be played, from the bus to the second morning", () => 
       kitTalk("valya");
     }
     expect(quest.unload === "done" && quest.money === 6, "truck unloaded and paid");
-    for (let beer = 0; beer < BEERS_NEEDED; beer++) kitTalk("valya");
+    for (let beer = 0; beer < BEERS_NEEDED; beer++) kitBuy("beer");
     expect(quest.beersDrunk === BEERS_NEEDED, "three beers");
 
     kitGo("yard");

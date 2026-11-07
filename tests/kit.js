@@ -113,3 +113,18 @@ function kitHerdChickens() {
   if (quest.stage !== "moped") kitFail(`Chickens not herded: stage ${quest.stage}, herded ${quest.chickensHerded}`);
   kitFinishDialogs();
 }
+
+// Talks to the seller and buys one thing from her list, then leaves the shop's list.
+function kitBuy(id) {
+  kitUse("valya");
+  kitFinishDialogs();
+  if (!shopMenu.open) kitFail("The shop's list did not open");
+  const index = shopMenu.rows.findIndex((good) => good.id === id);
+  if (index < 0) kitFail(`${id} is not on offer`);
+  shopMenu.index = index;
+  kitPress();
+  kitFinishDialogs();
+  shopMenu.index = shopMenu.rows.length;
+  kitPress();
+  if (shopMenu.open) kitFail("The shop's list did not close");
+}

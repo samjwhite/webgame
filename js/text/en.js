@@ -92,7 +92,7 @@ TEXTS.en = {
       "Carry the crates from the truck to me and I'll give you four hryvnias. The truck's right there by the fence.",
     ],
     idle: "Got bread, got sugar, got matches. No grooms, though — they've all gone off to Poltava.",
-    noMoney: "Beer's two hryvnias, sunshine. Only cheese in a mousetrap comes free. Go pick beetles for Granny Hanya.",
+    noMoney: "You're short, sunshine. Only cheese in a mousetrap comes free. Go pick beetles for Granny Hanya.",
     noMoneyJob: " Or carry my crates.",
     noCredit: "And I don't put it on the slate, don't ask. I know you city folk: here today, gone tomorrow — and there go my ten hryvnias.",
     firstBeer: "Beer? Are you eighteen? Oh, I see, I see — there's a moustache coming in already. Two hryvnias.",
@@ -268,6 +268,41 @@ TEXTS.en = {
   sleep: ["You sleep.", "You dream that Tolik sells you to Valya for two hryvnias, and a Colorado beetle reads the news on TV."],
 
   morning: (day) => [`Day ${day}. The sun climbs in through the window, the rooster's yelling outside and something's frying in the kitchen.`],
+
+  shop: {
+    title: "What'll it be?",
+    price: (n) => `${n} UAH`,
+    leave: "Nothing, thanks",
+    bag: (items) => `In the bag: ${items}`,
+    goods: {
+      beer: "Beer",
+      bread: "Dark bread",
+      loaf: "White loaf",
+      noodles: "Noodles",
+      seeds: "Sunflower seeds",
+      matches: "Matches",
+      cigarettes: "Cigarettes",
+      sugar: "Sugar",
+      fish: "Tinned fish",
+      oil: "Sunflower oil",
+      chocolate: "Chocolate",
+      sausage: "Sausage",
+    },
+    sold: {
+      beer: "Beer.",
+      bread: "Today's bread. Take it while it's warm.",
+      loaf: "A white loaf, city style. Just right for you.",
+      noodles: "You only have to add hot water. City food, ugh.",
+      seeds: "Roasted seeds, Granny Lyuba made them. Don't spit the shells on my porch.",
+      matches: "Matches. Just don't burn down your gran's shed.",
+      cigarettes: "Cigarettes? Does your gran know? Well, I saw nothing.",
+      sugar: "Sugar, weighed fair and square. Nearly.",
+      fish: "Tinned fish. Enough for the winter. Or for this evening.",
+      oil: "Our own oil, smells lovely. Take it to your gran.",
+      chocolate: "Oh, and who's the chocolate for? Not Svetka, by any chance?",
+      sausage: "Today's sausage. Well, this week's.",
+    },
+  },
 
   hero: {
     places: {
