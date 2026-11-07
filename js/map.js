@@ -10,11 +10,11 @@ const SOLID_AREAS = [
   [13, 5, 14, 7], // shed
   [6, 8, 12, 8], // grandma's fence
   [15, 3, 23, 3], // garden fence
-  [21, 4, 23, 8], // bushes right of the garden
-  [17, 8, 19, 10], // well
+  [22, 4, 23, 7], // bushes right of the garden
+  [17, 8, 18, 9], // well
   [0, 9, 1, 14], // trees on the left edge
   [2, 9, 6, 13], // left house
-  [7, 9, 9, 13], // big tree between houses
+  [7, 10, 9, 12], // big tree between houses
   [10, 10, 14, 13], // middle house
   [15, 12, 17, 13], // flower bed
   [21, 9, 22, 14], // trees left of the club
@@ -31,14 +31,14 @@ const SOLID_AREAS = [
   [38, 13, 39, 13], [42, 13, 43, 13], // crates and bench by the shop
   [44, 6, 47, 14], // barn and trees right of the shop
   [38, 15, 47, 15], // shop fence
-  [0, 19, 7, 21], // trees and bushes south-west
+  [0, 19, 6, 20], // trees and bushes south-west
   [9, 19, 10, 19], // bench by the pond
-  [12, 19, 15, 20], // trees by the pond
+  [12, 19, 14, 19], // trees by the pond
   [2, 21, 19, 28], // pond
   [0, 22, 1, 31], [0, 29, 23, 31], // trees south-west
   [22, 19, 31, 23], // house with the greenhouse
   [25, 24, 32, 28], // vegetable garden in the south
-  [35, 19, 37, 21], // tree by the bus stop
+  [36, 19, 37, 20], // tree by the bus stop
   [39, 19, 43, 21], // bus stop
   [44, 19, 47, 24], // trees east of the bus stop
   [35, 25, 47, 31], // forest south-east

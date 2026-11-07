@@ -20,7 +20,7 @@ const npcs = [
 ];
 
 const places = {
-  well: { id: "well", x: 296, y: 180 },
+  well: { id: "well", x: 290, y: 170 },
   shed: { id: "shed", x: SHED_DOOR.x, y: SHED_DOOR.y },
   backpack: { id: "backpack", x: 196, y: 152 },
   truck: { id: "truck", x: 720, y: 268 },
@@ -64,14 +64,15 @@ function placePlayer(position) {
 // ---------- update ----------
 
 function isBlocked(x, y) {
+  // The hero only bumps into things with a small box around the feet.
   const corners = [
-    [x - 5, y - 4],
-    [x + 5, y - 4],
-    [x - 5, y],
-    [x + 5, y],
+    [x - 4, y - 3],
+    [x + 4, y - 3],
+    [x - 4, y],
+    [x + 4, y],
   ];
   if (corners.some(([cx, cy]) => isSolidTile(cx, cy))) return true;
-  return npcs.some((npc) => Math.hypot(npc.x - x, npc.y - y) < 10);
+  return npcs.some((npc) => Math.hypot(npc.x - x, npc.y - y) < 8);
 }
 
 function updatePlayer(dt) {
@@ -191,14 +192,15 @@ function nearestTarget() {
 // ---------- drawing ----------
 
 function cameraOffset(center, viewSize, mapSize) {
-  if (mapSize <= viewSize) return Math.round((mapSize - viewSize) / 2);
-  return Math.round(Math.max(0, Math.min(center - viewSize / 2, mapSize - viewSize)));
+  if (mapSize <= viewSize) return snap((mapSize - viewSize) / 2);
+  // Snap the followed position first, so the hero stays on exactly the same screen pixel.
+  return snap(Math.max(0, Math.min(snap(center) - snap(viewSize / 2), mapSize - viewSize)));
 }
 
 // Draws a sprite standing with its feet at (x, y).
 function drawStanding(ctx, img, x, y, flip, bob) {
-  const left = Math.round(x - img.width / 2);
-  const top = Math.round(y - img.height + 2 - (bob || 0));
+  const left = snap(x - img.width / 2);
+  const top = snap(y - img.height + 2 - (bob || 0));
   if (!flip) {
     ctx.drawImage(img, left, top);
     return;
@@ -230,19 +232,19 @@ function drawPlayer(ctx, time) {
   } else {
     const sheet = quest.outfit === "sport" ? ART.heroSport : ART.heroCity;
     const { row, col } = heroFrame(time);
-    top = Math.round(player.y - HERO_FRAME_H + 3);
+    top = snap(player.y - HERO_FRAME_H + 3);
     ctx.drawImage(sheet, col * HERO_FRAME_W, row * HERO_FRAME_H, HERO_FRAME_W, HERO_FRAME_H,
-      Math.round(player.x - HERO_FRAME_W / 2), top, HERO_FRAME_W, HERO_FRAME_H);
+      snap(player.x - HERO_FRAME_W / 2), top, HERO_FRAME_W, HERO_FRAME_H);
   }
   if (quest.carrying) {
-    ctx.drawImage(ART.crate, Math.round(player.x - 5), Math.round(top - 4));
+    ctx.drawImage(ART.crate, snap(player.x - 5), snap(top - 4));
   }
 }
 
 function drawNpc(ctx, npc) {
   if (npc.sprite === "grandpa") {
     // Grandpa is still the small hand-drawn sprite, so draw him at the height of the others.
-    ctx.drawImage(ART.grandpa, 0, 0, 16, 24, Math.round(npc.x - 13), Math.round(npc.y - 37), 26, 39);
+    ctx.drawImage(ART.grandpa, 0, 0, 16, 24, snap(npc.x - 13), snap(npc.y - 37), 26, 39);
     return;
   }
   drawStanding(ctx, ART[npc.sprite], npc.x, npc.y, npc.x > player.x + 30);
@@ -275,7 +277,7 @@ function drawWorld(ctx, view, time, target) {
       let frame = c.peck && Math.floor(time / 300) % 3 === 0 ? 2 : Math.floor(time / 150) % 2;
       if (c.wait > 0 && !c.peck) frame = 0;
       ctx.save();
-      ctx.translate(Math.round(c.x), Math.round(c.y - 11));
+      ctx.translate(snap(c.x), snap(c.y - 11));
       if (c.flip) ctx.scale(-1, 1);
       drawFrame(ctx, ART.chicken, frame, 12, -6, 0);
       ctx.restore();
@@ -321,8 +323,8 @@ function drawSolidGrid(ctx) {
 }
 
 function drawHint(ctx, target, time) {
-  const x = Math.round(target.x) - 3;
-  const y = Math.round(target.y) - 50 + (Math.floor(time / 300) % 2);
+  const x = snap(target.x) - 3;
+  const y = snap(target.y) - 50 + (Math.floor(time / 300) % 2);
   ctx.fillStyle = "#2a1d17";
   ctx.fillRect(x - 1, y - 1, 8, 11);
   ctx.fillStyle = "#fbf6ea";
