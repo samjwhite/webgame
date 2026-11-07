@@ -5,7 +5,7 @@ palette. Sprites are cut out from the dark sprite-sheet backgrounds.
 """
 
 import os
-from PIL import Image
+from PIL import Image, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REFERENCE = os.path.join(HERE, "reference")
@@ -25,20 +25,20 @@ SCENES = {
     "road": ("collage.png", (1054, 350, 1658, 556)),
 }
 
-# Sprites cut from sheets: output name -> (reference file, crop box, height in game pixels)
+# Sprites cut from sheets: output name -> (reference file, crop box, height in game pixels, background tolerance)
 SPRITES = {
-    "hero_city": ("collage.png", (18, 565, 108, 775), 26),
-    "hero_sport": ("collage.png", (160, 565, 248, 775), 26),
-    "hero_moped": ("collage.png", (266, 565, 454, 775), 28),
-    "lad_red": ("collage.png", (456, 565, 534, 760), 25),
-    "lad_squat": ("collage.png", (526, 600, 628, 760), 19),
-    "lad_cap": ("collage.png", (628, 565, 694, 760), 25),
-    "grandma": ("collage.png", (698, 565, 800, 775), 25),
-    "seller": ("collage.png", (806, 565, 910, 775), 25),
-    "backpack": ("sheet_club.png", (928, 452, 1108, 624), 12),
-    "moped": ("sheet_club.png", (1140, 396, 1488, 640), 18),
-    "truck": ("sheet_club.png", (24, 684, 432, 916), 26),
-    "shed_open": ("sheet_club.png", (468, 388, 896, 640), 26),
+    "hero_city": ("collage.png", (18, 565, 108, 775), 40, 25),
+    "hero_sport": ("collage.png", (160, 565, 248, 775), 40, 25),
+    "hero_moped": ("collage.png", (266, 565, 454, 775), 42, 45),
+    "lad_red": ("collage.png", (456, 565, 534, 760), 40, 25),
+    "lad_squat": ("collage.png", (526, 600, 628, 760), 30, 45),
+    "lad_cap": ("collage.png", (628, 565, 694, 760), 40, 25),
+    "grandma": ("collage.png", (698, 565, 800, 775), 40, 25),
+    "seller": ("collage.png", (806, 565, 910, 775), 40, 25),
+    "backpack": ("sheet_club.png", (928, 452, 1108, 624), 14, 45),
+    "moped": ("sheet_club.png", (1140, 396, 1488, 640), 22, 60),
+    "truck": ("sheet_club.png", (24, 684, 432, 916), 34, 45),
+    "shed_open": ("sheet_club.png", (468, 388, 896, 640), 26, 45),
 }
 
 
@@ -65,7 +65,7 @@ def scene(img, width=SCENE_WIDTH):
     return limit_palette(small, 64)
 
 
-def cut_out(img, tolerance=60):
+def cut_out(img, tolerance):
     """Make the dark background around a sprite transparent (flood fill from the edges)."""
     rgba = img.convert("RGBA")
     pixels = rgba.load()
@@ -86,13 +86,47 @@ def cut_out(img, tolerance=60):
     return rgba
 
 
+def keep_largest_shape(alpha):
+    """Drop small stray bits (pieces of neighbouring sprites) and keep the main figure."""
+    w, h = alpha.size
+    pixels = alpha.load()
+    seen = set()
+    largest = []
+    for start in ((x, y) for y in range(h) for x in range(w)):
+        if start in seen or pixels[start] == 0:
+            continue
+        shape = []
+        stack = [start]
+        seen.add(start)
+        while stack:
+            x, y = stack.pop()
+            shape.append((x, y))
+            for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                if 0 <= nx < w and 0 <= ny < h and (nx, ny) not in seen and pixels[nx, ny]:
+                    seen.add((nx, ny))
+                    stack.append((nx, ny))
+        if len(shape) > len(largest):
+            largest = shape
+    result = Image.new("L", alpha.size, 0)
+    for point in largest:
+        result.putpixel(point, 255)
+    return result
+
+
 def sprite(img, height):
+    """Scale a cut-out down, make it fully solid and give it a dark 1px outline."""
     width = max(1, round(img.width * height / img.height))
     small = img.resize((width, height), Image.Resampling.BOX)
-    alpha = small.getchannel("A").point(lambda a: 255 if a > 130 else 0)
+    alpha = keep_largest_shape(small.getchannel("A").point(lambda a: 255 if a > 70 else 0))
     color = limit_palette(small.convert("RGB"), 32).convert("RGBA")
     color.putalpha(alpha)
-    return color
+
+    outline = Image.new("RGBA", (width, height), (34, 24, 20, 255))
+    outline.putalpha(alpha.filter(ImageFilter.MaxFilter(3)))
+    result = Image.new("RGBA", (width + 2, height + 2), (0, 0, 0, 0))
+    result.alpha_composite(outline, (1, 1))
+    result.alpha_composite(color, (1, 1))
+    return result
 
 
 def icon(img):
@@ -111,8 +145,8 @@ def build(out_scenes, out_world, out_ui):
     size = (round(village.width * MAP_SCALE), round(village.height * MAP_SCALE))
     village.resize(size, Image.Resampling.BOX).save(f"{out_world}/map.png")
 
-    for name, (file, box, height) in SPRITES.items():
-        sprite(cut_out(load(file).crop(box)), height).save(f"{out_world}/{name}.png")
+    for name, (file, box, height, tolerance) in SPRITES.items():
+        sprite(cut_out(load(file).crop(box), tolerance), height).save(f"{out_world}/{name}.png")
 
     for name, (file, box) in ICONS.items():
         icon(load(file).crop(box)).save(f"{out_ui}/{name}.png")
