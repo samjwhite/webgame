@@ -106,6 +106,8 @@ Sprites: pier, boat, reeds, willow, fence, bench, fishing rod and bucket, **a fu
 
 ### 7. The road through the village (A: start at grandma's gate)
 
+**Done with Codex and in the game on `dev`:** the whole road, in `reference/road_west.png`, `road_at_yard.png` and `road_east.png`, joined in `tools/art/locations.py`. The task below is kept as the reason. Each location still in the old style needs to meet its gateway here.
+
 **Priority task from the owner: the way from the road to grandma's yard.** It still looks like the old design, and then the yard opens in a completely different one, with nothing joining them. Redraw the part of the road in front of the yard in the approved style so the two read as one place. The bottom of `tools/art/reference/loc_yard.png` already shows this spot: the same rusty double gate, patchwork fence, yellow gas pipe and cracked road must be visible from the road. Walking through that gate is where the location changes, so what the player sees just before and just after has to match. The gate stands at the middle of the yard's south fence; on the road location its turn-off is on the north side. Do the same for the other turn-offs as each location gets redrawn.
 
 This is the joining location, which the owner did not list: the paths to all locations start here. It is a long strip, currently 1536×290 in temporary art. It may become wider or shorter if you have a better layout. It needs a cracked road, poles and wires, fences, and visible turn-offs to each place.

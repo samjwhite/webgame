@@ -71,10 +71,10 @@ const animals = [
   { kind: "cat", location: "pond", coat: CAT_COAT.calico, pose: CAT_POSE.sit, x: 190, y: 58, behaviour: "cat", friendly: true },
   { kind: "cat", location: "yard", coat: CAT_COAT.cream, pose: CAT_POSE.sleep, x: 400, y: 150, behaviour: "cat", friendly: true },
   { kind: "cat", location: "club", coat: CAT_COAT.calico, pose: CAT_POSE.sit, x: 76, y: 262, behaviour: "cat", friendly: true },
-  { kind: "cat", location: "street", coat: CAT_COAT.tabby, pose: CAT_POSE.stand, x: 205, y: 127, flip: true, behaviour: "cat" },
+  { kind: "cat", location: "street", coat: CAT_COAT.tabby, pose: CAT_POSE.stand, x: 620, y: 195, flip: true, behaviour: "cat" },
   { kind: "dog", location: "yard", coat: DOG_COAT.blackTan, pose: DOG_POSE.sit, x: 170, y: 215, behaviour: "guard" },
   { kind: "dog", location: "club", coat: DOG_COAT.white, pose: DOG_POSE.sleep, x: 236, y: 250 },
-  { kind: "dog", location: "street", coat: DOG_COAT.grey, pose: DOG_POSE.stand, x: 480, y: 176, behaviour: "wander", from: 470, to: 650, wait: 1 },
+  { kind: "dog", location: "street", coat: DOG_COAT.grey, pose: DOG_POSE.stand, x: 1000, y: 272, behaviour: "wander", from: 960, to: 1170, wait: 1 },
   { kind: "dog", location: "stop", coat: DOG_COAT.ginger, pose: DOG_POSE.sit, x: 60, y: 125, behaviour: "wander", from: 40, to: 150, wait: 3 },
 ];
 

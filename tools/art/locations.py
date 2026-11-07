@@ -16,7 +16,6 @@ LOCATION_SCALE = 0.65
 # Location name -> crop box in reference/village_map.png. All tall enough to fill a phone screen.
 CROPS = {
     "club": (680, 60, 1120, 524),
-    "street": (0, 320, 1536, 752),
     "stop": (1070, 592, 1536, 1024),
     "pond": (0, 592, 650, 1024),
 }
@@ -37,38 +36,33 @@ WELL_SHAPE = [
 ]
 
 
-def pole_shape(width, height):
-    middle = width // 2
-    return [("rect", (middle - 3, 0, middle + 3, height)), ("rect", (0, 8, width, 15))]
-
-
 OCCLUDERS = {
     "yard": {
         "occlude_yard_well": ((161, 193, 239, 287), WELL_SHAPE),
     },
     "club": {"occlude_club_statue": ((144, 156, 170, 212), None)},
-    "street": {
-        "occlude_street_pole_1": ((378, 156, 394, 234), pole_shape(16, 78)),
-        "occlude_street_pole_2": ((671, 157, 685, 234), pole_shape(14, 77)),
-    },
 }
 
 # Bits of a crop covered with another bit of it, before scaling: location -> [(from box, to corner)].
 PATCHES = {}
 
+# Approved art: the village road, three pictures joined side by side with soft seams.
+# (file, left, right) in each picture's pixels. All share one road height and the yard's scale.
+ROAD_PANELS = [
+    ("road_west.png", 0, 1536),
+    ("road_at_yard.png", 250, 1250),
+    ("road_east.png", 0, 1536),
+]
+ROAD_SEAM = 60
+ROAD_BENCH = (825, 695, 1115, 820)
+ROAD_BENCH_GRASS = (620, 700, 800, 800)
+ROAD_BENCH_SCALE = 0.5
+ROAD_SIGN = ((1614, 253, 1643, 290), [("rect", (0, 0, 29, 30)), ("rect", (12, 30, 18, 37))])
+
 # Approved art: grandma's yard. Scaled so her door is a little taller than the hero; the road is cut off.
 YARD_SCALE = 0.43
 YARD_BOTTOM = 945
 
-
-# The old shop stands in the picture right beside the road. The shop is its own location now, set back
-# to the north, so on the road location it is covered with trees: (where, in village_map.png pixels).
-TREE_SAMPLE = (1112, 610, 1222, 715)
-OLD_SHOP_COVER = [
-    (1172, 316, 1480, 408),  # the whole width above the power pole
-    (1172, 400, 1414, 466),  # beside the pole, which stays
-    (1442, 400, 1480, 466),
-]
 
 # Paths painted on the village picture, so they show the same in every location that sees them.
 # (where, in reference/village_map.png pixels). They are filled with the bare earth at PATH_SAMPLE.
@@ -102,9 +96,6 @@ def lay_texture(picture, box, sample, margin=3, blur=2):
 
 
 def paint_paths(village):
-    trees = village.crop(TREE_SAMPLE)
-    for box in OLD_SHOP_COVER:
-        lay_texture(village, box, trees, 6, 4)
     earth = village.crop(PATH_SAMPLE)
     for box in PAINTED_PATHS:
         lay_texture(village, box, earth)
@@ -124,6 +115,38 @@ SHOP_DOOR_LEAF = (412, 360, 490, 550)
 SHOP_WALL_BESIDE_DOOR = (345, 345, 405, 548)
 SHOP_SELLER = (700, 368, 785, 446)
 SHOP_SHELVES = (632, 368, 717, 446)
+
+
+def shrink_road_bench(west):
+    """The bench in road_west.png is drawn far too wide for a person: cover it with grass, redraw it smaller."""
+    left, top, right, bottom = ROAD_BENCH
+    bench = west.crop(ROAD_BENCH)
+    grass = west.crop(ROAD_BENCH_GRASS)
+    lay_texture(west, ROAD_BENCH, grass, 8, 5)
+    width, height = round(bench.width * ROAD_BENCH_SCALE), round(bench.height * ROAD_BENCH_SCALE)
+    small = bench.resize((width, height), Image.Resampling.BOX)
+    mask = Image.new("L", small.size, 0)
+    ImageDraw.Draw(mask).rectangle((4, 4, width - 5, height - 5), fill=255)
+    west.paste(small, ((left + right - width) // 2, bottom - height - 4), mask.filter(ImageFilter.GaussianBlur(2)))
+    return west
+
+
+def road_picture():
+    pieces = [load(name).crop((left, 0, right, 1024)) for name, left, right in ROAD_PANELS]
+    pieces[0] = shrink_road_bench(pieces[0])
+    width = sum(p.width for p in pieces) - ROAD_SEAM * (len(pieces) - 1)
+    road = Image.new("RGB", (width, 1024))
+    x = 0
+    for i, piece in enumerate(pieces):
+        mask = Image.new("L", piece.size, 255)
+        if i:
+            draw = ImageDraw.Draw(mask)
+            for column in range(ROAD_SEAM):
+                draw.line((column, 0, column, piece.height), fill=round(255 * column / ROAD_SEAM))
+        road.paste(piece, (x, 0), mask)
+        x += piece.width - ROAD_SEAM
+    size = (round(road.width * YARD_SCALE), round(road.height * YARD_SCALE))
+    return limit_palette(road.resize(size, Image.Resampling.BOX), 220)
 
 
 def shop_scene():
@@ -434,6 +457,10 @@ def build(out_world):
     yard.save(f"{out_world}/loc_yard.png", optimize=True)
     for art, (part, shapes) in OCCLUDERS["yard"].items():
         occluder(yard, part, shapes).save(f"{out_world}/{art}.png", optimize=True)
+
+    road = road_picture()
+    road.save(f"{out_world}/loc_street.png", optimize=True)
+    occluder(road, *ROAD_SIGN).save(f"{out_world}/occlude_street_sign.png", optimize=True)
 
     shop_scene().save(f"{out_world}/loc_shop.png", optimize=True)
     shop_closed().save(f"{out_world}/shop_closed.png", optimize=True)

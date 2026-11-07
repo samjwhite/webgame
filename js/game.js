@@ -315,8 +315,9 @@ function fillMapLabels() {
 }
 
 function openMap() {
-  const { mapOrigin, mapSpot } = here();
-  const spot = mapSpot || {
+  const { mapOrigin, mapSpot, mapLine } = here();
+  // The road is one long picture, so only the hero's position along it counts on the map.
+  const spot = mapSpot || (mapLine && { x: player.x * mapLine.scale, y: mapLine.y }) || {
     x: mapOrigin.x + player.x * LOCATION_TO_MAP,
     y: mapOrigin.y + (player.y - 20) * LOCATION_TO_MAP,
   };
