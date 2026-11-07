@@ -16,7 +16,7 @@ const SOLID_AREAS = [
   [2, 9, 6, 13], // left house
   [7, 10, 9, 12], // big tree between houses
   [10, 10, 14, 13], // middle house
-  [15, 12, 17, 13], // flower bed
+  [15, 12, 15, 13], // woodpile by the middle house
   [22, 10, 22, 14], // pine left of the club
   [1, 15, 6, 15], [8, 15, 17, 15], [21, 15, 26, 15], // fences along the road
   [23, 3, 34, 8], // Будинок культури
@@ -90,3 +90,10 @@ function isGardenTile(col, row) {
   const [left, top, right, bottom] = GARDEN_AREA;
   return col >= left && col <= right && row >= top && row <= bottom;
 }
+
+// Parts of the map drawn over characters standing behind them.
+// x, y: top-left of the overlay image; baseY: characters above this line are behind it.
+const OCCLUDERS = [
+  { art: "occludeWell", x: 281, y: 127, baseY: 188 },
+  { art: "occludeStatue", x: 448, y: 145, baseY: 213 },
+];
