@@ -22,6 +22,10 @@ python3 tools/art/build.py
 
 Карта села, портрети, сцени і персонажі зроблені з картинок у `tools/art/reference/`. Додай `?debug` до адреси, щоб побачити невидимі стіни. Будь-який PNG можна замінити намальованим вручну файлом того самого розміру.
 
+### Генерація арту (/art)
+
+`tools/art/codex_art.py` малює картинки через Codex CLI з входом у ChatGPT Plus, без API-ключа. Результати — лише кандидати в `tools/art/reference/generated/`; у референси вони потрапляють через `tools/art/promote.py ... --approve` після схвалення. Деталі: `.claude/skills/art/SKILL.md` і `docs/CODEX_SETUP.md`.
+
 ## Локальний запуск
 
 ```

@@ -12,7 +12,13 @@ See [AGENTS.md](../AGENTS.md) for agent ownership and the required handoff templ
 
 ## Local route (option A)
 
-Claude Code on the human's PC can drive Codex CLI (ChatGPT login) to draw candidates directly into the checkout. Setup, smoke test and limits: [CODEX_SETUP.md](CODEX_SETUP.md). Same review rule: candidates first, human approval, then a PR.
+Claude Code on the human's PC can drive Codex CLI (ChatGPT login) to draw candidates directly into the checkout, using the `/art` skill. Setup, smoke test and limits: [CODEX_SETUP.md](CODEX_SETUP.md). Same review rule: candidates first, human approval, then a PR.
+
+1. **Claude Code** writes the technical spec from the code, then runs `tools/art/codex_art.py generate NAME "SPEC" --reference ...`. The candidate lands in `tools/art/reference/generated/` with a `.json` file (prompt, references, command, date, plan, usage).
+2. **Claude Code** validates it (`codex_art.py inspect`, visual check) and regenerates if it misses the spec.
+3. **Human** reviews the candidate and the comparison from `tools/art/promote.py CANDIDATE TARGET.png`.
+4. Only after explicit approval: `promote.py ... --approve` copies it into `tools/art/reference/` (old file backed up to `replaced/`, metadata saved as `TARGET.meta.json`).
+5. **Claude Code** integrates it through `tools/art/reference.py` and `tools/art/build.py`, as in step 4 above.
 
 ## Rules
 
