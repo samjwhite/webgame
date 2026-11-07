@@ -325,6 +325,8 @@ function drawWorld(ctx, view, time, target) {
     });
   }
 
+  OCCLUDERS.forEach((o) => add(o.baseY, () => ctx.drawImage(ART[o.art], o.x, o.y)));
+
   drawables.sort((a, b) => a.y - b.y).forEach((d) => d.draw());
 
   butterflies.forEach((b) => {

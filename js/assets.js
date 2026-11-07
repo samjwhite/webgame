@@ -3,6 +3,8 @@ const TILE = 16;
 // Art is built by tools/art/build.py, mostly from the pictures in tools/art/reference.
 const ART_FILES = {
   map: "world/map.png",
+  occludeWell: "world/occlude_well.png",
+  occludeStatue: "world/occlude_statue.png",
   heroCity: "world/hero_city.png",
   heroSport: "world/hero_sport.png",
   heroMoped: "world/hero_moped.png",

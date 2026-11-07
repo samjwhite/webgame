@@ -5,7 +5,7 @@ palette. Sprites are cut out from the dark sprite-sheet backgrounds.
 """
 
 import os
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REFERENCE = os.path.join(HERE, "reference")
@@ -17,6 +17,23 @@ MAP_PATCHES = [
     (0, 0, 232, 276),  # legend
     (1300, 266, 1360, 312),  # quest marker above the shop
 ]
+
+# Parts of the world map drawn again on top of characters that walk behind them.
+# Coordinates are game pixels on art/world/map.png. Shapes: ("poly", points) or ("rect", box),
+# or ("dark", box) = only the statue's dark and grey pixels inside the box.
+OCCLUDERS = {
+    "occlude_well": [
+        ("poly", [(287, 127), (326, 127), (332, 150), (281, 150)]),
+        ("rect", (288, 149, 296, 188)),
+        ("rect", (321, 149, 329, 188)),
+        ("rect", (295, 151, 323, 162)),
+        ("rect", (295, 163, 326, 190)),
+    ],
+    "occlude_statue": [
+        ("dark", (448, 145, 476, 190)),
+        ("rect", (450, 187, 477, 215)),
+    ],
+}
 
 # Close-up pictures: output name -> (reference file, crop box or None)
 SCENES = {
@@ -252,6 +269,32 @@ def moped_riding(out_world):
     result.save(f"{out_world}/hero_moped.png")
 
 
+def is_statue_pixel(color):
+    r, g, b = color[:3]
+    return (r + g + b) / 3 < 140 or r - b < 40
+
+
+def occluder(world_map, shapes):
+    """Cut the given shapes out of the world map as a transparent overlay."""
+    mask = Image.new("L", world_map.size, 0)
+    draw = ImageDraw.Draw(mask)
+    pixels = world_map.load()
+    for kind, shape in shapes:
+        if kind == "poly":
+            draw.polygon(shape, fill=255)
+        elif kind == "rect":
+            draw.rectangle((shape[0], shape[1], shape[2] - 1, shape[3] - 1), fill=255)
+        else:
+            left, top, right, bottom = shape
+            for y in range(top, bottom):
+                for x in range(left, right):
+                    if is_statue_pixel(pixels[x, y]):
+                        mask.putpixel((x, y), 255)
+    layer = world_map.convert("RGBA")
+    layer.putalpha(mask)
+    return layer.crop(mask.getbbox())
+
+
 def app_icons(out_icons):
     img = load("icon.png")
     inset = round(img.width * 0.04)
@@ -364,7 +407,10 @@ def build(out_scenes, out_world, out_ui, out_icons):
     old = load("village_map_old.png")
     for box in MAP_PATCHES:
         village.paste(old.crop(box), box[:2])
-    village.resize(size, Image.Resampling.BOX).save(f"{out_world}/map.png")
+    world_map = village.resize(size, Image.Resampling.BOX)
+    world_map.save(f"{out_world}/map.png")
+    for name, shapes in OCCLUDERS.items():
+        occluder(world_map, shapes).save(f"{out_world}/{name}.png")
 
     for name, (file, box, height, tolerance) in SPRITES.items():
         sprite(cut_out(load(file).crop(box), tolerance), height).save(f"{out_world}/{name}.png")
