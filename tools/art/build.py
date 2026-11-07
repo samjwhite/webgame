@@ -15,5 +15,6 @@ for folder, module in (("world", world), ("characters", characters), ("scenes", 
     print("built", folder)
 
 os.makedirs(os.path.join(ROOT, "ui"), exist_ok=True)
-reference.build(os.path.join(ROOT, "scenes"), os.path.join(ROOT, "world"), os.path.join(ROOT, "ui"))
+ICONS = os.path.join(ROOT, "..", "icons")
+reference.build(os.path.join(ROOT, "scenes"), os.path.join(ROOT, "world"), os.path.join(ROOT, "ui"), ICONS)
 print("built reference art")

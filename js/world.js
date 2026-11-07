@@ -210,18 +210,32 @@ function drawStanding(ctx, img, x, y, flip, bob) {
   ctx.restore();
 }
 
-function playerSprite() {
-  if (quest.riding) return ART.heroMoped;
-  return quest.outfit === "sport" ? ART.heroSport : ART.heroCity;
+// Hero sheets: rows down, up, left, right (8 walking frames), last row = 4 idle frames.
+const HERO_FRAME_W = 28;
+const HERO_FRAME_H = 44;
+const HERO_ROWS = { down: 0, up: 1, left: 2, right: 3 };
+const HERO_IDLE_ROW = 4;
+
+function heroFrame(time) {
+  if (player.moving) return { row: HERO_ROWS[player.dir], col: Math.floor(player.walkTime * 10) % 8 };
+  if (player.dir === "down") return { row: HERO_IDLE_ROW, col: Math.floor(time / 400) % 4 };
+  return { row: HERO_ROWS[player.dir], col: 0 };
 }
 
 function drawPlayer(ctx, time) {
-  const bob = player.moving ? Math.floor(player.walkTime * 8) % 2 : 0;
-  const flip = player.dir === "left";
-  const img = playerSprite();
-  drawStanding(ctx, img, player.x, player.y, flip, quest.riding ? 0 : bob);
+  let top;
+  if (quest.riding) {
+    drawStanding(ctx, ART.heroMoped, player.x, player.y, player.dir === "left");
+    top = player.y - ART.heroMoped.height;
+  } else {
+    const sheet = quest.outfit === "sport" ? ART.heroSport : ART.heroCity;
+    const { row, col } = heroFrame(time);
+    top = Math.round(player.y - HERO_FRAME_H + 3);
+    ctx.drawImage(sheet, col * HERO_FRAME_W, row * HERO_FRAME_H, HERO_FRAME_W, HERO_FRAME_H,
+      Math.round(player.x - HERO_FRAME_W / 2), top, HERO_FRAME_W, HERO_FRAME_H);
+  }
   if (quest.carrying) {
-    ctx.drawImage(ART.crate, Math.round(player.x - 5), Math.round(player.y - img.height - 6));
+    ctx.drawImage(ART.crate, Math.round(player.x - 5), Math.round(top - 4));
   }
 }
 
