@@ -52,6 +52,12 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 - Draw several distinct mixed-breed yard dogs (дворняги). Vary their silhouettes, ear shapes, and coat markings so the dogs read as different individuals at game scale. Use the established earthy palette, dark outlines, and visible pixel clusters.
 - Include a seated pose for the shop dog. Follow the shared sprite-sheet conventions below for separation, scale, and ground line. Frame dimensions, animation layout, and crop coordinates are pending an implementation spec.
 
+### Village yard cats
+
+- Ordinary semi-stray village cats have natural adult proportions, scruffy coats, muted colors, and irregular markings. The approved designs are a shaggy brown-gray tabby, a cream-white cat with a black cap and a dark spot beneath its nose, and a calico with uneven rust and charcoal patches.
+- Awake cats generally have neutral expressions and relaxed ears. The standing tabby is the single angry variant, with narrowed eyes and ears angled outward. Sleeping cats look relaxed.
+- The approved source sheet (`yard_cats_v3.png`, delivered in chat) is 1536×1024 with nine separated sprites on a dark background. Rows follow the coat order above. Columns show standing, seated, and curled sleeping poses. The PNG is pending upload. Game frame dimensions, crop coordinates, and alignment are pending integration checks.
+
 ## Technical specs (game pixels after processing)
 
 The game draws at 1 game pixel = several screen pixels; sources are drawn large and scaled down by `tools/art/reference.py`.
