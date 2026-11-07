@@ -10,6 +10,10 @@ These instructions apply to every AI agent working on this repository. Read this
 
 Ownership means who should perform the primary task, not who is prohibited from advising. Both agents should flag dependencies and hand work to the other owner instead of independently recreating their work.
 
+## Design memory
+
+[docs/ART_BIBLE.md](docs/ART_BIBLE.md) records the approved style, characters, places, design decisions, reference files and sprite specs. Read it before drawing or integrating any art. Local image generation through Codex CLI (option A) is described in [docs/CODEX_SETUP.md](docs/CODEX_SETUP.md).
+
 ## Routing every request
 
 Before executing a substantial task, decide whether it belongs to Claude Code, ChatGPT, or requires both. If the request is for the other agent, **say so clearly in the current chat** and provide a ready-to-paste handoff. Do not claim to have sent a message to the other agent or to have synchronized conversations.

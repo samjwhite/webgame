@@ -10,6 +10,10 @@ See [AGENTS.md](../AGENTS.md) for agent ownership and the required handoff templ
 4. **Claude Code** verifies the source file, adjusts crop/layout parameters in `tools/art/reference.py`, runs `python3 tools/art/build.py`, checks the generated PNGs and game, and integrates any map/collision or animation changes.
 5. **Human** reviews the in-game result. If it fails visually, Claude Code creates a focused correction request for ChatGPT; if technically, Claude Code fixes the pipeline.
 
+## Local route (option A)
+
+Claude Code on the human's PC can drive Codex CLI (ChatGPT login) to draw candidates directly into the checkout. Setup, smoke test and limits: [CODEX_SETUP.md](CODEX_SETUP.md). Same review rule: candidates first, human approval, then a PR.
+
 ## Rules
 
 - No chat-to-chat communication or automatic image synchronization is assumed.
