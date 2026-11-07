@@ -86,6 +86,7 @@ const TALK_ACTIONS = {
   shed: useShed,
   truck: useTruck,
   moped: useMoped,
+  statue: useStatue,
 };
 
 function useTarget(target) {
