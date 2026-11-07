@@ -19,14 +19,14 @@
   <canvas id="game"></canvas>
 
   <div id="objective" hidden>
-    <button id="objective-toggle" aria-label="Згорнути або розгорнути завдання">
-      <span>Завдання</span><span id="objective-arrow">▲</span>
+    <button id="objective-toggle" data-label="ui.toggleTasks">
+      <span data-text="ui.tasks"></span><span id="objective-arrow">▲</span>
     </button>
     <div id="objective-body">
       <div id="objective-text"></div>
       <div id="money"></div>
       <div id="checklist" hidden>
-        <div class="checklist-title">Щоб потрапити на дискотеку:</div>
+        <div class="checklist-title" data-text="ui.checklistTitle"></div>
         <div class="check-item" id="check-beer"><span class="check"></span><img src="art/ui/beer.png?v=dev" alt=""><span class="label"></span></div>
         <div class="check-item" id="check-suit"><span class="check"></span><img src="art/ui/tracksuit.png?v=dev" alt=""><span class="label"></span></div>
         <div class="check-item" id="check-moped"><span class="check"></span><img src="art/ui/moped.png?v=dev" alt=""><span class="label"></span></div>
@@ -34,14 +34,14 @@
     </div>
   </div>
 
-  <button id="map-button" hidden>Карта</button>
+  <button id="map-button" data-text="ui.map" hidden></button>
 
   <div id="map-view" hidden>
     <div id="map-frame">
-      <img src="art/ui/village_map.png?v=dev" alt="Карта села Макітрине">
+      <img src="art/ui/village_map.png?v=dev" id="map-image" alt="">
       <div id="map-marker"></div>
     </div>
-    <p>Торкнись, щоб закрити</p>
+    <p data-text="ui.mapClose"></p>
   </div>
 
   <div id="dialog" hidden>
@@ -50,14 +50,29 @@
   </div>
 
   <div id="menu" hidden>
-    <h1>Літо в селі</h1>
-    <p>Полтавщина, 2003</p>
-    <button id="continue-button">Продовжити</button>
-    <button id="new-game-button">Нова гра</button>
+    <h1 data-text="ui.title"></h1>
+    <p data-text="ui.subtitle"></p>
+    <div id="language-picker" role="group" data-label="ui.language">
+      <button class="flag" data-language="uk" aria-label="Українська">
+        <svg viewBox="0 0 3 2"><rect width="3" height="1" fill="#0057b7"/><rect y="1" width="3" height="1" fill="#ffd700"/></svg>
+      </button>
+      <button class="flag" data-language="en" aria-label="English">
+        <svg viewBox="0 0 60 30"><clipPath id="uk-flag-clip"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-flag-clip)" stroke="#c8102e" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#c8102e" stroke-width="6"/></svg>
+      </button>
+      <button class="flag" data-language="it" aria-label="Italiano">
+        <svg viewBox="0 0 3 2"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/></svg>
+      </button>
+    </div>
+    <button id="continue-button" data-text="ui.continue"></button>
+    <button id="new-game-button" data-text="ui.newGame"></button>
   </div>
 
-  <button id="action-button" aria-label="Дія">A</button>
+  <button id="action-button" data-label="ui.action">A</button>
 
+  <script src="js/i18n.js?v=dev"></script>
+  <script src="js/text/uk.js?v=dev"></script>
+  <script src="js/text/en.js?v=dev"></script>
+  <script src="js/text/it.js?v=dev"></script>
   <script src="js/assets.js?v=dev"></script>
   <script src="js/map.js?v=dev"></script>
   <script src="js/story.js?v=dev"></script>

@@ -43,7 +43,7 @@ function startNewGame() {
   placePlayer(START_POSITION);
   resetChickens();
   menu.hidden = true;
-  showPicture("intro", INTRO_LINES);
+  showPicture("intro", T().intro);
 }
 
 function continueGame() {
@@ -63,7 +63,7 @@ function onAllChickensHerded() {
 }
 
 function getBeaten() {
-  showPicture("talkLads", BEATEN_LINES, () => {
+  showPicture("talkLads", T().beaten, () => {
     quest.beatings += 1;
     if (quest.riding) {
       quest.riding = false;
@@ -75,7 +75,7 @@ function getBeaten() {
 }
 
 function goToDisco() {
-  showPicture("disco", DISCO_LINES, () => {
+  showPicture("disco", T().disco, () => {
     quest.discoDone = true;
     finishCloseup();
   }, "disco");
@@ -102,10 +102,10 @@ function useTarget(target) {
     if (needsWater()) {
       startWellScene("raise", () => {
         quest.hasWater = true;
-        openDialog(["Повне відро холодної води! Аж зуби ломить."], finishCloseup);
+        openDialog([T().ui.wellFull], finishCloseup);
       });
     } else {
-      showWellAtRest(["Вода в криниці холодна-холодна."]);
+      showWellAtRest([T().ui.wellCold]);
     }
     return;
   }
@@ -204,11 +204,11 @@ function setText(element, text) {
 
 function updateHud() {
   setText(objectiveText, currentObjective());
-  setText(moneyText, quest.money > 0 || quest.metLads ? `Гроші: ${quest.money} грн` : "");
+  setText(moneyText, quest.money > 0 || quest.metLads ? T().ui.money(quest.money) : "");
   checklist.hidden = !quest.metLads || quest.discoDone;
-  setCheck(checkBeer, quest.beersDrunk >= BEERS_NEEDED, `Випити 3 «Славутича» (${quest.beersDrunk}/${BEERS_NEEDED})`);
-  setCheck(checkSuit, quest.outfit === "sport", "Вдягти спортивний костюм");
-  setCheck(checkMoped, quest.riding, "Приїхати на мопеді «Карпати»");
+  setCheck(checkBeer, quest.beersDrunk >= BEERS_NEEDED, T().ui.checkBeer(quest.beersDrunk, BEERS_NEEDED));
+  setCheck(checkSuit, quest.outfit === "sport", T().ui.checkSuit);
+  setCheck(checkMoped, quest.riding, T().ui.checkMoped);
 }
 
 function setCheck(item, done, text) {
@@ -310,6 +310,13 @@ mapView.addEventListener("click", () => {
 });
 setHudCollapsed(loadHudCollapsed());
 newGameButton.addEventListener("click", startNewGame);
+document.querySelectorAll("[data-language]").forEach((button) => {
+  button.addEventListener("click", () => {
+    setLanguage(button.dataset.language);
+    applyLanguageToPage();
+  });
+});
+applyLanguageToPage();
 
 loadArt().then(() => {
   initWorld();
