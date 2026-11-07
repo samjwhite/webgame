@@ -241,10 +241,9 @@ function drawPlayer(ctx, time) {
   }
 }
 
-function drawNpc(ctx, npc) {
+function drawNpc(ctx, npc, time) {
   if (npc.sprite === "grandpa") {
-    // Grandpa is still the small hand-drawn sprite, so draw him at the height of the others.
-    ctx.drawImage(ART.grandpa, 0, 0, 16, 24, snap(npc.x - 13), snap(npc.y - 37), 26, 39);
+    drawFrame(ctx, ART.grandpa, Math.floor(time / 450) % 4, 28, npc.x - 14, npc.y - 41);
     return;
   }
   drawStanding(ctx, ART[npc.sprite], npc.x, npc.y, npc.x > player.x + 30);
@@ -265,7 +264,7 @@ function drawWorld(ctx, view, time, target) {
   const drawables = [];
   const add = (y, draw) => drawables.push({ y, draw });
 
-  npcs.forEach((npc) => add(npc.y, () => drawNpc(ctx, npc)));
+  npcs.forEach((npc) => add(npc.y, () => drawNpc(ctx, npc, time)));
   add(player.y, () => drawPlayer(ctx, time));
   if (quest.backpackDropped) add(places.backpack.y, () => drawStanding(ctx, ART.backpack, places.backpack.x, places.backpack.y));
   if (quest.mopedFound && !quest.riding) add(quest.moped.y, () => drawStanding(ctx, ART.moped, quest.moped.x, quest.moped.y));
