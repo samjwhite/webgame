@@ -43,14 +43,33 @@ function startTalkScene(npcId) {
   startPictureScene(TALK_PICTURES[npcId]);
 }
 
-function startWellScene() {
+// The well: each tap turns the crank a quarter, WELL_TURN_FRAMES crank frames move the bucket all the way.
+const WELL_TURN_FRAMES = 16;
+const WELL_CRANK_SPEED = 10; // crank frames per second
+const WELL_CRANK = { frameWidth: 39, x: 129, y: 35 };
+const WELL_BUCKET = { frameWidth: 17, x: 87, topY: 61, deepY: 98 };
+const WELL_ROPE = { x: 95, y: 54 };
+const BUCKET_FRAMES = { empty: 0, water: 1, splash: 3 };
+
+// direction "raise" pulls a full bucket up; "lower" lets an empty bucket down (for grandpa's future quest).
+// onDone runs once the bucket gets all the way.
+function startWellScene(direction, onDone) {
   closeup.type = "well";
-  closeup.done = !needsWater();
-  closeup.crank = closeup.done ? 8 : 0;
-  closeup.crankTarget = closeup.crank;
-  if (closeup.done) {
-    openDialog(["Вода в криниці холодна-холодна."], finishCloseup);
-  }
+  closeup.wellDirection = direction;
+  closeup.onWellDone = onDone;
+  closeup.crank = 0;
+  closeup.crankTarget = 0;
+  closeup.done = false;
+  closeup.sinceDone = 0;
+}
+
+// The well with the bucket already up, just to look at.
+function showWellAtRest(lines) {
+  startWellScene("raise", null);
+  closeup.crank = WELL_TURN_FRAMES;
+  closeup.done = true;
+  closeup.sinceDone = 1;
+  openDialog(lines, finishCloseup);
 }
 
 function startGardenScene() {
@@ -68,6 +87,7 @@ function startGardenScene() {
 }
 
 function stageSize() {
+  if (closeup.type === "well") return { w: ART.sceneWell.width, h: ART.sceneWell.height };
   if (closeup.type === "picture") {
     const picture = ART[closeup.picture];
     return { w: picture.width, h: picture.height };
@@ -83,14 +103,18 @@ function updateCloseup(dt, action, tap) {
 }
 
 function updateWell(dt, action, tap) {
-  if (closeup.done) return;
-  if (action || tap) closeup.crankTarget = Math.min(8, closeup.crankTarget + 1);
-  closeup.crank = Math.min(closeup.crankTarget, closeup.crank + 6 * dt);
-  showHint("Крути корбу: тисни A або торкайся екрана.");
-  if (closeup.crank >= 8) {
+  if (closeup.done) {
+    closeup.sinceDone += dt;
+    return;
+  }
+  if (action || tap) closeup.crankTarget = Math.min(WELL_TURN_FRAMES, closeup.crankTarget + 2);
+  closeup.crank = Math.min(closeup.crankTarget, closeup.crank + WELL_CRANK_SPEED * dt);
+  showHint(closeup.wellDirection === "raise"
+    ? "Крути корбу, щоб витягти відро: тисни A або торкайся екрана."
+    : "Крути корбу, щоб опустити відро: тисни A або торкайся екрана.");
+  if (closeup.crank >= WELL_TURN_FRAMES) {
     closeup.done = true;
-    quest.hasWater = true;
-    openDialog(["Повне відро холодної води! Аж зуби ломить."], finishCloseup);
+    if (closeup.onWellDone) closeup.onWellDone();
   }
 }
 
@@ -192,16 +216,25 @@ function drawPictureScene(ctx, time) {
   }
 }
 
-function drawWellScene(ctx, time) {
-  drawSky(ctx, "skyDay", time);
+function drawWellScene(ctx) {
+  const raising = closeup.wellDirection === "raise";
+  const progress = closeup.crank / WELL_TURN_FRAMES;
+  const { topY, deepY } = WELL_BUCKET;
+  const bucketY = raising ? deepY + (topY - deepY) * progress : topY + (deepY - topY) * progress;
+
+  let bucketFrame = raising ? BUCKET_FRAMES.water : BUCKET_FRAMES.empty;
+  if (raising && closeup.done && closeup.sinceDone < 0.6) bucketFrame = BUCKET_FRAMES.splash;
+
+  // Raising turns the crank forward, lowering plays the same frames backwards.
+  const step = Math.floor(closeup.crank) % 8;
+  const crankFrame = raising ? step : (8 - step) % 8;
+
   ctx.drawImage(ART.sceneWell, 0, 0);
-  const progress = closeup.crank / 8;
-  const bucketY = Math.round(116 - progress * 60);
   ctx.fillStyle = "#a9823a";
-  ctx.fillRect(96, 52, 1, bucketY - 50);
-  drawFrame(ctx, ART.bucket, closeup.done ? 1 : 0, 24, 84, bucketY);
+  ctx.fillRect(WELL_ROPE.x, WELL_ROPE.y, 1, bucketY + 1 - WELL_ROPE.y);
+  drawFrame(ctx, ART.bucket, bucketFrame, WELL_BUCKET.frameWidth, WELL_BUCKET.x, bucketY);
   ctx.drawImage(ART.wellFront, 0, 0);
-  drawFrame(ctx, ART.crank, Math.floor(closeup.crank * 2) % 4, 40, 138, 25);
+  drawFrame(ctx, ART.crank, crankFrame, WELL_CRANK.frameWidth, WELL_CRANK.x, WELL_CRANK.y);
 }
 
 function drawGardenScene(ctx, time) {
@@ -243,7 +276,7 @@ function drawStage(ctx, stage, time) {
   ctx.rect(0, 0, w, h);
   ctx.clip();
   if (closeup.type === "picture") drawPictureScene(ctx, time);
-  if (closeup.type === "well") drawWellScene(ctx, time);
+  if (closeup.type === "well") drawWellScene(ctx);
   if (closeup.type === "garden") drawGardenScene(ctx, time);
   ctx.restore();
 }

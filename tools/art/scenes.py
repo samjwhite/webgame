@@ -3,7 +3,7 @@
 import math
 import random
 from lib import Sprite, strip
-from world import wattle, LEAVES
+from world import LEAVES
 
 W, H = 192, 144
 
@@ -62,88 +62,6 @@ def tall_grass(s, top, seed, count=120):
             s.px(x + lean * (i * i) // (height * 2), base - i, color)
         if rng.random() < 0.15:
             s.px(x + lean * height // 2, base - height, rng.choice(["white", "yellow", "red_light", "blue_light"]))
-
-
-def well_background():
-    s = Sprite(W, H)
-    treeline(s, 64, 21)
-    grass_ground(s, 68, H, 22)
-    s.blit(wattle(W, 14), 0, 70)
-    # posts and roof
-    s.rect(44, 20, 8, 100, "wood")
-    s.rect(44, 20, 2, 100, "wood_light")
-    s.rect(140, 20, 8, 100, "wood")
-    s.rect(140, 20, 2, 100, "wood_light")
-    s.rect(43, 20, 1, 100, "outline")
-    s.rect(148, 20, 1, 100, "outline")
-    for y in range(22):
-        width = 64 + y * 5.5
-        x = 96 - width / 2
-        s.rect(x, y, width, 1, "wood_light" if y % 4 == 0 else "wood" if y % 4 < 3 else "wood_dark")
-    s.rect(30, 22, 132, 1, "outline")
-    s.rect(34, 23, 124, 2, (0, 0, 0, 80))
-    # drum with rope wound around it
-    s.rect(52, 38, 88, 14, "wood")
-    s.rect(52, 38, 88, 3, "wood_light")
-    s.rect(52, 49, 88, 3, "wood_dark")
-    for x in range(78, 114, 2):
-        s.rect(x, 39, 1, 12, "hay_dark")
-    # dark well opening
-    s.ellipse(96, 96, 40, 8, "outline")
-    s.ellipse(96, 96, 37, 6, "#1d2a30")
-    return s
-
-
-def well_front():
-    s = Sprite(W, H)
-    for row in range(5):
-        y = 96 + row * 10
-        s.rect(52, y, 88, 10, "wood")
-        s.rect(52, y, 88, 2, "wood_light")
-        s.rect(52, y + 8, 88, 2, "wood_dark")
-        s.shaded_ellipse(52, y + 5, 5, 5, ["wood_dark", "wood", "hay"])
-        s.shaded_ellipse(140, y + 5, 5, 5, ["wood_dark", "wood", "hay"])
-        s.px(52, y + 5, "wood_dark")
-        s.px(140, y + 5, "wood_dark")
-    tall_grass(s, 120, 31, 50)
-    return s
-
-
-def crank(frame):
-    s = Sprite(40, 40)
-    angle = frame / 4 * math.tau
-    cx, cy = 8, 20
-    hx = cx + math.cos(angle) * 14
-    hy = cy + math.sin(angle) * 14
-    for t in range(16):
-        x = cx + (hx - cx) * t / 15
-        y = cy + (hy - cy) * t / 15
-        s.rect(x - 1, y - 1, 3, 3, "gray_dark")
-    s.shaded_ellipse(cx, cy, 4, 4, ["gray_dark", "gray", "gray_light"])
-    s.rect(hx, hy - 2, 12, 4, "wood")
-    s.rect(hx, hy - 2, 12, 1, "wood_light")
-    s.outline()
-    return s
-
-
-def bucket(full):
-    s = Sprite(24, 22)
-    for y in range(16):
-        w = 20 - y * 0.35
-        x = 12 - w / 2
-        s.rect(x, 5 + y, w, 1, "gray_light" if y < 3 else "gray")
-        s.px(x, 5 + y, "gray_light")
-        s.px(x + w - 1, 5 + y, "gray_dark")
-    s.rect(2, 8, 20, 1, "gray_dark")
-    s.rect(3, 16, 18, 1, "gray_dark")
-    if full:
-        s.rect(3, 5, 18, 2, "water_light")
-        s.px(6, 5, "water_shine")
-    for i in range(9):
-        a = math.pi + i / 8 * math.pi
-        s.px(12 + math.cos(a) * 10, 5 + math.sin(a) * 5, "gray_dark")
-    s.outline()
-    return s
 
 
 def potato_bush(s, cx, cy, size, seed):
@@ -255,10 +173,6 @@ def groceries():
 def build(out):
     sky(["sky_top", "sky_mid", "sky_haze"]).save(f"{out}/sky_day.png")
     clouds_layer().save(f"{out}/clouds.png")
-    well_background().save(f"{out}/well.png")
-    well_front().save(f"{out}/well_front.png")
-    strip([crank(f) for f in range(4)]).save(f"{out}/crank.png")
-    strip([bucket(False), bucket(True)]).save(f"{out}/bucket.png")
     garden().save(f"{out}/garden.png")
     beetle_big().save(f"{out}/beetle.png")
     strip([hand(False), hand(True)]).save(f"{out}/hand.png")
