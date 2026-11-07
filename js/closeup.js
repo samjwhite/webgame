@@ -32,7 +32,7 @@ const closeup = {
   hand: null,
 };
 
-// effect: null, "disco" (moving lights), "hit" (red flashes), "night" (village after dark),
+// effect: null, "disco" (moving lights), "hit" (red flashes),
 // "tv" (the news on the screen), "sleep" or "dawn" (the bedroom at night or at sunrise).
 function startPictureScene(picture, effect) {
   closeup.type = "picture";
@@ -212,7 +212,6 @@ function drawPictureScene(ctx, time) {
     ctx.globalCompositeOperation = "source-over";
   }
 
-  if (closeup.effect === "night") drawNightfall(ctx, picture);
   if (closeup.effect === "fridge") drawFridgeShelves(ctx);
   if (closeup.effect === "sleep") drawSleeping(ctx, picture, time);
   if (closeup.effect === "dawn") drawDawn(ctx, picture);
@@ -223,16 +222,8 @@ function drawPictureScene(ctx, time) {
   }
 }
 
-function drawNightfall(ctx, picture) {
-  ctx.globalCompositeOperation = "multiply";
-  ctx.fillStyle = "#3a4a86";
-  ctx.fillRect(0, 0, picture.width, picture.height);
-  ctx.globalCompositeOperation = "source-over";
-  drawMoon(ctx, picture.width - 26, 22);
-}
-
 // The news shows through the see-through screen of tsn.png. news_frames.png is a strip of pictures:
-// 0 newsreader, 1 frozen wheat, 2 flour queue, 3 peacekeepers, 4 penalty, 5 song contest, 6 summit, 7 weather.
+// 0 newsreader, 1 poor harvest, 2 flour queue, 3 peacekeepers, 4 penalty, 5 song contest, 6 summit, 7 weather.
 // One picture for each line of each bulletin in the text files.
 const NEWS_SCREEN = { x: 39, y: 30, w: 96, h: 72 };
 const NEWS_PLAN = [

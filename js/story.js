@@ -41,6 +41,8 @@ function newQuest() {
     ateVarenyky: false,
     newsWatched: 0,
     metGrandmaToday: false,
+    foundBeer: false,
+    heroSaid: {},
   };
 }
 
@@ -270,6 +272,17 @@ function startNewDay() {
   quest.ateVarenyky = false;
   quest.newsWatched = 0;
   quest.metGrandmaToday = false;
+}
+
+// Someone left a bottle on the table: it counts once the lads have asked for beer.
+function canFindBeer() {
+  return quest.metLads && !quest.foundBeer && quest.beersDrunk < BEERS_NEEDED && !quest.discoDone && !isNight();
+}
+
+function useBeerBottle() {
+  quest.foundBeer = true;
+  quest.beersDrunk += 1;
+  return say([...T().hero.foundBeer, T().hero.drank(quest.beersDrunk, BEERS_NEEDED)], "speak");
 }
 
 function useTruck() {

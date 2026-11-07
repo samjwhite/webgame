@@ -123,6 +123,7 @@ test("furniture fits a person", () => {
   within("TV on its cabinet", drawnSize("world/house_tv.png").height, 28, 38);
   within("bed, long", drawnSize("world/house_bed.png").width, 50, 74);
   within("table", drawnSize("world/house_table.png").height, 22, 32);
+  within("bottle", drawnSize("world/beer_bottle.png").height, 8, 12);
 });
 
 test("locations in the approved style use the agreed scale", () => {

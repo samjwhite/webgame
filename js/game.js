@@ -81,6 +81,7 @@ function getBeaten() {
       quest.moped = { ...CLUB_PARKING };
     }
     enterLocation(WAKE_UP_SPOT.location, WAKE_UP_SPOT);
+    heroSay([T().hero.afterBeating]);
     showPicture("talkGrandma", wakeUpLines());
   }, "hit");
 }
@@ -101,6 +102,7 @@ function goToSleep() {
   showPicture("sleep", T().sleep, () => {
     startNewDay();
     enterLocation(MORNING_SPOT.location, MORNING_SPOT);
+    heroSay([T().hero.morning]);
     showPicture("sleep", T().morning(quest.day), finishCloseup, "dawn");
   }, "sleep");
 }
@@ -124,6 +126,7 @@ const TALK_ACTIONS = {
   borscht: useBorscht,
   varenyky: useVarenyky,
   fridge: useFridge,
+  beerBottle: useBeerBottle,
 };
 
 function useTarget(target) {
@@ -149,6 +152,9 @@ function useTarget(target) {
     const result = TALK_ACTIONS[target.id]();
     if (result.next === "ride") {
       showPicture("road", result.lines);
+    } else if (result.next === "speak") {
+      heroInterrupt(result.lines);
+      saveGame();
     } else if (result.next === "sleep") {
       openDialog(result.lines, goToSleep);
     } else if (result.next === "fridge") {

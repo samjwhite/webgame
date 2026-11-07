@@ -9,6 +9,8 @@ const SHED_DOOR = { x: 420, y: 100 };
 const CHICKEN_YARD = { left: 202, right: 271, top: 185, bottom: 275 };
 const SHOP_STEPS = [78, 124, 147, 161]; // the shop's steps and door, plus a stride in front of them
 const FADE_TIME = 0.18;
+// The half-finished bottle on the far table outside the shop.
+const BEER_BOTTLE = { x: 268, y: 139, sortY: 181 };
 let DEBUG = location.search.includes("debug");
 
 const player = { x: START.x, y: START.y, dir: "down", moving: false, walkTime: 0, toldExit: null };
@@ -45,6 +47,7 @@ const places = {
   borscht: { id: "borscht", location: "house", x: 225, y: 170 },
   fridge: { id: "fridge", location: "house", x: 300, y: 172 },
   varenyky: { id: "varenyky", location: "house", x: 250, y: 216 },
+  beerBottle: { id: "beerBottle", location: "shop", x: 268, y: 186 },
 };
 
 let chickens = [];
@@ -134,6 +137,85 @@ function drawGrandma(ctx, grandma, time) {
   const row = grandma.walking ? GRANDMA_ROWS[grandma.dir] : GRANDMA_IDLE_ROW;
   const col = Math.floor(time / (grandma.walking ? 200 : 450)) % 4;
   ctx.drawImage(sheet, col * w, row * h, w, h, snap(grandma.x - w / 2), snap(grandma.y - h + 2), w, h);
+}
+
+// The hero's own remarks, in a bubble over his head. They never stop the game.
+const SPEECH_MIN_SECONDS = 2.5;
+const SPEECH_SECONDS_PER_LETTER = 0.055;
+const SPEECH_WIDTH = 104;
+const SPEECH_FONT = 7;
+const SPEECH_LINE = 9;
+const heroSpeech = { queue: [], text: "", time: 0 };
+
+function heroSay(lines) {
+  heroSpeech.queue.push(...lines);
+  if (!heroSpeech.text) nextHeroLine();
+}
+
+// A reaction to what the hero just did comes at once, over anything he was saying.
+function heroInterrupt(lines) {
+  heroSpeech.queue = [...lines];
+  nextHeroLine();
+}
+
+function nextHeroLine() {
+  heroSpeech.text = heroSpeech.queue.shift() || "";
+  heroSpeech.time = heroSpeech.text ? Math.max(SPEECH_MIN_SECONDS, heroSpeech.text.length * SPEECH_SECONDS_PER_LETTER) : 0;
+}
+
+// Says something the first time he comes somewhere, once per game.
+function heroRemark(key, line) {
+  if (quest.heroSaid[key] || !line) return;
+  quest.heroSaid[key] = true;
+  heroSay([line]);
+}
+
+function updateHeroSpeech(dt) {
+  heroRemark(currentLocation, T().hero.places[currentLocation]);
+  if (isNearGarden()) heroRemark("garden", T().hero.garden);
+  if (isNight() && quest.discoDone) heroRemark("night", T().hero.night);
+  if (heroSpeech.text) {
+    heroSpeech.time -= dt;
+    if (heroSpeech.time <= 0) nextHeroLine();
+  }
+}
+
+function wrapSpeech(ctx, text) {
+  const lines = [];
+  let line = "";
+  text.split(" ").forEach((word) => {
+    const longer = line ? `${line} ${word}` : word;
+    if (line && ctx.measureText(longer).width > SPEECH_WIDTH) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = longer;
+    }
+  });
+  lines.push(line);
+  return lines;
+}
+
+function drawHeroSpeech(ctx, worldView, camX, camY) {
+  if (!heroSpeech.text) return;
+  ctx.font = `bold ${SPEECH_FONT}px monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  const lines = wrapSpeech(ctx, heroSpeech.text);
+  const width = Math.max(...lines.map((line) => ctx.measureText(line).width)) + 8;
+  const height = lines.length * SPEECH_LINE + 5;
+  const headTop = player.y - (quest.riding ? 40 : 44);
+  const left = Math.max(camX + 2, Math.min(camX + worldView.width - width - 2, player.x - width / 2));
+  const top = Math.max(camY + 2, headTop - height - 5);
+  ctx.fillStyle = "#2a1d17";
+  ctx.fillRect(snap(left - 1), snap(top - 1), width + 2, height + 2);
+  ctx.fillStyle = "#fff8e8";
+  ctx.fillRect(snap(left), snap(top), width, height);
+  const tailX = Math.max(left + 3, Math.min(left + width - 6, player.x - 1));
+  ctx.fillRect(snap(tailX), snap(top + height), 3, 3);
+  ctx.fillStyle = "#2a1d17";
+  lines.forEach((line, i) => ctx.fillText(line, snap(left + width / 2), snap(top + 3 + i * SPEECH_LINE)));
+  ctx.textAlign = "left";
 }
 
 function updateGuard(dog, time) {
@@ -479,6 +561,7 @@ function updateWorld(dt) {
   updatePlayer(dt);
   updateChickens(dt);
   updateAnimals(dt, performance.now());
+  updateHeroSpeech(dt);
   updateGrandma(dt);
   const mapWidth = ART[here().art].width;
   cloudShadows.forEach((cloud) => {
@@ -504,6 +587,7 @@ function isPlaceAvailable(place) {
     case "truck": return quest.unload === "working" && !isNight();
     case "shopDoor": return isNight();
     case "varenyky": return !quest.ateVarenyky;
+    case "beerBottle": return canFindBeer();
     default: return true;
   }
 }
@@ -643,27 +727,6 @@ function drawNight(ctx, worldView, camX, camY) {
   ctx.globalCompositeOperation = "source-over";
 }
 
-// The moon, painted by code until the night art arrives. Screen position, not part of the location.
-function drawMoon(ctx, x, y) {
-  ctx.globalCompositeOperation = "lighter";
-  const halo = ctx.createRadialGradient(x, y, 4, x, y, 34);
-  halo.addColorStop(0, "rgba(190, 210, 255, 0.4)");
-  halo.addColorStop(1, "rgba(190, 210, 255, 0)");
-  ctx.fillStyle = halo;
-  ctx.fillRect(x - 34, y - 34, 68, 68);
-  ctx.globalCompositeOperation = "source-over";
-  ctx.fillStyle = "#f4efd2";
-  ctx.beginPath();
-  ctx.arc(x, y, 9, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#d3cda9";
-  [[-3, -2, 2], [3, 3, 2], [2, -4, 1]].forEach(([dx, dy, r]) => {
-    ctx.beginPath();
-    ctx.arc(x + dx, y + dy, r, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
 // Did Petro on his bench: mostly sitting, now and then a pull on the cigarette.
 const PETRO_FRAME_W = 36;
 const PETRO_SMOKING = [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 3, 0, 0, 0];
@@ -740,6 +803,9 @@ function drawWorld(ctx, view, time, target) {
   animals.forEach((animal) => {
     if (animal.location === currentLocation) add(animal.y, () => drawAnimal(ctx, animal));
   });
+  if (currentLocation === "shop" && canFindBeer()) {
+    add(BEER_BOTTLE.sortY, () => drawStanding(ctx, ART.beerBottle, BEER_BOTTLE.x, BEER_BOTTLE.y));
+  }
   if (isNight() && location.nightProps) {
     location.nightProps.forEach((prop) => ctx.drawImage(ART[prop.art], prop.x, prop.y));
   }
@@ -788,11 +854,11 @@ function drawWorld(ctx, view, time, target) {
   drawExitArrows(ctx);
   if (DEBUG) drawSolids(ctx);
   if (target) drawHint(ctx, target, time);
+  if (mode === "world" && !dialog.open) drawHeroSpeech(ctx, worldView, camX, camY);
   ctx.restore();
   PIXEL = basePixel;
 
   if (!isNight()) drawSunlight(ctx, view, time);
-  if (isNight() && !here().indoor) drawMoon(ctx, view.width - 24, 72);
   if (travel.active) {
     ctx.fillStyle = `rgba(10, 8, 6, ${1 - Math.abs(travel.time / FADE_TIME - 1)})`;
     ctx.fillRect(0, 0, view.width, view.height);

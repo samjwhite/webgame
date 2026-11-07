@@ -10,7 +10,7 @@ TEXTS.en = {
     toggleTasks: "Show or hide tasks",
     money: (n) => `Money: ${n} UAH`,
     checklistTitle: "To get into the disco:",
-    checkBeer: (n, total) => `Drink 3 Slavutych beers (${n}/${total})`,
+    checkBeer: (n, total) => `Drink 3 beers (${n}/${total})`,
     checkSuit: "Put on the tracksuit",
     checkMoped: "Ride up on the Karpaty moped",
     map: "Map",
@@ -95,7 +95,7 @@ TEXTS.en = {
     noMoney: "Beer's two hryvnias, sunshine. Only cheese in a mousetrap comes free. Go pick beetles for Granny Hanya.",
     noMoneyJob: " Or carry my crates.",
     noCredit: "And I don't put it on the slate, don't ask. I know you city folk: here today, gone tomorrow — and there go my ten hryvnias.",
-    firstBeer: "Slavutych? Are you eighteen? Oh, I see, I see — there's a moustache coming in already. Two hryvnias.",
+    firstBeer: "Beer? Are you eighteen? Oh, I see, I see — there's a moustache coming in already. Two hryvnias.",
     nextBeer: "Another one? Oh, that boy's going to the dogs... Two hryvnias.",
     drink: (n, total) => `You open the bottle right there on the porch and drink it. Cold, a bit bitter. (${n}/${total})`,
   },
@@ -165,11 +165,11 @@ TEXTS.en = {
 
   lads: {
     noSuit: "Seryi: Jeans to a disco? What, off to the market in town?",
-    sober: "Vovchyk: Sober as our agronomist on a Monday. Have at least one Slavutych for courage.",
+    sober: "Vovchyk: Sober as our agronomist on a Monday. Have at least one beer for courage.",
     weakBeer: "Vovchyk: You smell of beer, but like you've only sniffed it.",
     onFoot: "Tolik: On foot? Even old Petro used to ride his bike to the disco.",
     noticeSuit: "Seryi: Got your Adidas on — oh, now you look like a person.",
-    noticeBeer: "Vovchyk: Smells of Slavutych, like after haymaking. One of us.",
+    noticeBeer: "Vovchyk: Smells of beer, like after haymaking. One of us.",
     noticeMoped: "Tolik: And you rattled up on your grandpa's Karpaty! I thought they'd sold it for parts long ago.",
     friends: [
       "Tolik: Tomorrow morning we're off to the pond for crucian carp. Come along when you wake up.",
@@ -242,7 +242,7 @@ TEXTS.en = {
   tsn: [
     [
       "The TV warms up for a whole minute, then the titles swim out of the snow: TSN, on 1+1.",
-      "Newsreader: Good evening. The main story today is bread. The winter wheat froze across vast areas, so there will be far less grain this year.",
+      "Newsreader: Good evening. The main story today is bread. It's a sad harvest this year: thin fields and far less grain.",
       "Newsreader: Viktor Yanukovych's government urges everyone not to panic. The public has calmly and without any panic carried all the flour and groats out of the shops.",
       "Newsreader: The government promises to punish traders for unjustifiably dear bread. You think of Valya and feel truly sorry for the government.",
       "Newsreader: Parliament has allowed Ukrainian peacekeepers to go to Iraq, around one thousand seven hundred of them. The Socialists are against.",
@@ -268,6 +268,24 @@ TEXTS.en = {
   sleep: ["You sleep.", "You dream that Tolik sells you to Valya for two hryvnias, and a Colorado beetle reads the news on TV."],
 
   morning: (day) => [`Day ${day}. The sun climbs in through the window, the rooster's yelling outside and something's frying in the kitchen.`],
+
+  hero: {
+    places: {
+      stop: "So this is Makitryne. No mobile signal, of course.",
+      street: "They promised to fix this road when I was little. Same old potholes.",
+      yard: "Grandma's yard. The fence has even more patches than last year.",
+      house: "It smells just like when I was a kid.",
+      club: "The house of culture. No culture, but sometimes a disco.",
+      shop: "\"Produkty\". I wonder if they have anything but bread and matches.",
+      pond: "What a spot. Silence, mosquitoes and Did Petro.",
+    },
+    garden: "Hello again, Colorado beetles. Long time no see.",
+    night: "It's night already. Better get home before Gran comes looking.",
+    afterBeating: "Ow... Nice to meet you too.",
+    morning: "My head's humming like Gran's fridge.",
+    foundBeer: ["Oh. Someone didn't finish their beer... Well, two hryvnias don't lie around in the road."],
+    drank: (n, total) => `Ah, that went down well! (${n}/${total})`,
+  },
 
   objective: {
     goHome: "It's night. Go home to Grandma's cottage.",

@@ -10,7 +10,7 @@ TEXTS.it = {
     toggleTasks: "Mostra o nascondi i compiti",
     money: (n) => `Soldi: ${n} grivnie`,
     checklistTitle: "Per entrare in discoteca:",
-    checkBeer: (n, total) => `Bere 3 birre Slavutych (${n}/${total})`,
+    checkBeer: (n, total) => `Bere 3 birre (${n}/${total})`,
     checkSuit: "Mettere la tuta",
     checkMoped: "Arrivare col motorino Karpaty",
     map: "Mappa",
@@ -95,7 +95,7 @@ TEXTS.it = {
     noMoney: "La birra costa due grivnie, tesoro. Gratis c'è solo il formaggio nella trappola. Vai a raccogliere dorifore dalla nonna Hanja.",
     noMoneyJob: " Oppure portami le casse.",
     noCredit: "E non segno sul quaderno, non chiedere. Vi conosco, voi di città: oggi qui, domani chissà — e addio dieci grivnie.",
-    firstBeer: "Slavutych? Hai diciott'anni? Eh, vedo, vedo — già spuntano i baffi. Due grivnie.",
+    firstBeer: "Birra? Hai diciott'anni? Eh, vedo, vedo — già spuntano i baffi. Due grivnie.",
     nextBeer: "Un'altra? Ah, questo ragazzo si perde... Due grivnie.",
     drink: (n, total) => `Apri la bottiglia lì sulla veranda e la bevi. Fresca, un po' amara. (${n}/${total})`,
   },
@@ -165,11 +165,11 @@ TEXTS.it = {
 
   lads: {
     noSuit: "Seryj: In jeans in discoteca? Che fai, vai al mercato in città?",
-    sober: "Vovchyk: Sobrio come il nostro agronomo di lunedì. Almeno una Slavutych per farti coraggio.",
+    sober: "Vovchyk: Sobrio come il nostro agronomo di lunedì. Almeno una birra per farti coraggio.",
     weakBeer: "Vovchyk: Sai di birra, ma come se l'avessi solo annusata.",
     onFoot: "Tolik: A piedi? Perfino il vecchio Petro veniva in discoteca in bicicletta.",
     noticeSuit: "Seryj: Ti sei messo l'Adidas — oh, adesso sembri una persona.",
-    noticeBeer: "Vovchyk: Sai di Slavutych, come dopo la fienagione. Uno dei nostri.",
+    noticeBeer: "Vovchyk: Sai di birra, come dopo la fienagione. Uno dei nostri.",
     noticeMoped: "Tolik: E sei arrivato col Karpaty del nonno! Pensavo l'avessero venduto a pezzi da un pezzo.",
     friends: [
       "Tolik: Domattina andiamo allo stagno a pescare carassi. Quando ti svegli, vieni.",
@@ -242,7 +242,7 @@ TEXTS.it = {
   tsn: [
     [
       "Il televisore si scalda per un minuto buono, poi dalla neve emerge la sigla: TSN, su 1+1.",
-      "Annunciatrice: Buonasera. La notizia del giorno è il pane. Quest'inverno il grano invernale è gelato su aree enormi, quindi quest'anno ce ne sarà molto meno.",
+      "Annunciatrice: Buonasera. La notizia del giorno è il pane. Quest'anno il raccolto è triste: campi radi e molto meno grano.",
       "Annunciatrice: Il governo di Viktor Janukovych invita a non farsi prendere dal panico. La popolazione, calma e senza alcun panico, ha portato via dai negozi farina e cereali.",
       "Annunciatrice: Il governo promette punizioni ai commercianti per il pane ingiustificatamente caro. Pensi a Valja e provi una sincera pena per il governo.",
       "Annunciatrice: Il parlamento ha autorizzato l'invio in Iraq di peacekeeper ucraini, circa millesettecento. I socialisti sono contrari.",
@@ -268,6 +268,24 @@ TEXTS.it = {
   sleep: ["Dormi.", "Sogni che Tolik ti vende a Valja per due grivnie, e che una dorifora legge il telegiornale."],
 
   morning: (day) => [`Giorno ${day}. Il sole entra dalla finestra, fuori il gallo urla e dalla cucina arriva odore di fritto.`],
+
+  hero: {
+    places: {
+      stop: "Ecco Makitryne. Niente campo per il cellulare, ovvio.",
+      street: "Questa strada dovevano aggiustarla già quando ero piccolo. Le buche sono le stesse.",
+      yard: "Il cortile della nonna. Il recinto è ancora più rattoppato dell'anno scorso.",
+      house: "Ha lo stesso odore di quando ero bambino.",
+      club: "La casa della cultura. La cultura non c'è, ma a volte c'è la discoteca.",
+      shop: "\"Produkty\". Chissà se c'è qualcosa oltre a pane e fiammiferi.",
+      pond: "Che posto. Silenzio, zanzare e nonno Petro.",
+    },
+    garden: "Salve, dorifore. È da un po' che non ci si vede.",
+    night: "È già notte. Meglio andare a casa prima che la nonna esca a cercarmi.",
+    afterBeating: "Ahi... Piacere di conoscervi.",
+    morning: "La testa mi ronza come il frigo della nonna.",
+    foundBeer: ["Oh. Qualcuno non ha finito la birra... Be', due grivnie non si trovano per strada."],
+    drank: (n, total) => `Ah, che bontà! (${n}/${total})`,
+  },
 
   objective: {
     goHome: "È notte. Torna a casa della nonna.",

@@ -40,6 +40,7 @@ function fakeCanvasContext() {
           if (!image || !image.width) throw new Error("Drew a picture that is not loaded");
         };
       }
+      if (key === "measureText") return (text) => ({ width: text.length * 4 });
       return proxy;
     },
     set: () => true,

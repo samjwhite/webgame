@@ -232,6 +232,60 @@ test("the TV has a picture for every line of every bulletin, in every language",
   assert.deepStrictEqual(problems, []);
 });
 
+test("no moon is drawn over the world at night", () => {
+  assert.strictEqual(game.inGame("() => typeof drawMoon"), "undefined");
+});
+
+test("the news stays in summer, and no beer brand is named", () => {
+  const texts = ["uk", "en", "it"].map((l) => fs.readFileSync(path.join(ROOT, "js/text", l + ".js"), "utf8"));
+  for (const text of texts) {
+    assert.ok(!/Славутич|Slavutych/.test(text), "a beer brand is named");
+  }
+  const news = game.inGame("() => LANGUAGES.map((l) => TEXTS[l].tsn.flat().join(' '))");
+  for (const text of news) {
+    assert.ok(!/морозк|вимерзл|зими|frost|froze|winter|gelat|invern/i.test(text), "winter in summer news");
+  }
+});
+
+test("the bottle on the far table: only once the lads asked, once, and it counts", () => {
+  const result = game.inGame(`() => {
+    kitGo("shop");
+    const before = isPlaceAvailable(places.beerBottle);
+    quest.metLads = true;
+    const asked = isPlaceAvailable(places.beerBottle);
+    draw(1000);
+    kitUse("beerBottle");
+    const spoke = heroSpeech.text;
+    const noDialog = !dialog.open;
+    const count = quest.beersDrunk;
+    const after = isPlaceAvailable(places.beerBottle);
+    draw(1000);
+    heroSpeech.queue = [];
+    heroSpeech.text = "";
+    return [before, asked, spoke === T().hero.foundBeer[0], noDialog, count, after];
+  }`);
+  assert.deepStrictEqual(result, [false, true, true, true, 1, false]);
+});
+
+test("the hero remarks once on each place, in a bubble that does not stop the game", () => {
+  const result = game.inGame(`() => {
+    heroSpeech.queue = [];
+    heroSpeech.text = "";
+    kitGo("pond");
+    update(0.02);
+    const first = heroSpeech.text;
+    const walking = mode === "world" && !dialog.open;
+    draw(1000);
+    for (let i = 0; i < 400; i++) update(0.05);
+    const cleared = heroSpeech.text;
+    update(0.02);
+    const again = heroSpeech.text;
+    const missing = LANGUAGES.flatMap((l) => Object.keys(LOCATIONS).filter((id) => !TEXTS[l].hero.places[id]).map((id) => l + ":" + id));
+    return [first === T().hero.places.pond, walking, cleared, again, missing];
+  }`);
+  assert.deepStrictEqual(result, [true, true, "", "", []]);
+});
+
 test("all languages have the same texts", () => {
   const problems = game.inGame(`() => {
     const paths = (o, p = "") => Object.entries(o).flatMap(([k, v]) => (v && typeof v === "object" && !Array.isArray(v) ? paths(v, p + k + ".") : [p + k]));

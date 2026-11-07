@@ -126,6 +126,8 @@ SHOP_SCENE_BOTTOM = 905  # the road in the scene is cut off: the shop is reached
 SHOP_SIZE = (333, 300)
 SHOP_GROUND = "shop_redraw.png"  # natural grass and the footpath, from the redrawn scene
 SHOP_GROUND_TOP = 590
+SHOP_BAKED_BOTTLE = (881, 588)
+SHOP_TABLE_CLEAN = (908, 588, 932, 648)
 # Night: the door shut with a padlock and the seller gone from her window. Boxes in the scene's pixels.
 SHOP_CLOSED_BOX = (400, 345, 790, 548)
 SHOP_DOORWAY = (435, 345, 572, 545)
@@ -177,6 +179,8 @@ def road_picture():
 def shop_scene():
     scene = load(SHOP_SCENE)
     size = (round(scene.width * SHOP_SCALE), round(SHOP_SCENE_BOTTOM * SHOP_SCALE))
+    # The bottle painted on the near table goes: the only bottle is the one the hero can drink.
+    scene.paste(scene.crop(SHOP_TABLE_CLEAN), SHOP_BAKED_BOTTLE[:2])
     top = scene.crop((0, 0, scene.width, SHOP_SCENE_BOTTOM)).resize(size, Image.Resampling.BOX)
     picture = Image.new("RGB", SHOP_SIZE)
     ground = load(SHOP_GROUND)
@@ -190,6 +194,17 @@ def shop_scene():
         draw_fade.line((0, size[1] - 1 - row, size[0], size[1] - 1 - row), fill=round(255 * row / 10))
     picture.paste(top, (0, 0), fade)
     return limit_palette(picture, 200)
+
+
+def beer_bottle():
+    """A half-finished bottle of beer, for the far table."""
+    s = Sprite(7, 11)
+    s.rect(3, 1, 1, 3, "#4f2f14")
+    s.rect(2, 4, 3, 6, "#5e3a18")
+    s.rect(2, 4, 1, 5, "#9a6a30")
+    s.rect(2, 6, 3, 2, "#e8dcb8")
+    s.outline()
+    return s
 
 
 def shop_closed():
@@ -296,6 +311,7 @@ TV_SCREEN_AREA = (36, 26, 138, 106)
 NEWS_FRAME = (96, 72)
 NEWS_COLUMNS = [(14, 440), (454, 880), (894, 1320), (1334, 1760)]
 NEWS_ROWS = [(70, 410), (468, 812)]
+NEWS_HARVEST_FRAME = 1  # replaces the winter picture: the game is set in summer
 
 
 def tv_picture():
@@ -319,6 +335,8 @@ def news_strip():
             frame = sheet.crop((left, top, right, bottom)).resize(NEWS_FRAME, Image.Resampling.BOX)
             strip.paste(limit_palette(frame, 64), (index * w, 0))
             index += 1
+    harvest = load("news_harvest.png").resize(NEWS_FRAME, Image.Resampling.BOX)
+    strip.paste(limit_palette(harvest, 64), (NEWS_HARVEST_FRAME * w, 0))
     return strip
 
 
@@ -414,6 +432,7 @@ def build(out_world):
 
     shop_scene().save(f"{out_world}/loc_shop.png", optimize=True)
     shop_closed().save(f"{out_world}/shop_closed.png", optimize=True)
+    beer_bottle().save(f"{out_world}/beer_bottle.png")
 
     room = house_room()
     room.save(f"{out_world}/loc_house.png", optimize=True)

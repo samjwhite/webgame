@@ -34,6 +34,7 @@ const ART_FILES = {
   moped: "world/moped.png",
   truck: "world/truck.png",
   crate: "world/crate.png",
+  beerBottle: "world/beer_bottle.png",
   rooster: "world/rooster.png",
   henWhite: "world/hen_white.png",
   henGinger: "world/hen_ginger.png",

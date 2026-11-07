@@ -32,6 +32,7 @@ Do not fix a wrong-looking object alone. First check whether the whole picture i
 | TV on its cabinet | 28–38 tall | 1.2 m | |
 | Bed | 50–74 long | 2 m, seen at an angle | |
 | Table | 22–32 tall | 0.75 m | Slightly exaggerated. |
+| Bottle on a table | 8–12 tall | 0.25 m | Twice life size, or it cannot be seen. |
 
 Small things are drawn slightly larger than life on purpose, because below about 10 px they stop reading. People's height and door height are not flexible; animals may go up only until they compete with a person. The owner rejected a cat at 24 px sitting (taller than half of grandpa) and rejected hens at 11 px once cats were reduced, so both are bounded from the two sides.
 
