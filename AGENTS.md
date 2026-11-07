@@ -12,6 +12,12 @@ These instructions apply to every AI agent working on this repository. Read this
 
 Ownership means who should perform the primary task, not who is prohibited from advising. Both agents should flag dependencies and hand work to the other owner instead of independently recreating their work.
 
+## Where objects come from
+
+**Every object the human asks for is drawn by the designer or taken from the existing library in `tools/art/reference/`.** First check whether it already exists; if it does not, order it (ChatGPT, or Codex through the `/art` skill). Agents do not draw objects themselves in code.
+
+The one exception: the human explicitly asks for a quick proof of concept and a fast result. Then simple sketches are allowed, and they stay marked as temporary until replaced.
+
 ## Branches
 
 - **`main` is the stable version** that players get (GitHub Pages publishes from it). Nothing goes there directly, art included. It changes only when the human asks for `dev` to be merged.

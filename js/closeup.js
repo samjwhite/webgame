@@ -195,7 +195,7 @@ function drawPictureScene(ctx, time) {
   const picture = ART[closeup.picture];
   if (closeup.effect === "tv") drawNewsScreen(ctx, time);
   ctx.drawImage(picture, 0, 0);
-  if (closeup.picture === "talkSeller" && quest.hasGroceries) ctx.drawImage(ART.groceries, 98, 132);
+  if (closeup.picture === "talkSeller") drawCounterGoods(ctx);
 
   if (closeup.effect === "disco") {
     const colors = ["255, 60, 200", "60, 200, 255", "255, 220, 60"];
@@ -252,8 +252,8 @@ function drawNewsScreen(ctx, time) {
 
 // What is in the fridge: fridge_items.png is a strip of 40x40 pictures, captions come from the text files.
 const FRIDGE_ITEM = 40;
-const FRIDGE_COLUMNS = [16, 76, 136];
-const FRIDGE_ROWS = [10, 76];
+const FRIDGE_COLUMNS = [24, 76, 128];
+const FRIDGE_ROWS = [21, 73];
 
 function drawFridgeShelves(ctx) {
   ctx.font = "bold 8px monospace";
@@ -264,11 +264,27 @@ function drawFridgeShelves(ctx) {
     const y = FRIDGE_ROWS[Math.floor(i / 3)];
     drawFrame(ctx, ART.fridgeItems, i, FRIDGE_ITEM, x, y);
     ctx.fillStyle = "#2a1d17";
-    ctx.fillRect(x - 10, y + 43, FRIDGE_ITEM + 20, 11);
+    ctx.fillRect(x - 5, y + 42, FRIDGE_ITEM + 10, 10);
     ctx.fillStyle = "#fff8e8";
-    ctx.fillText(caption, x + FRIDGE_ITEM / 2, y + 45);
+    ctx.fillText(caption, x + FRIDGE_ITEM / 2, y + 43);
   });
   ctx.textAlign = "left";
+}
+
+// Goods on the seller's counter: art and centre x. They stand on the counter's front edge,
+// between her abacus and the scales.
+const COUNTER_FRONT = 148;
+const COUNTER_GOODS = {
+  beer: [["goodsBeer", 124]],
+  groceries: [["goodsBread", 106], ["goodsNoodles", 134]],
+  stock: [["goodsLoaf", 106], ["goodsSugar", 132], ["goodsMatches", 146]],
+};
+
+function drawCounterGoods(ctx) {
+  (COUNTER_GOODS[sellerCounter] || []).forEach(([art, x]) => {
+    const image = ART[art];
+    ctx.drawImage(image, Math.round(x - image.width / 2), COUNTER_FRONT - image.height);
+  });
 }
 
 function drawSleeping(ctx, picture, time) {
@@ -277,7 +293,7 @@ function drawSleeping(ctx, picture, time) {
   ctx.textBaseline = "top";
   ["z", "Z", "z"].forEach((letter, i) => {
     const rise = (time / 60 + i * 14) % 42;
-    ctx.fillText(letter, 60 + i * 9 + Math.sin(rise / 6) * 2, 84 - rise);
+    ctx.fillText(letter, 48 + i * 9 + Math.sin(rise / 6) * 2, 60 - rise);
   });
 }
 

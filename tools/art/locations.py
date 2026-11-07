@@ -196,17 +196,6 @@ def shop_scene():
     return limit_palette(picture, 200)
 
 
-def beer_bottle():
-    """A half-finished bottle of beer, for the far table."""
-    s = Sprite(7, 11)
-    s.rect(3, 1, 1, 3, "#4f2f14")
-    s.rect(2, 4, 3, 6, "#5e3a18")
-    s.rect(2, 4, 1, 5, "#9a6a30")
-    s.rect(2, 6, 3, 2, "#e8dcb8")
-    s.outline()
-    return s
-
-
 def shop_closed():
     """Drawn over the shop at night. Lands at the scaled top-left corner of SHOP_CLOSED_BOX."""
     scene = load(SHOP_SCENE)
@@ -306,6 +295,25 @@ def house_room():
     return limit_palette(room.resize((round(room.width * HOUSE_SCALE), round(room.height * HOUSE_SCALE)), Image.Resampling.BOX), 200)
 
 
+# Shop goods (reference/shop_goods.png): box, and height on the counter in the seller close-up.
+# That picture is near the viewer: her face is about 45 px, so a bottle a little taller than a face is 44.
+GOODS = {
+    "beer": ((130, 45, 245, 355), 44),
+    "bread": ((395, 125, 685, 315), 26),
+    "loaf": ((750, 135, 1065, 295), 20),
+    "noodles": ((1165, 100, 1370, 330), 26),
+    "sugar": ((90, 442, 285, 655), 34),
+    "matches": ((485, 518, 600, 588), 8),
+    "fish": ((785, 488, 1022, 618), 12),
+    "chocolate": ((1140, 485, 1390, 618), 9),
+    "sausage": ((50, 840, 320, 948), 13),
+    "oil": ((485, 728, 600, 1038), 44),
+    "seeds": ((812, 765, 990, 1025), 30),
+    "cigarettes": ((1200, 778, 1335, 992), 18),
+}
+BEER_ON_TABLE = 11  # the same bottle out in the world, next to a person 40 px tall
+
+
 # The TV close-up, with the screen see-through so the news shows behind it, and the news itself.
 TV_SCREEN_AREA = (36, 26, 138, 106)
 NEWS_FRAME = (96, 72)
@@ -341,37 +349,6 @@ def news_strip():
 
 
 # ---------- close-ups, 192 wide ----------
-
-def sleep_scene():
-    s = Sprite(192, 144, "#161a2e")
-    s.rect(112, 12, 62, 60, "#28345c")
-    s.rect(116, 16, 54, 52, "#10183a")
-    s.rect(142, 16, 2, 52, "#28345c")
-    s.rect(116, 40, 54, 2, "#28345c")
-    s.ellipse(156, 28, 6, 6, "#f4efd2")
-    s.rect(0, 96, 192, 48, "#3d2f4a")
-    s.rect(18, 88, 58, 32, "#b8b3a6")
-    s.rect(0, 112, 192, 32, "#563366")
-    s.rect(40, 96, 34, 18, "#d6a782")
-    s.ellipse(52, 96, 12, 8, "#4a2e1c")
-    return s
-
-
-def fridge_scene():
-    """The open fridge: white enamel walls, two wire shelves, the little lamp on top."""
-    s = Sprite(192, 142, "#efeadb")
-    s.gradient(0, 0, 192, 142, ["#f7f3e6", "#dcd6c4"])
-    s.rect(0, 0, 192, 4, "#b9b2a0")
-    s.rect(0, 138, 192, 4, "#b9b2a0")
-    s.rect(0, 0, 4, 142, "#c9c2b0")
-    s.rect(188, 0, 4, 142, "#c9c2b0")
-    s.rect(88, 4, 16, 5, "#f8e08a")
-    for y in (64, 130):
-        s.rect(4, y, 184, 2, "#8d8778")
-        for x in range(8, 188, 8):
-            s.rect(x, y, 1, 3, "#a8a39a")
-    return s
-
 
 # Approved art (reference/fridge_items.png): each item's box, in the order of fridgeItems in the text files.
 FRIDGE_ITEM = 40
@@ -432,7 +409,8 @@ def build(out_world):
 
     shop_scene().save(f"{out_world}/loc_shop.png", optimize=True)
     shop_closed().save(f"{out_world}/shop_closed.png", optimize=True)
-    beer_bottle().save(f"{out_world}/beer_bottle.png")
+    goods = load("shop_goods.png")
+    house_prop(goods, GOODS["beer"][0], BEER_ON_TABLE).save(f"{out_world}/beer_bottle.png")
 
     room = house_room()
     room.save(f"{out_world}/loc_house.png", optimize=True)
@@ -445,8 +423,10 @@ def build(out_world):
     tv_picture().save(os.path.join(scenes_folder, "tsn.png"))
     news_strip().save(os.path.join(scenes_folder, "news_frames.png"), optimize=True)
     scene(load("club_night.png")).save(os.path.join(scenes_folder, "nightfall.png"))
-    sleep_scene().save(os.path.join(scenes_folder, "sleep.png"))
-    fridge_scene().save(os.path.join(scenes_folder, "fridge_open.png"))
+    scene(load("sleep_room.png")).save(os.path.join(scenes_folder, "sleep.png"))
+    scene(load("fridge_inside.png")).save(os.path.join(scenes_folder, "fridge_open.png"))
+    for name, (box, height) in GOODS.items():
+        house_prop(goods, box, height).save(os.path.join(scenes_folder, f"goods_{name}.png"))
     fridge_items().save(os.path.join(scenes_folder, "fridge_items.png"))
 
 

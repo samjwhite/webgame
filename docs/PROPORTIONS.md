@@ -36,6 +36,10 @@ Do not fix a wrong-looking object alone. First check whether the whole picture i
 
 Small things are drawn slightly larger than life on purpose, because below about 10 px they stop reading. People's height and door height are not flexible; animals may go up only until they compete with a person. The owner rejected a cat at 24 px sitting (taller than half of grandpa) and rejected hens at 11 px once cats were reduced, so both are bounded from the two sides.
 
+## Close-ups have their own scale
+
+A close-up is nearer to the viewer, so the same object is larger. Measure against the person in that picture. In the seller close-up her face is about 45 px, so a beer bottle (a little taller than a face) is 44 px, while the same bottle on a table outside is 11 px. Goods on that counter are 26 px for bread and noodles, 34 for a bag of sugar and 8 for matches.
+
 ## Scaling source pictures into the game
 
 Pictures are generated large and scaled down. Measure a known object, then pick the scale:

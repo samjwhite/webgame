@@ -12,6 +12,8 @@ When receiving art from ChatGPT, do not assume it is production-ready. Validate 
 
 If a user asks for both visual design and implementation, describe the sequence and give the user the next specific assignment for ChatGPT, then resume integration after approved art is available.
 
+Objects the human asks for come from the designer or the library in `tools/art/reference/`, never drawn by you in code, unless the human explicitly asks for a quick proof of concept. See "Where objects come from" in AGENTS.md.
+
 Core paths:
 - `README.md`: game and build instructions
 - `js/assets.js`: asset registry

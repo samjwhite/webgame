@@ -141,11 +141,16 @@ function wakeUpLines() {
 
 // ---------- Valya, the shop ----------
 
+// What is on the counter while the seller talks: a name from COUNTER_GOODS, or null.
+let sellerCounter = null;
+
 function talkToValya() {
   const text = T().valya;
+  sellerCounter = null;
   if (quest.stage === "shop" && !quest.hasGroceries) {
     quest.hasGroceries = true;
     quest.money -= 5;
+    sellerCounter = "groceries";
     return say(text.groceries);
   }
 
@@ -166,6 +171,7 @@ function talkToValya() {
 
   if (quest.metLads && quest.beersDrunk < BEERS_NEEDED) return sellBeer();
 
+  sellerCounter = "stock";
   return say([text.idle]);
 }
 
@@ -177,6 +183,7 @@ function sellBeer() {
   }
   quest.money -= BEER_PRICE;
   quest.beersDrunk += 1;
+  sellerCounter = "beer";
   return say([
     quest.beersDrunk === 1 ? text.firstBeer : text.nextBeer,
     text.drink(quest.beersDrunk, BEERS_NEEDED),

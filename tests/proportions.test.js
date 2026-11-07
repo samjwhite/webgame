@@ -123,7 +123,15 @@ test("furniture fits a person", () => {
   within("TV on its cabinet", drawnSize("world/house_tv.png").height, 28, 38);
   within("bed, long", drawnSize("world/house_bed.png").width, 50, 74);
   within("table", drawnSize("world/house_table.png").height, 22, 32);
-  within("bottle", drawnSize("world/beer_bottle.png").height, 8, 12);
+  within("bottle in the world", drawnSize("world/beer_bottle.png").height, 8, 12);
+});
+
+test("goods on the seller's counter are in scale with her face and each other", () => {
+  within("beer bottle", drawnSize("scenes/goods_beer.png").height, 38, 48);
+  within("round bread", drawnSize("scenes/goods_bread.png").height, 22, 30);
+  within("noodles", drawnSize("scenes/goods_noodles.png").height, 22, 30);
+  within("sugar", drawnSize("scenes/goods_sugar.png").height, 28, 38);
+  within("matches", drawnSize("scenes/goods_matches.png").height, 6, 10);
 });
 
 test("locations in the approved style use the agreed scale", () => {

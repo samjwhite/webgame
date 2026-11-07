@@ -232,6 +232,29 @@ test("the TV has a picture for every line of every bulletin, in every language",
   assert.deepStrictEqual(problems, []);
 });
 
+test("what is bought stands on the shop's counter", () => {
+  const result = game.inGame(`() => {
+    kitGo("shop");
+    Object.assign(quest, { stage: "shop", money: 5 });
+    kitUse("valya");
+    const groceries = sellerCounter;
+    draw(1000);
+    kitFinishDialogs();
+    Object.assign(quest, { stage: "done", metLads: true, unload: "done", money: 2, beersDrunk: 0 });
+    kitUse("valya");
+    const beer = sellerCounter;
+    draw(1000);
+    kitFinishDialogs();
+    Object.assign(quest, { beersDrunk: BEERS_NEEDED });
+    kitUse("valya");
+    const stock = sellerCounter;
+    kitFinishDialogs();
+    const missing = Object.values(COUNTER_GOODS).flat().filter(([art]) => !ART[art]).map(([art]) => art);
+    return [groceries, beer, stock, missing];
+  }`);
+  assert.deepStrictEqual(result, ["groceries", "beer", "stock", []]);
+});
+
 test("no moon is drawn over the world at night", () => {
   assert.strictEqual(game.inGame("() => typeof drawMoon"), "undefined");
 });

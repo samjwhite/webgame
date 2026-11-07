@@ -16,6 +16,10 @@
 
 **Sizes:** the full table and the scaling rule are in [PROPORTIONS.md](PROPORTIONS.md). Sprites placed on a painted picture need its warm light; ask for no black outline.
 
+**Still drawn in code, to be replaced by the designer:** the padlocked shop door at night (`shop_closed`), Grandma's temporary movement until her sheet is approved, and the older mini-game pieces in `tools/art/scenes.py` and `world.py`.
+
+**Shop goods library:** `tools/art/reference/shop_goods.png`: beer, dark and white bread, noodles, sugar, matches, tinned fish, chocolate, sausage, sunflower oil, seeds, cigarettes. Check it before ordering a new item.
+
 ## Art direction (from the product owner)
 
 - **Our own look.** Do not copy Stardew Valley or Cast n Chill, or any other game. This has to be a design of its own.

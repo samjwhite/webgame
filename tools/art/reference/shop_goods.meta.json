@@ -1,0 +1,62 @@
+{
+  "created": "2026-11-07T20:54:00+00:00",
+  "status": "approved by the human and promoted to tools/art/reference/shop_goods.png",
+  "user_request": "Sprite sheet of separate goods sold in a village shop in Poltava region, summer 2003, in the warm pixel art of the attached picture, seen from the front at the same angle as things on the counter in that picture. Flat #26222f background, wide empty gaps, nothing touching, no labels, no ground, no shadows, no brand names or readable text. All at one true scale to each other. Row 1: a brown glass beer bottle with a plain label and a metal cap; a round loaf of dark village bread; a long white loaf; a yellow packet of instant noodles with no writing. Row 2: a paper bag of sugar; a small matchbox; a tin of canned fish; a bar of dark chocolate in plain foil and paper. Row 3: a stick of sausage; a bottle of sunflower oil; a packet of sunflower seeds in a plain paper cone; a plain pack of cigarettes.",
+  "prompt": "Use your built-in image generation tool exactly once to draw the asset below. Do not draw it with code, Pillow, SVG or any script. Do not run commands and do not create or change any file: the image tool's own output is collected automatically.\nIf no image generation tool is available, make no substitute: reply exactly IMAGE_TOOL_UNAVAILABLE and stop.\n\n# Art bible\n\n# Art bible — Літо в селі / Makitryne\n\nThe shared design memory for every agent that draws or integrates art (ChatGPT, Codex, Claude Code). Read it together with [AGENTS.md](../AGENTS.md) and [ART_WORKFLOW.md](ART_WORKFLOW.md). The approved images in `tools/art/reference/` on GitHub `main` are the source of truth; this file describes them and the decisions behind them.\n\n## Setting and tone\n\n- Village of **Makitryne**, Poltava region, Ukraine, **summer 2003** (Kuchma era).\n- Lived-in and weathered but cared for: whitewashed houses with blue window frames, wavy asbestos-slate roofs with moss, chipped plaster showing brick, wooden picket fences, yellow gas pipes, concrete bus stop with a faded mosaic, Soviet-era vehicles. Signs are in Ukrainian (\"Продукти\", \"Будинок культури\").\n- Warm, nostalgic, gently ironic. Never grim, never \"gopnik\" or criminal. Never a Japanese or fairy-tale village.\n- **Approved style reference:** `tools/art/reference/loc_yard.png`, grandma's yard. The owner's words: more sense than the old map, and the patchwork fence and the gas pipe along it look truly authentic. Draw new locations to match it.\n- Our own look, not a copy of *Stardew Valley*, *Cast n Chill* or any other game: visible pixels, soft dithering, earthy palette (ochre, dusty green, faded blue, whitewash, rust), late-afternoon light, dark outlines on characters and props.\n- Yards are inspired by real Poltava village yards: authentic and Ukrainian, with no folk-costume kitsch (\"шароварщина\"), no cute tidy sheds and no neat decorative flowerbeds.\n- Plants and trees are those of the Middle Dnieper and Poltava region (forest-steppe), not generic game foliage or anything from Japanese-style games. The list is in [ART_HANDOFF_LOCATIONS.md](ART_HANDOFF_LOCATIONS.md).\n- Everything seen or mentioned exists in 2003: nothing from later, and nothing kept from the Soviet past as decoration. Old Soviet-made things are fine when they are simply still in use, aged and repaired.\n- Avoid: photorealism, smooth vector shading, blurry anti-aliased edges, glossy or new-looking objects, anything after 2003, text except short Ukrainian signs.\n- The village is a set of separate full-screen locations, each with its own art and every object as its own sprite. The current request for the designer: [ART_HANDOFF_LOCATIONS.md](ART_HANDOFF_LOCATIONS.md). Location pictures in the game are temporary until that art is approved.\n\n## Characters (approved looks)\n\n| Who | Look | Reference files |\n|---|---|---|\n| **Hero**, city grandson | Curly brown hair, white T-shirt, light jeans, olive backpack. Later a navy Adidas tracksuit with white stripes. | `hero_city_sheet.png`, `hero_sport_sheet.png`, `collage.png` |\n| **Hero on the moped** | Orange Karpaty moped; the sheet shows a brown jacket and flat cap (a tracksuit version may replace it later). | `moped_sheet.png` |\n| **Baba Hanya**, grandma | Headscarf, floral dress, apron, kind round face. | `grandma.png`, `collage.png` |\n| **Valya**, shop seller | Red headscarf, pink blouse, blue checked apron, arms crossed, loud and warm. | `seller.png`, `collage.png` |\n| **Did Petro**, grandpa | Flat cap, grey moustache, checked shirt, dark vest, rubber boots, cigarette, sits by the pond. | `grandpa_pond.png` (close-up). The world sprite is repainted from the hero idle frames; a full-height picture is still wanted. |\n| **Tolik, Vovchyk, Seryi**, village lads | Ordinary village youth in tracksuits and caps, sunflower seeds, one squatting. Not gangsters. | `lads.png`, `collage.png` |\n| Chickens | Rooster, white, ginger and black hens: walk, peck, flap. | `chicken_sheet.png` |\n\n## Places\n\n| Place | Reference files |\n|---|---|\n| Whole village map (top-down, 48×32 tiles of 32 px at source size) | `village_map.png` (current), `village_map_old.png` (used only to patch the legend) |\n| Club square and Будинок культури | `club_square.png`, `club_topdown.png`, `disco.png` |\n| Shop \"Продукти\", houses, bus stop, props | `props_sheet_1.png`, `props_sheet_2.png`, `props_sheet_3.png`, `sheet_club.png` |\n| Well close-up and its animation parts | `well_scene.png`, `well_sheet.png` |\n| Shed with the moped | `shed.png` |\n| Title screen and app icon | `club_square.png`, `icon.png` |\n\n## Design decisions to keep\n\n- The statue on the square was Lenin, repainted into Shevchenko (moustache painted on, \"В. І.\" showing under \"Т. Г. Шевченко\").\n- The shop sign reads **\"Продукти\"** (some older pictures say \"Магазин\" or \"Сільський магазин\").\n- Grandpa's clothes are old, not a real wedding suit. That's only a joke in his dialogue.\n- The lads are village youth (haymaking, cows, fishing, football against Mykhailivka), not street toughs.\n- Buildings keep their Ukrainian signs in every game language.\n\n### Shop beer garden\n\n- Beside the **Продукти** grocery shop, group simple outdoor tables under a faded green **Чернігівське** beer umbrella. Keep the furniture weathered and the setup modest, in keeping with Makitryne in summer 2003.\n- Use a concrete lamp post, or a concrete base with a wooden upper section. Keep the shop frontage clear of crates and loose bottles.\n- Place a seated mixed-breed village dog near the shop as part of the scene.\n\n### Village dogs\n\n- Draw several distinct mixed-breed yard dogs (дворняги). Vary their silhouettes, ear shapes, and coat markings so the dogs read as different individuals at game scale. Use the established earthy palette, dark outlines, and visible pixel clusters.\n- Include a seated pose for the shop dog. Follow the shared sprite-sheet conventions below for separation, scale, and ground line. In the game they are cut by `tools/art/animals.py` at 36×32 cells, facing right.\n\n### Village yard cats\n\n- Ordinary semi-stray village cats have natural adult proportions, scruffy coats, muted colors, and irregular markings. The approved designs are a shaggy brown-gray tabby, a cream-white cat with a black cap and a dark spot beneath its nose, and a calico with uneven rust and charcoal patches.\n- Awake cats generally have neutral expressions and relaxed ears. The standing tabby is the single angry variant, with narrowed eyes and ears angled outward. Sleeping cats look relaxed.\n- The approved source sheet (`yard_cats_v3.png`, delivered in chat) is 1536×1024 with nine separated sprites on a dark background. Rows follow the coat order above. Columns show standing, seated, and curled sleeping poses. In the game they are cut by `tools/art/animals.py` from `incoming/yard_cats_v3.png` at 26×18 cells, facing right.\n\n## Technical specs (game pixels after processing)\n\nThe game draws at 1 game pixel = several screen pixels; sources are drawn large and scaled down by `tools/art/reference.py`.\n\n| Asset | Game size | Source layout expected |\n|---|---|---|\n| Village map | 768×512 (source 1536×1024, scale 0.5) | One top-down picture; changing layout means changing collisions in `js/map.js`. |\n| Hero walk/idle | frames 28×44 | Rows: down, up, left, right × 8 frames, plus 4 idle frames to the right (see `HERO_*` in `reference.py`). |\n| Hero on moped | frames 45×38 | Rows: right ×6, left ×6, one back view, one front view. |\n| Standing NPCs | 40 px tall | Full figure, front view, separated on a flat dark background. |\n| Chickens | ~16–20 px tall, 11 frames | idle, walk ×5, peck ×4, flap. |\n| Close-up scenes | 192 px wide | Any landscape picture; framed and scaled automatically. |\n| Checklist icons | 32 px tall | Object on dark background. |\n| Well parts | crank 39×35 ×8 frames, bucket 17×22 ×4 | Separate parts on dark background (`well_sheet.png`). |\n\nSprite sheets: flat dark background `#26222f` (or transparency), every frame clearly separated, the same scale and ground line in all frames, no labels. Anything drawn as one picture with frames touching or labels inside needs manual crop work.\n\n## How new art enters the game\n\n1. A spec in the AGENTS.md handoff format (size, frames, filename, acceptance criteria).\n2. An image produced by ChatGPT or by Codex (see [CODEX_SETUP.md](CODEX_SETUP.md)), saved as a **candidate**. Never overwrite a file in `tools/art/reference/`.\n3. Human approval.\n4. Claude Code adds it to `tools/art/reference/`, sets crops in `tools/art/reference.py`, runs `python3 tools/art/build.py`, tests the game and merges through a PR.\n\n# Attached reference images (match their style and keep their approved designs)\n\n- seller.png\n\n# Asset to draw\n\nSprite sheet of separate goods sold in a village shop in Poltava region, summer 2003, in the warm pixel art of the attached picture, seen from the front at the same angle as things on the counter in that picture. Flat #26222f background, wide empty gaps, nothing touching, no labels, no ground, no shadows, no brand names or readable text. All at one true scale to each other. Row 1: a brown glass beer bottle with a plain label and a metal cap; a round loaf of dark village bread; a long white loaf; a yellow packet of instant noodles with no writing. Row 2: a paper bag of sugar; a small matchbox; a tin of canned fish; a bar of dark chocolate in plain foil and paper. Row 3: a stick of sausage; a bottle of sunflower oil; a packet of sunflower seeds in a plain paper cone; a plain pack of cigarettes.\n",
+  "references": [
+    "tools/art/reference/seller.png"
+  ],
+  "command": [
+    "codex",
+    "exec",
+    "-C",
+    "<empty temp folder>",
+    "-s",
+    "read-only",
+    "--skip-git-repo-check",
+    "--ignore-user-config",
+    "--enable",
+    "image_generation",
+    "--json",
+    "--image",
+    "tools/art/reference/seller.png"
+  ],
+  "codex_thread": "01a1b7c9-7d77-7110-9a0c-49a6773eaca3",
+  "images_produced": 1,
+  "seconds": 44,
+  "usage": {
+    "input_tokens": 122400,
+    "cached_input_tokens": 112384,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 563,
+    "reasoning_output_tokens": 16
+  },
+  "plan": {
+    "plan_type": "plus",
+    "credits": {
+      "has_credits": false,
+      "unlimited": false,
+      "balance": "0"
+    },
+    "used_percent_5h": 15.0,
+    "used_percent_week": 3.0
+  },
+  "sha256": "033d10f8cde5b079d0cdfca4e0fa14cde534649559ac7de6353b824905714851",
+  "output": {
+    "path": "tools/art/reference/generated/shop_goods.png",
+    "format": "PNG",
+    "size": [
+      1448,
+      1086
+    ],
+    "mode": "RGB",
+    "has_transparency": false,
+    "corners": [
+      "#27222c",
+      "#27222d",
+      "#27222c",
+      "#28232e"
+    ]
+  },
+  "promoted": "2026-11-07T20:57:25+00:00"
+}
