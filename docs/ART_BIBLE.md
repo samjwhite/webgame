@@ -41,6 +41,17 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 - The lads are village youth (haymaking, cows, fishing, football against Mykhailivka), not street toughs.
 - Buildings keep their Ukrainian signs in every game language.
 
+### Shop beer garden
+
+- Beside the **Продукти** grocery shop, group simple outdoor tables under a faded green **Чернігівське** beer umbrella. Keep the furniture weathered and the setup modest, in keeping with Makitryne in summer 2003.
+- Use a concrete lamp post, or a concrete base with a wooden upper section. Keep the shop frontage clear of crates and loose bottles.
+- Place a seated mixed-breed village dog near the shop as part of the scene.
+
+### Village dogs
+
+- Draw several distinct mixed-breed yard dogs (дворняги). Vary their silhouettes, ear shapes, and coat markings so the dogs read as different individuals at game scale. Use the established earthy palette, dark outlines, and visible pixel clusters.
+- Include a seated pose for the shop dog. Follow the shared sprite-sheet conventions below for separation, scale, and ground line. Frame dimensions, animation layout, and crop coordinates are pending an implementation spec.
+
 ## Technical specs (game pixels after processing)
 
 The game draws at 1 game pixel = several screen pixels; sources are drawn large and scaled down by `tools/art/reference.py`.
