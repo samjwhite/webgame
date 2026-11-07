@@ -19,14 +19,29 @@
   <canvas id="game"></canvas>
 
   <div id="objective" hidden>
-    <div id="objective-text"></div>
-    <div id="money"></div>
-    <div id="checklist" hidden>
-      <div class="checklist-title">Щоб потрапити на дискотеку:</div>
-      <div id="check-beer"><img src="art/ui/beer.png?v=dev" alt=""><span></span></div>
-      <div id="check-suit"><img src="art/ui/tracksuit.png?v=dev" alt=""><span></span></div>
-      <div id="check-moped"><img src="art/ui/moped.png?v=dev" alt=""><span></span></div>
+    <button id="objective-toggle" aria-label="Згорнути або розгорнути завдання">
+      <span>Завдання</span><span id="objective-arrow">▲</span>
+    </button>
+    <div id="objective-body">
+      <div id="objective-text"></div>
+      <div id="money"></div>
+      <div id="checklist" hidden>
+        <div class="checklist-title">Щоб потрапити на дискотеку:</div>
+        <div class="check-item" id="check-beer"><span class="check"></span><img src="art/ui/beer.png?v=dev" alt=""><span class="label"></span></div>
+        <div class="check-item" id="check-suit"><span class="check"></span><img src="art/ui/tracksuit.png?v=dev" alt=""><span class="label"></span></div>
+        <div class="check-item" id="check-moped"><span class="check"></span><img src="art/ui/moped.png?v=dev" alt=""><span class="label"></span></div>
+      </div>
     </div>
+  </div>
+
+  <button id="map-button" hidden>Карта</button>
+
+  <div id="map-view" hidden>
+    <div id="map-frame">
+      <img src="art/world/map.png?v=dev" alt="Карта села">
+      <div id="map-marker"></div>
+    </div>
+    <p>Торкнись, щоб закрити</p>
   </div>
 
   <div id="dialog" hidden>
