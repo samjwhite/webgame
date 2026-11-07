@@ -35,11 +35,15 @@ function finishCloseup() {
   saveGame();
 }
 
-function showPicture(picture, lines, onClose, effect) {
+// speaker: who says the lines that do not name anyone (see readLine in dialog.js).
+function showPicture(picture, lines, onClose, effect, speaker) {
   mode = "closeup";
   startPictureScene(picture, effect);
-  openDialog(lines, onClose || finishCloseup);
+  openDialog(lines, onClose || finishCloseup, speaker);
 }
+
+// Who speaks in each talk picture, unless a line names someone else.
+const TALK_SPEAKERS = { grandma: "grandma", grandpa: "grandpa", valya: "valya" };
 
 function startNewGame() {
   clearSave();
@@ -83,20 +87,55 @@ function getBeaten() {
     }
     enterLocation(WAKE_UP_SPOT.location, WAKE_UP_SPOT);
     heroSay([T().hero.afterBeating]);
-    showPicture("talkGrandma", wakeUpLines());
+    showPicture("talkGrandma", wakeUpLines(), null, null, "grandma");
   }, "hit");
 }
 
-// The lads let the hero in: the evening has come, and night falls over the village.
+// In the garden grandma sees the hero picking beetles by hand and sends him to grandpa for the sprayer.
+function grandmaStopsHandPicking() {
+  showPicture("talkGrandma", stopPicking(), finishCloseup, null, "grandma");
+}
+
+// The hero is ready before the evening: he may wait for it by the club. The day stays the same.
+function offerEvening() {
+  openChoice(T().ui.waitTitle, [
+    {
+      label: T().ui.waitEvening,
+      pick: () => {
+        advancePhase("evening");
+        saveGame();
+        showPicture("nightfall", T().evening, () => showPicture("talkLads", T().lads.welcome, goToDisco));
+      },
+    },
+    { label: T().ui.notYet, pick: finishCloseup },
+  ]);
+}
+
+// The lads let the hero in. Inside he notices a girl he does not know and chooses what to do.
+// The disco ends at night; the day changes only after sleeping.
 function goToDisco() {
+  const text = T().disco;
+  showPicture("disco", [...text.start, ...noticeSvetka()], () => {
+    openChoice(text.choiceTitle, [
+      { label: text.goOver, pick: () => showPicture("disco", discoApproach(), chooseAfterDance, "disco") },
+      { label: text.keepDancing, pick: () => showPicture("disco", discoStayWithLads(), endDisco, "disco") },
+    ]);
+  }, "disco");
+}
+
+function chooseAfterDance() {
+  const text = T().disco;
+  openChoice(text.afterTitle, ["stayed", "warned", "left"].map((id) => ({
+    label: text.afterOptions[id],
+    pick: () => showPicture("disco", discoAfterDance(id), endDisco, "disco"),
+  })));
+}
+
+function endDisco() {
   quest.time = "night";
-  showPicture("nightfall", T().nightfall, () => {
-    showPicture("disco", T().disco, () => {
-      quest.discoDone = true;
-      finishCloseup();
-      openDialog(T().afterDisco, saveGame);
-    }, "disco");
-  });
+  quest.discoDone = true;
+  finishCloseup();
+  openDialog(T().afterDisco, saveGame);
 }
 
 function goToSleep() {
@@ -112,6 +151,7 @@ function goToSleep() {
 function afterTalk(next) {
   if (next === "beaten") getBeaten();
   else if (next === "disco") goToDisco();
+  else if (next === "waitEvening") offerEvening();
   else if (next === "shop") openShopMenu();
   else finishCloseup();
 }
@@ -129,6 +169,7 @@ const TALK_ACTIONS = {
   varenyky: useVarenyky,
   fridge: useFridge,
   beerBottle: useBeerBottle,
+  svetka: talkToSvetka,
 };
 
 function useTarget(target) {
@@ -146,7 +187,12 @@ function useTarget(target) {
   }
   if (target.id === "garden") {
     mode = "closeup";
-    startGardenScene();
+    if (gardenJob() === "spray") {
+      startSprayScene();
+      openDialog(sprayPotatoes(), finishCloseup);
+    } else {
+      startGardenScene();
+    }
     return;
   }
 
@@ -171,7 +217,7 @@ function useTarget(target) {
 
   if (target.id === "lads") quest.arrivedOnMoped = isMopedNearLads();
   const result = target.talk();
-  showPicture(TALK_PICTURES[target.id], result.lines, () => afterTalk(result.next));
+  showPicture(TALK_PICTURES[target.id], result.lines, () => afterTalk(result.next), null, TALK_SPEAKERS[target.id]);
 }
 
 function getOffMoped() {
@@ -204,6 +250,11 @@ function update(dt) {
   }
   if (shopMenu.open && !dialog.open) {
     updateShopMenu(action);
+    action = false;
+    tap = null;
+  }
+  if (choice.open && !dialog.open) {
+    updateChoice(action);
     action = false;
     tap = null;
   }
@@ -260,9 +311,10 @@ function setText(element, text) {
 
 function updateHud() {
   setText(objectiveText, currentObjective());
-  setText(dayText, T().ui.day(quest.day, isNight()));
+  setText(dayText, T().ui.day(quest.day, SUMMER_DAYS, T().ui.phases[quest.time]));
   setText(bagText, Object.keys(quest.bag).length ? T().shop.bag(bagLine()) : "");
   shopMenuBox.hidden = !shopMenu.open || dialog.open;
+  choiceBox.hidden = !choice.open || dialog.open;
   setText(locationName, T().places[currentLocation]);
   setText(moneyText, quest.money > 0 || quest.metLads ? T().ui.money(quest.money) : "");
   checklist.hidden = !quest.metLads || quest.discoDone;

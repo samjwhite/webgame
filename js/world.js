@@ -29,10 +29,13 @@ const npcs = [
   { id: "lads", location: "club", sprite: "ladRed", x: 120, y: 163, talk: talkToLads },
   { id: "lads", location: "club", sprite: "ladSquat", x: 192, y: 164, talk: talkToLads },
   { id: "lads", location: "club", sprite: "ladCap", x: 234, y: 163, talk: talkToLads },
+  // By the far table of the beer garden, from the day after the first disco.
+  { id: "svetka", location: "shop", sprite: "svetka", x: 262, y: 200, talk: talkToSvetka, when: isSvetkaAround },
 ];
 
+// when: a test that says whether the person is here now (dayOnly people also go home for the night).
 function npcsHere() {
-  return npcs.filter((npc) => npc.location === currentLocation && !(npc.dayOnly && isNight()));
+  return npcs.filter((npc) => npc.location === currentLocation && !(npc.dayOnly && isNight()) && (!npc.when || npc.when()));
 }
 
 const places = {
@@ -766,6 +769,18 @@ function drawNight(ctx, worldView, camX, camY) {
   ctx.globalCompositeOperation = "source-over";
 }
 
+// Evening: the low sun turns everything a little warmer and darker, while shadows stay cool
+// (the designer's review: a strong amber wash made paving, grass and people one brown).
+function drawEvening(ctx, worldView, camX, camY) {
+  ctx.globalCompositeOperation = "multiply";
+  ctx.fillStyle = here().indoor ? "#efe4d6" : "#f3d6b8";
+  ctx.fillRect(camX, camY, worldView.width, worldView.height);
+  ctx.globalCompositeOperation = "soft-light";
+  ctx.fillStyle = "rgba(70, 90, 130, 0.18)";
+  ctx.fillRect(camX, camY, worldView.width, worldView.height);
+  ctx.globalCompositeOperation = "source-over";
+}
+
 // Did Petro on his bench: mostly sitting, now and then a pull on the cigarette.
 const PETRO_FRAME_W = 36;
 const PETRO_SMOKING = [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 3, 0, 0, 0];
@@ -882,6 +897,7 @@ function drawWorld(ctx, view, time, target) {
   if (isNight()) {
     drawNight(ctx, worldView, camX, camY);
   } else {
+    if (quest.time === "evening") drawEvening(ctx, worldView, camX, camY);
     ctx.fillStyle = "rgba(20, 30, 40, 0.08)";
     cloudShadows.forEach((cloud) => {
       ctx.beginPath();

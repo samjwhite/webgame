@@ -73,8 +73,20 @@ function showWellAtRest(lines) {
   openDialog(lines, finishCloseup);
 }
 
+// The beds after spraying: no beetles, no jar, no hand. The sprayer itself still needs the
+// designer's art (docs/ART_HANDOFF_SUMMER.md), so the dialog tells the spraying.
+function startSprayScene() {
+  closeup.type = "garden";
+  closeup.sprayed = true;
+  closeup.caught = 0;
+  closeup.done = true;
+  closeup.beetles = [];
+  closeup.hand = { state: "idle", t: 0, from: HAND_REST, to: HAND_REST, beetle: null };
+}
+
 function startGardenScene() {
   closeup.type = "garden";
+  closeup.sprayed = false;
   closeup.caught = 0;
   closeup.done = false;
   closeup.hand = { state: "idle", t: 0, from: HAND_REST, to: HAND_REST, beetle: null };
@@ -172,6 +184,11 @@ function updateGarden(dt, action, tap) {
     closeup.beetles = closeup.beetles.filter((b) => b !== hand.beetle);
     hand.beetle = null;
     closeup.caught += 1;
+    if (grandmaStopsPicking(closeup.caught)) {
+      closeup.done = true;
+      grandmaStopsHandPicking();
+      return;
+    }
     moveHand("back", HAND_REST);
   } else {
     hand.state = "idle";
@@ -428,6 +445,7 @@ function drawGardenScene(ctx, time) {
     const wiggle = Math.round(Math.sin(time / 150 + i * 2));
     ctx.drawImage(ART.beetleBig, Math.round(b.x - 6 + wiggle), Math.round(b.y - 6));
   });
+  if (closeup.sprayed) return;
 
   ctx.drawImage(ART.jar, JAR_POSITION.x, JAR_POSITION.y);
   for (let i = 0; i < closeup.caught; i++) {

@@ -7,6 +7,10 @@ human approval) to turn a candidate into a reference asset.
 Usage:
   python tools/art/codex_art.py generate NAME "what to draw" [--reference PATH ...] [--dry-run]
   python tools/art/codex_art.py inspect PATH
+  python tools/art/codex_art.py review NAME "what to check" --image SCREENSHOT [...] [--reference PATH ...]
+
+review asks the same designer to check how art sits in the running game; the answer is saved as
+tools/art/reference/generated/reviews/NAME.md (kept out of Git like the candidates).
 
 Codex runs read-only from an empty temporary folder, so it cannot change the repository.
 Its image tool saves into the Codex image store, and this script copies the file from
@@ -253,6 +257,61 @@ def generate(args):
         print(f"WARNING: expected the ChatGPT Plus plan, Codex reports: {plan}")
 
 
+REVIEWS = os.path.join(GENERATED, "reviews")
+
+
+def review_prompt(question, shots, refs):
+    with open(BIBLE, encoding="utf-8") as f:
+        bible = f.read().strip()
+    listed = "\n".join(f"{i + 1}. {os.path.basename(p)} (in-game screenshot)" for i, p in enumerate(shots))
+    listed += "\n" + "\n".join(f"{len(shots) + i + 1}. {os.path.basename(p)} (approved reference)" for i, p in enumerate(refs))
+    return (
+        "You are the game's art director. Review how new art and screens are integrated in the game. "
+        "Do not draw or generate any image, do not run commands and do not change any file. Answer in text only.\n\n"
+        f"# Art bible\n\n{bible}\n\n# Attached images, in order\n\n{listed}\n\n"
+        f"# What to review\n\n{question}\n\n"
+        "# Answer format\n\nFor each screenshot: verdict (OK / FIX), and for FIX the concrete problem and the concrete change "
+        "(to the art itself, its processing, size, placement or colours). Then one line: OVERALL: OK or OVERALL: FIX.\n"
+    )
+
+
+def review(args):
+    """Ask the designer (Codex, read-only, no image tool) to check screenshots against the art bible."""
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", args.name):
+        sys.exit("NAME may contain only letters, digits, _ and - (no folders or extension).")
+    shots = [os.path.abspath(p) for p in args.image]
+    missing = [p for p in shots if not os.path.isfile(p)]
+    if missing:
+        sys.exit(f"No such screenshot: {missing}")
+    refs = references(args.reference)
+    prompt = review_prompt(args.question, shots, refs)
+    codex = find_codex()
+    require_chatgpt_login(codex)
+    with tempfile.TemporaryDirectory(prefix="codex_review_") as workdir:
+        command = [codex, "exec", "-C", workdir, "-s", "read-only", "--skip-git-repo-check", "--ignore-user-config", "--json"]
+        for path in shots + refs:
+            command += ["--image", path]
+        try:
+            done = subprocess.run(command, input=prompt, capture_output=True, encoding="utf-8", errors="replace",
+                                  timeout=TIMEOUT_SECONDS, cwd=workdir, env=child_environment())
+        except subprocess.TimeoutExpired:
+            sys.exit(f"Codex did not finish in {TIMEOUT_SECONDS} s.")
+    events = parse_events(done.stdout)
+    answer = "\n".join(events["messages"]).strip()
+    if not answer:
+        sys.exit(f"Codex gave no review (exit {done.returncode}). Errors: {events['errors']}\n{done.stderr.strip()[-2000:]}")
+    os.makedirs(REVIEWS, exist_ok=True)
+    stem = free_stem(args.name, REVIEWS)
+    path = os.path.join(REVIEWS, stem + ".md")
+    when = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+    with open(path, "x", encoding="utf-8") as f:
+        f.write(f"# Designer review: {args.name}\n\n{when}, Codex thread {events['thread_id']}\n\n"
+                f"Screenshots: {', '.join(os.path.basename(p) for p in shots)}\n\n"
+                f"References: {', '.join(rel(p) for p in refs) or 'none'}\n\n## Question\n\n{args.question}\n\n## Answer\n\n{answer}\n")
+    print(answer)
+    print(f"\nsaved {rel(path)}")
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -267,9 +326,17 @@ def main():
     inspect = commands.add_parser("inspect", help="print an image's size, mode and background corners")
     inspect.add_argument("path")
 
+    check = commands.add_parser("review", help="ask the designer to check in-game screenshots (text answer only)")
+    check.add_argument("name", help="short name for the saved review, e.g. stage1_disco")
+    check.add_argument("question", help="what to check")
+    check.add_argument("--image", action="append", required=True, help="screenshot to check (repeatable)")
+    check.add_argument("--reference", action="append", help="approved image in tools/art/reference/ to compare with")
+
     args = parser.parse_args()
     if args.command == "inspect":
         print(json.dumps(describe(os.path.abspath(args.path)), indent=2))
+    elif args.command == "review":
+        review(args)
     else:
         generate(args)
 

@@ -12,7 +12,11 @@ They run the real game code without a browser (`tests/harness.js`) and play it t
 
 | What is checked | Where | Protects against |
 |---|---|---|
-| The whole story, bus to second morning, in order | `game.test.js` | A change that makes the game impossible to finish |
+| The whole story, bus to second morning and Svetka by the shop, in order: sprayer, beating, saving midway, waiting for the evening | `game.test.js` | A change that makes the game impossible to finish |
+| The disco's other way: asking the unknown girl to dance, every choice after the dance, saved and continued | `game.test.js` | A branch that cannot be finished or forgets what happened |
+| Day parts: shown as "День 1 / 92 · Ранок", only forward, waiting only at a ready scene, a new day only after sleep | `game.test.js` | Free rewinding, or an evening scene that spends a day |
+| Saves from before the summer story load and go on | `game.test.js` | Old players stuck after an update |
+| Dialogs name who speaks | `game.test.js` | Lines given to the wrong person |
 | Every location: arrivals, exits, people and things reachable; nothing starts inside a wall | `game.test.js` | Walls moved by new art cutting off a path |
 | Walking along the road never triggers a gate or an exit | `game.test.js` | Dialogs popping up when just passing by |
 | Closed gates still say why when walked into | `game.test.js` | Silent walls |
@@ -46,6 +50,6 @@ A later step could add a real browser with screenshot comparison (for example Pl
 Open the game with `?dev` at the end of the address. A red **DEV** button appears with:
 
 - a jump to each point of the story, from the bus to the second morning;
-- day / night, +10 UAH and showing the walls.
+- the next part of the day (morning, day, evening, night; developers only, players never go back), +10 UAH and showing the walls.
 
 Add a checkpoint to `DEV_CHECKPOINTS` in `js/dev.js` whenever a quest is added. The tests check each one automatically. Jumping overwrites the save in that browser, and players never see the panel.

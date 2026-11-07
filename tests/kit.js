@@ -85,7 +85,9 @@ function kitCrankWell() {
   kitFinishDialogs();
 }
 
-function kitFillJar() {
+// Walks onto the potato beds and does what they offer: picks beetles (until the jar is full, or until
+// grandma stops the hand-picking) or sprays them.
+function kitUseGarden() {
   grandmaWalk.wait = 1e9;
   const inside = kitWalkable().find((p) => isInside(p[0], p[1], GARDEN_AREA));
   if (!inside) kitFail("Cannot walk onto the garden");
@@ -96,6 +98,20 @@ function kitFillJar() {
   kitPress();
   for (let i = 0; i < 2000 && closeup.type === "garden" && !(dialog.open && !dialog.isHint); i++) kitPress();
   kitFinishDialogs();
+}
+
+// Picks one of the options of an open choice, by its place in the list.
+function kitChoose(index) {
+  if (!choice.open) kitFail(`No choice is open (dialog: ${dialog.open ? dialog.text : "closed"})`);
+  if (!choice.options[index]) kitFail(`The choice has no option ${index}`);
+  choice.index = index;
+  kitPress();
+}
+
+function kitCheckpoint(name) {
+  const index = DEV_CHECKPOINTS.findIndex((checkpoint) => checkpoint.name === name);
+  if (index < 0) kitFail(`No developer checkpoint ${name}`);
+  devJump(index);
 }
 
 function kitHerdChickens() {

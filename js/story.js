@@ -5,16 +5,28 @@ const BEER_PRICE = 2;
 const BEERS_NEEDED = 3;
 const JAR_REWARD = 2;
 const UNLOAD_REWARD = 4;
+const SPRAY_REWARD = 5;
+// Grandma stops the hand-picking after this many beetles and sends the hero for grandpa's sprayer.
+const BEETLES_BEFORE_SPRAYER = 3;
+
+// The summer lasts 92 days; each day has four parts. Story scenes may move the day forward to a
+// later part, the player may choose to wait for the part a ready scene needs, but nothing ever goes
+// back, and only sleeping starts the next day.
+const SUMMER_DAYS = 92;
+const PHASES = ["morning", "day", "evening", "night"];
 
 // Grandma's errands, in order.
-// "evening" waits until the hero has met the lads at the club and got their list.
-const GRANDMA_STAGES = ["arrive", "water", "beetles", "shop", "evening", "chickens", "moped", "done"];
+// "sprayer": she stopped the hand-picking; fetch grandpa Petro's sprayer from the pond.
+// "spray": spray the potatoes with it. "evening" waits until the hero has met the lads at the club.
+const GRANDMA_STAGES = ["arrive", "water", "beetles", "sprayer", "spray", "shop", "evening", "chickens", "moped", "done"];
 
 function newQuest() {
   return {
     stage: "arrive",
     hasWater: false,
     beetlesCaught: 0,
+    hasSprayer: false,
+    sprayed: false,
     hasGroceries: false,
     chickensHerded: 0,
     money: 0,
@@ -35,7 +47,7 @@ function newQuest() {
     grandpaLine: 0,
     statueLooks: 0,
     day: 1,
-    time: "day",
+    time: "morning",
     unlocked: {},
     ateBorscht: false,
     ateVarenyky: false,
@@ -44,6 +56,13 @@ function newQuest() {
     foundBeer: false,
     bag: {},
     heroSaid: {},
+    // How much each person trusts the hero, by name: grows and falls with what they hear about him.
+    trust: {},
+    // What the hero actually did, remembered for later scenes: who saw what is decided there.
+    // svetkaSeen: "disco" once he noticed her; svetkaNamed: he knows her name;
+    // svetkaMet: "disco" or "shop", where they first talked; dancedWithSvetka; svetkaDisco: "stayed",
+    // "warned" or "left" (after the dance) or "lads" (stayed with the lads); wantsDate.
+    deeds: {},
   };
 }
 
@@ -51,6 +70,24 @@ const quest = newQuest();
 
 function isNight() {
   return quest.time === "night";
+}
+
+function phaseIndex(phase) {
+  return PHASES.indexOf(phase || quest.time);
+}
+
+// Moves to a later part of the same day. Never goes back and never starts a new day.
+function advancePhase(phase) {
+  if (phaseIndex(phase) > phaseIndex()) quest.time = phase;
+}
+
+function addTrust(who, amount) {
+  quest.trust[who] = (quest.trust[who] || 0) + amount;
+}
+
+// A dialog line said by someone in particular, or narration (who: null).
+function line(who, text) {
+  return { who, text };
 }
 
 function stageReached(stage) {
@@ -93,10 +130,20 @@ function talkToGrandma() {
       return say(text.waterDone);
 
     case "beetles":
-      if (quest.beetlesCaught < BEETLE_COUNT) return say([text.beetlesWait]);
+      // Old saves may hold a full jar from before grandma stopped the hand-picking.
+      if (quest.beetlesCaught < BEETLES_BEFORE_SPRAYER) return say([text.beetlesWait]);
+      return say(stopPicking());
+
+    case "sprayer":
+      if (!quest.hasSprayer) return say([text.sprayerWait]);
+      quest.stage = "spray";
+      return say(text.sprayerBrought);
+
+    case "spray":
+      if (!quest.sprayed) return say([text.sprayWait]);
       quest.stage = "shop";
-      quest.money += 5;
-      return say(text.beetlesDone);
+      quest.money += SPRAY_REWARD;
+      return say(text.sprayDone);
 
     case "shop":
       if (!quest.hasGroceries) return say([text.shopWait]);
@@ -118,6 +165,13 @@ function talkToGrandma() {
     default:
       return say([grandmaChatter()]);
   }
+}
+
+// Grandma sees the hero picking beetles by hand and sends him to grandpa for the sprayer.
+function stopPicking() {
+  quest.stage = "sprayer";
+  quest.beetlesCaught = 0;
+  return T().grandma.stopPicking;
 }
 
 function grandmaChatter() {
@@ -206,7 +260,7 @@ function buyGood(id) {
   sellerCounter = id;
   if (id === "beer") {
     quest.beersDrunk += 1;
-    return [quest.beersDrunk === 1 ? text.firstBeer : text.nextBeer, text.drink(quest.beersDrunk, BEERS_NEEDED)];
+    return [quest.beersDrunk === 1 ? text.firstBeer : text.nextBeer, line(null, text.drink(quest.beersDrunk, BEERS_NEEDED))];
   }
   quest.bag[id] = (quest.bag[id] || 0) + 1;
   return [T().shop.sold[id]];
@@ -219,13 +273,19 @@ function bagLine() {
 
 // ---------- Grandpa Petro ----------
 
-// For now grandpa only shares life wisdom: a greeting once, then random sayings.
+// Grandpa lends his sprayer when grandma sends for it, and lets slip about the catfish under the
+// boardwalk. Otherwise he shares life wisdom: a greeting once, then random sayings.
 function talkToGrandpa() {
-  if (quest.grandpaLine === 0) {
-    quest.grandpaLine = 1;
-    return say([T().grandpa.greeting]);
+  const text = T().grandpa;
+  const metBefore = quest.grandpaLine > 0;
+  quest.grandpaLine = Math.max(quest.grandpaLine, 1);
+  if (quest.stage === "sprayer" && !quest.hasSprayer) {
+    quest.hasSprayer = true;
+    quest.deeds.heardCatfish = true;
+    return say([metBefore ? text.sprayerKnown : text.sprayerStranger, ...text.sprayer]);
   }
-  return say([pickRandom("grandpa", T().grandpa.lines)]);
+  if (!metBefore) return say([text.greeting]);
+  return say([pickRandom("grandpa", text.lines)]);
 }
 
 // ---------- Things in the yard ----------
@@ -298,10 +358,10 @@ function useFridge() {
   return say(T().house.fridge, "fridge");
 }
 
-// A new day: tonight's food and news are back, and grandma has something to say.
+// A new day, only after sleeping: tonight's food and news are back, and grandma has something to say.
 function startNewDay() {
-  quest.day += 1;
-  quest.time = "day";
+  quest.day = Math.min(SUMMER_DAYS, quest.day + 1);
+  quest.time = "morning";
   quest.ateBorscht = false;
   quest.ateVarenyky = false;
   quest.newsWatched = 0;
@@ -355,10 +415,62 @@ function talkToLads() {
   const missing = missingForDisco();
   const firstTime = !quest.metLads;
   quest.metLads = true;
-  if (missing.length === 0) return say(text.welcome, "disco");
+  if (missing.length === 0) {
+    // The disco is in the evening: the player may wait for it right here, the day stays the same.
+    if (phaseIndex() < phaseIndex("evening")) return say(text.readyEarly, "waitEvening");
+    return say(text.welcome, "disco");
+  }
 
   const greeting = firstTime ? text.firstMeet : [text.again];
   return say([...greeting, ...whatLadsNotice(), ...missing, ...text.beforeBeating], "beaten");
+}
+
+// ---------- The first disco and Svetka ----------
+
+// Inside, the hero notices a girl he does not know. Each function returns the lines to show.
+function noticeSvetka() {
+  quest.deeds.svetkaSeen = "disco";
+  return T().disco.notice;
+}
+
+// He goes over and asks her to dance; Stas calls her by name, and he learns she is Svetka.
+function discoApproach() {
+  Object.assign(quest.deeds, { svetkaNamed: true, svetkaMet: "disco", dancedWithSvetka: true });
+  return T().disco.approach;
+}
+
+// After the dance: "stayed" beside her, "warned" (remembers Ostap's words) or "left".
+function discoAfterDance(choice) {
+  Object.assign(quest.deeds, { svetkaDisco: choice, wantsDate: true });
+  return T().disco.afterDance[choice];
+}
+
+// He keeps dancing with the lads; Seryoga tells him who she is.
+function discoStayWithLads() {
+  Object.assign(quest.deeds, { svetkaNamed: true, svetkaDisco: "lads", dancedWithSvetka: false });
+  return T().disco.withLads;
+}
+
+// From the next day Svetka comes by the shop, until the next part of the story takes her elsewhere.
+function isSvetkaAround() {
+  return quest.discoDone && quest.day > 1 && !isNight();
+}
+
+function talkToSvetka() {
+  const text = T().svetka;
+  const deeds = quest.deeds;
+  if (deeds.svetkaShopTalk) return say([pickRandom("svetka", text.later)]);
+  deeds.svetkaShopTalk = true;
+  let lines;
+  if (deeds.svetkaMet === "disco") {
+    lines = text.afterDance;
+  } else {
+    // Saves from before the summer story may not know her name yet: she gives it herself.
+    lines = deeds.svetkaNamed ? text.firstMeet : text.firstMeetStranger;
+    Object.assign(deeds, { svetkaMet: "shop", svetkaNamed: true });
+  }
+  deeds.wantsDate = true;
+  return say([...lines, ...text.dateIntent]);
 }
 
 // ---------- Objective text ----------
@@ -372,25 +484,44 @@ function needsWater() {
   return quest.stage === "water" && !quest.hasWater;
 }
 
-// Called when a jar is full. The first jar is grandma's errand, later jars earn money.
+// Called when a jar is full. Jars come after the spraying: beetles crawl over from the neighbours.
 function finishBeetleJar() {
-  if (quest.stage === "beetles") {
-    quest.beetlesCaught = BEETLE_COUNT;
-    return T().yard.jarFirst;
-  }
   quest.money += JAR_REWARD;
   return T().yard.jarMore;
 }
 
+// What the potato beds offer now: "pick" beetles by hand, "spray" them, or null.
+function gardenJob() {
+  if (quest.stage === "beetles") return "pick";
+  if (quest.stage === "spray") return quest.sprayed ? null : "spray";
+  return stageReached("shop") ? "pick" : null;
+}
+
 function canCollectBeetles() {
-  if (quest.stage === "beetles") return quest.beetlesCaught < BEETLE_COUNT;
-  return stageReached("shop");
+  return gardenJob() !== null;
+}
+
+// Grandma stops the hand-picking once she sees it: true when this catch is the one.
+function grandmaStopsPicking(caught) {
+  return quest.stage === "beetles" && caught >= BEETLES_BEFORE_SPRAYER;
+}
+
+function sprayPotatoes() {
+  quest.sprayed = true;
+  quest.hasSprayer = false;
+  // Spraying the whole plot takes the rest of the morning.
+  advancePhase("day");
+  return T().yard.spray;
 }
 
 function currentObjective() {
   const text = T().objective;
   if (isNight() && quest.discoDone) return currentLocation === "house" ? text.goToBed : text.goHome;
-  if (quest.day > 1) return quest.metGrandmaToday ? text.morningLater : text.morning;
+  if (quest.day > 1) {
+    if (!quest.metGrandmaToday) return text.morning;
+    if (!quest.deeds.svetkaShopTalk) return quest.deeds.svetkaMet === "disco" ? text.findSvetka : text.meetSvetka;
+    return text.dateNext;
+  }
   if (quest.discoDone) return text.goHome;
   if (quest.carrying) return text.carryCrate;
   switch (quest.stage) {
@@ -399,7 +530,11 @@ function currentObjective() {
     case "water":
       return quest.hasWater ? text.waterDone : text.water;
     case "beetles":
-      return quest.beetlesCaught < BEETLE_COUNT ? text.beetles : text.beetlesDone;
+      return quest.beetlesCaught < BEETLES_BEFORE_SPRAYER ? text.beetles : text.beetlesDone;
+    case "sprayer":
+      return quest.hasSprayer ? text.sprayerBack : text.sprayer;
+    case "spray":
+      return quest.sprayed ? text.sprayedTell : text.spray;
     case "shop":
       return quest.hasGroceries ? text.shopDone : text.shop;
     case "evening":

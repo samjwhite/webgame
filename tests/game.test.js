@@ -201,7 +201,7 @@ test("the shop's seller works from the steps and the door, and not from far away
 test("nothing fails to draw: every location by day and night, and every picture", () => {
   game.inGame(`() => {
     for (const id of Object.keys(LOCATIONS)) {
-      for (const time of ["day", "night"]) {
+      for (const time of PHASES) {
         quest.time = time;
         kitGo(id);
         draw(1000);
@@ -457,6 +457,7 @@ test("the whole story can be played, from the bus to the second morning", () => 
     startNewGame();
     kitFinishDialogs();
     expect(mode === "world" && currentLocation === "stop", "arrive at the bus stop");
+    expect(quest.day === 1 && quest.time === "morning", "the first morning");
 
     // Grandma's errands.
     kitGo("yard");
@@ -466,9 +467,18 @@ test("the whole story can be played, from the bus to the second morning", () => 
     expect(quest.hasWater, "water from the well");
     kitTalk("grandma");
     expect(quest.stage === "beetles", "grandma asks for beetles");
+    expect(isClubOpen(), "the club square opens after the first errand");
 
-    kitFillJar();
-    expect(quest.beetlesCaught === BEETLE_COUNT, "a jar of beetles");
+    kitUseGarden();
+    expect(quest.stage === "sprayer", "grandma stops the hand-picking and sends for the sprayer");
+    kitGo("pond");
+    kitTalk("grandpa");
+    expect(quest.hasSprayer && quest.deeds.heardCatfish, "grandpa lends the sprayer and mentions the catfish");
+    kitGo("yard");
+    kitTalk("grandma");
+    expect(quest.stage === "spray", "grandma says to spray");
+    kitUseGarden();
+    expect(quest.sprayed && quest.time === "day" && quest.day === 1, "the potatoes sprayed by midday");
     kitTalk("grandma");
     expect(quest.stage === "shop" && quest.money === 5, "grandma pays and sends to the shop");
 
@@ -498,8 +508,8 @@ test("the whole story can be played, from the bus to the second morning", () => 
     kitUse("backpack");
     kitFinishDialogs();
     expect(quest.outfit === "sport", "tracksuit on");
-    kitFillJar();
-    expect(quest.money === 2, "a second jar earns money");
+    kitUseGarden();
+    expect(quest.money === 2, "a jar of beetles from the neighbours earns money");
 
     kitGo("shop");
     kitTalk("valya");
@@ -518,13 +528,31 @@ test("the whole story can be played, from the bus to the second morning", () => 
     kitFinishDialogs();
     expect(quest.riding, "riding the moped");
 
-    // The disco, and night falls.
+    // A save in the middle of the day keeps the whole story.
+    saveGame();
+    const saved = JSON.stringify(quest);
+    Object.assign(quest, newQuest());
+    continueGame();
+    expect(JSON.stringify(quest) === saved && currentLocation === "yard", "saved and continued without losing anything");
+
+    // Ready before the evening: the lads say to come back later, or wait with them.
     kitGo("club");
     kitUse("lads");
     expect(closeup.picture === "talkLads", "the lads talk");
-    for (let i = 0; i < 400 && !quest.discoDone; i++) kitPress();
-    expect(quest.discoDone && isNight(), "night falls and the disco happens");
     kitFinishDialogs();
+    expect(choice.open && quest.time === "day", "the disco is in the evening: wait for it?");
+    kitChoose(1);
+    expect(mode === "world" && quest.time === "day", "not yet: still midday");
+    kitUse("lads");
+    kitFinishDialogs();
+    kitChoose(0);
+    expect(quest.time === "evening" && quest.day === 1, "waiting for the evening keeps the same day");
+    kitFinishDialogs();
+    expect(choice.open && quest.deeds.svetkaSeen === "disco" && !quest.discoDone, "inside, a girl he does not know");
+    kitChoose(1);
+    kitFinishDialogs();
+    expect(quest.discoDone && isNight() && quest.day === 1, "the disco ends at night, on the same day");
+    expect(quest.deeds.svetkaNamed && !quest.deeds.dancedWithSvetka && quest.deeds.svetkaDisco === "lads", "stayed with the lads and learned her name");
     getOffMoped();
 
     kitGo("shop");
@@ -551,14 +579,170 @@ test("the whole story can be played, from the bus to the second morning", () => 
     kitFinishDialogs();
     kitUse("bed");
     kitFinishDialogs();
-    expect(quest.day === 2 && !isNight() && !quest.ateVarenyky, "sleep brings the second morning");
+    expect(quest.day === 2 && quest.time === "morning" && !quest.ateVarenyky, "sleep brings the second morning");
 
     kitGo("yard");
     kitUse("grandma");
     expect(quest.metGrandmaToday, "grandma greets the new day");
     kitFinishDialogs();
-    expect(Boolean(currentObjective()), "there is a task on day 2");
+    expect(currentObjective() === T().objective.meetSvetka, "the task: meet Svetka by the shop");
+
+    kitGo("shop");
+    kitTalk("svetka");
+    expect(quest.deeds.svetkaMet === "shop" && quest.deeds.wantsDate && !quest.deeds.dancedWithSvetka, "meets Svetka by the shop and wants a date");
+    expect(currentObjective() === T().objective.dateNext, "next: ask her on a date");
     return log;
   }`);
   assert.ok(log.length > 20, `played ${log.length} steps`);
+});
+
+test("the disco's other way: he asks the unknown girl to dance, and learns she is Svetka", () => {
+  const result = game.inGame(`() => {
+    kitCheckpoint("Усе для дискотеки: вечір");
+    kitUse("lads");
+    kitFinishDialogs();
+    kitChoose(0);
+    const speakers = [];
+    for (let i = 0; i < 40 && dialog.open; i++) {
+      speakers.push(dialog.who);
+      kitPress();
+      kitPress();
+    }
+    const afterTitle = choice.open && choiceTitle.textContent;
+    kitChoose(0);
+    kitFinishDialogs();
+    const deeds = { ...quest.deeds };
+    // The danced or not is kept for the later quarrel, also across saving.
+    saveGame();
+    quest.deeds = {};
+    continueGame();
+    return {
+      speakers,
+      named: speakers.indexOf("svetka") > speakers.indexOf("stas") && speakers.indexOf("stranger") < speakers.indexOf("stas"),
+      afterTitle: afterTitle === T().disco.afterTitle,
+      deeds,
+      kept: JSON.stringify(quest.deeds) === JSON.stringify(deeds),
+      night: isNight() && quest.day === 1 && quest.discoDone,
+    };
+  }`);
+  assert.ok(result.speakers.includes("hero") && result.speakers.includes("stranger"), JSON.stringify(result.speakers));
+  assert.ok(result.named, `"Unknown girl" until Stas calls her name: ${result.speakers}`);
+  assert.ok(result.afterTitle);
+  assert.deepStrictEqual(
+    [result.deeds.dancedWithSvetka, result.deeds.svetkaMet, result.deeds.svetkaDisco, result.deeds.wantsDate],
+    [true, "disco", "stayed", true],
+  );
+  assert.ok(result.kept && result.night);
+  game.inGame("() => clearSave()");
+});
+
+test("each way out of the dance is remembered, and Svetka by the shop knows they danced", () => {
+  const result = game.inGame(`() => {
+    const choices = ["stayed", "warned", "left"].map((id, index) => {
+      kitCheckpoint("Усе для дискотеки: вечір");
+      kitUse("lads");
+      kitFinishDialogs();
+      kitChoose(0);
+      kitFinishDialogs();
+      kitChoose(index);
+      kitFinishDialogs();
+      return quest.deeds.svetkaDisco === id && quest.deeds.dancedWithSvetka;
+    });
+    kitCheckpoint("День 2: Свєтка (танцювали)");
+    kitUse("svetka");
+    const firstLine = dialog.text;
+    kitFinishDialogs();
+    const again = (kitUse("svetka"), dialog.who);
+    kitFinishDialogs();
+    return [choices, firstLine === T().svetka.afterDance[0], again, quest.deeds.svetkaMet];
+  }`);
+  assert.deepStrictEqual(result, [[true, true, true], true, "svetka", "disco"]);
+  game.inGame("() => clearSave()");
+});
+
+test("the day and its parts: shown on screen, only forward, and a new day only after sleep", () => {
+  const result = game.inGame(`() => {
+    Object.assign(quest, newQuest());
+    kitGo("yard");
+    draw(1000);
+    const shown = document.getElementById("day-text").textContent;
+    advancePhase("evening");
+    advancePhase("day");
+    const noBack = quest.time === "evening" && quest.day === 1;
+    // Away from a ready scene nothing offers to wait: the lads only offer it once he is ready.
+    kitCheckpoint("Клуб: познайомитись");
+    kitUse("lads");
+    kitFinishDialogs();
+    const noOfferWhenNotReady = !choice.open && quest.time === "day";
+    kitCheckpoint("Усе для дискотеки: вдень");
+    kitUse("lads");
+    kitFinishDialogs();
+    const offered = choice.open;
+    kitChoose(0);
+    const sameDay = quest.day === 1 && quest.time === "evening";
+    for (let i = 0; i < 400 && !choice.open; i++) kitPress();
+    kitChoose(1);
+    kitFinishDialogs();
+    const nightSameDay = quest.day === 1 && isNight();
+    kitGo("house");
+    kitUse("bed");
+    kitFinishDialogs();
+    return [shown, noBack, noOfferWhenNotReady, offered, sameDay, nightSameDay, quest.day, quest.time];
+  }`);
+  assert.deepStrictEqual(result, ["День 1 / 92 · Ранок", true, true, true, true, true, 2, "morning"]);
+  game.inGame("() => clearSave()");
+});
+
+test("old saves from before the summer story load and go on", () => {
+  const result = game.inGame(`() => {
+    const load = (quest, location = "yard") => {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ version: SAVE_VERSION, quest, location, player: { ...DEV_YARD, dir: "down" } }));
+      continueGame();
+    };
+    // A jar already full under the old rules: grandma now sends for the sprayer.
+    const old = { ...newQuest(), stage: "beetles", beetlesCaught: BEETLE_COUNT, time: "day" };
+    delete old.deeds;
+    delete old.trust;
+    delete old.hasSprayer;
+    delete old.sprayed;
+    load(old);
+    const objective = currentObjective() === T().objective.beetlesDone;
+    kitTalk("grandma");
+    const sprayer = quest.stage === "sprayer" && typeof quest.deeds === "object";
+    // The old second morning: Svetka was never seen, she introduces herself by the shop.
+    load({ ...newQuest(), stage: "done", metLads: true, outfit: "sport", beersDrunk: 3, discoDone: true, day: 2, time: "day", metGrandmaToday: true, deeds: undefined });
+    draw(1000);
+    const dayShown = document.getElementById("day-text").textContent;
+    kitGo("shop");
+    kitUse("svetka");
+    const stranger = dialog.who === "stranger" || dialog.lines.some((l) => typeof l === "string" && l.startsWith(T().speakers.stranger));
+    kitFinishDialogs();
+    clearSave();
+    return [objective, sprayer, dayShown, stranger, quest.deeds.svetkaMet, quest.deeds.svetkaNamed];
+  }`);
+  assert.deepStrictEqual(result, [true, true, "День 2 / 92 · День", true, "shop", true]);
+});
+
+test("dialogs name who speaks; the person talked to speaks unless a line names someone else", () => {
+  const result = game.inGame(`() => {
+    kitCheckpoint("Вода: віднести");
+    kitUse("grandma");
+    const grandma = dialog.who;
+    kitFinishDialogs();
+    draw(1000);
+    kitCheckpoint("Клуб: познайомитись");
+    kitUse("lads");
+    const lads = [];
+    for (let i = 0; i < 40 && dialog.open; i++) {
+      lads.push(dialog.who);
+      kitPress();
+      kitPress();
+    }
+    kitFinishDialogs();
+    const named = readLine("Остап: І Свєтку не чіпай.", "grandma");
+    const told = readLine("Сонце сідає.", null);
+    return [grandma, lads.includes("ostap") && lads.includes("stas") && lads.includes("seryoga"), named, told];
+  }`);
+  assert.deepStrictEqual(result, ["grandma", true, { who: "ostap", text: "І Свєтку не чіпай." }, { who: null, text: "Сонце сідає." }]);
+  game.inGame("() => clearSave()");
 });

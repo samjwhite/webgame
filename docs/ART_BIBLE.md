@@ -24,7 +24,8 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 | **Baba Hanya**, grandma | Headscarf, floral dress, apron, kind round face. | `grandma.png`, `collage.png` |
 | **Valya**, shop seller | Red headscarf, pink blouse, blue checked apron, arms crossed, loud and warm. | `seller.png`, `collage.png` |
 | **Did Petro**, grandpa | Flat cap, grey moustache, checked shirt, dark vest, rubber boots, cigarette, sits by the pond. | `grandpa_pond.png` (close-up). The world sprite is repainted from the hero idle frames; a full-height picture is still wanted. |
-| **Tolik, Vovchyk, Seryi**, village lads | Ordinary village youth in tracksuits and caps, sunflower seeds, one squatting. Not gangsters. | `lads.png`, `collage.png` |
+| **Ostap, Stas, Seryoga**, village lads (formerly Tolik, Vovchyk, Seryi) | Ordinary village youth, sunflower seeds, one squatting. Not gangsters. The current art shows tracksuits and caps; the summer scenario asks for worn everyday clothes (denim or work jackets, old sweaters, trousers), which the human has still to decide. | `lads.png`, `collage.png` |
+| **Svetka**, village girl (temporary) | Chestnut wavy hair in a loose ponytail, faded blue-green sundress with a few large ochre and cream flowers, sandals. Drawn by Codex for stage 1 and checked by the designer review; waits for the human's approval or a ChatGPT concept. | `incoming/svetka_world_v2.png` |
 | Chickens | Rooster, white, ginger and black hens: walk, peck, flap. | `chicken_sheet.png` |
 
 ## Places

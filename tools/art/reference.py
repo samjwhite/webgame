@@ -55,6 +55,10 @@ SPRITES = {
     "lad_cap": ("collage.png", (628, 565, 694, 760), 40, 25),
     "grandma": ("collage.png", (698, 565, 800, 775), 40, 25),
     "seller": ("collage.png", (806, 565, 910, 775), 40, 25),
+    # Svetka standing, facing the viewer: the first of four poses drawn by Codex (summer story, stage 1),
+    # second version after the designer's review (stronger contour, simpler print). Temporary until
+    # the human approves her look (docs/ART_HANDOFF_SUMMER.md).
+    "svetka": ("incoming/svetka_world_v2.png", (137, 45, 384, 840), 40, 25),
     "backpack": ("sheet_club.png", (928, 452, 1108, 624), 14, 45),
     "moped": ("sheet_club.png", (1140, 396, 1488, 640), 28, 60),
     "truck": ("sheet_club.png", (24, 684, 432, 916), 52, 45),
