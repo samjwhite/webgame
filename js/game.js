@@ -4,9 +4,16 @@ const objectiveBox = document.getElementById("objective");
 const objectiveText = document.getElementById("objective-text");
 const moneyText = document.getElementById("money");
 const checklist = document.getElementById("checklist");
-const checkBeer = document.querySelector("#check-beer span");
-const checkSuit = document.querySelector("#check-suit span");
-const checkMoped = document.querySelector("#check-moped span");
+const checkBeer = document.getElementById("check-beer");
+const checkSuit = document.getElementById("check-suit");
+const checkMoped = document.getElementById("check-moped");
+const objectiveToggle = document.getElementById("objective-toggle");
+const objectiveBody = document.getElementById("objective-body");
+const objectiveArrow = document.getElementById("objective-arrow");
+const mapButton = document.getElementById("map-button");
+const mapView = document.getElementById("map-view");
+const mapMarker = document.getElementById("map-marker");
+const HUD_COLLAPSED_KEY = "lito-v-seli-hud-collapsed";
 const actionButton = document.getElementById("action-button");
 const menu = document.getElementById("menu");
 const continueButton = document.getElementById("continue-button");
@@ -138,6 +145,7 @@ function tapOnStage(tap) {
 function update(dt) {
   readMovement();
   let { action, tap } = takeInput();
+  if (!mapView.hidden) return;
 
   if (dialog.open && !dialog.isHint && (action || tap)) {
     advanceDialog();
@@ -187,6 +195,7 @@ function draw(time) {
   objectiveBox.hidden = mode !== "world";
   updateHud();
   actionButton.hidden = mode === "title";
+  mapButton.hidden = mode !== "world" || dialog.open;
 }
 
 function setText(element, text) {
@@ -197,9 +206,40 @@ function updateHud() {
   setText(objectiveText, currentObjective());
   setText(moneyText, quest.money > 0 || quest.metLads ? `Гроші: ${quest.money} грн` : "");
   checklist.hidden = !quest.metLads || quest.discoDone;
-  setText(checkBeer, `${quest.beersDrunk >= BEERS_NEEDED ? "☑" : "☐"} Випити 3 «Славутича» (${quest.beersDrunk}/${BEERS_NEEDED})`);
-  setText(checkSuit, `${quest.outfit === "sport" ? "☑" : "☐"} Вдягти спортивний костюм`);
-  setText(checkMoped, `${quest.riding ? "☑" : "☐"} Приїхати на мопеді «Карпати»`);
+  setCheck(checkBeer, quest.beersDrunk >= BEERS_NEEDED, `Випити 3 «Славутича» (${quest.beersDrunk}/${BEERS_NEEDED})`);
+  setCheck(checkSuit, quest.outfit === "sport", "Вдягти спортивний костюм");
+  setCheck(checkMoped, quest.riding, "Приїхати на мопеді «Карпати»");
+}
+
+function setCheck(item, done, text) {
+  item.classList.toggle("done", done);
+  setText(item.querySelector(".label"), text);
+}
+
+function setHudCollapsed(collapsed) {
+  objectiveBody.hidden = collapsed;
+  objectiveBox.classList.toggle("collapsed", collapsed);
+  objectiveArrow.textContent = collapsed ? "▼" : "▲";
+  try {
+    localStorage.setItem(HUD_COLLAPSED_KEY, collapsed ? "1" : "");
+  } catch (error) {
+    // Remembering the panel state is only a convenience.
+  }
+}
+
+function loadHudCollapsed() {
+  try {
+    return localStorage.getItem(HUD_COLLAPSED_KEY) === "1";
+  } catch (error) {
+    return false;
+  }
+}
+
+function openMap() {
+  mapMarker.style.left = `${(player.x / ART.map.width) * 100}%`;
+  mapMarker.style.top = `${((player.y - 10) / ART.map.height) * 100}%`;
+  mapView.hidden = false;
+  input.joystick = null;
 }
 
 function drawJoystick() {
@@ -263,6 +303,12 @@ function showTitle() {
 
 window.addEventListener("resize", resize);
 continueButton.addEventListener("click", continueGame);
+objectiveToggle.addEventListener("click", () => setHudCollapsed(!objectiveBody.hidden));
+mapButton.addEventListener("click", openMap);
+mapView.addEventListener("click", () => {
+  mapView.hidden = true;
+});
+setHudCollapsed(loadHudCollapsed());
 newGameButton.addEventListener("click", startNewGame);
 
 loadArt().then(() => {
