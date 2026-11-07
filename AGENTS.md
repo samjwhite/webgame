@@ -8,6 +8,8 @@ These instructions apply to every AI agent working on this repository. Read this
 - **ChatGPT (visual art owner):** art direction, visual references, pixel-art concepts, characters, environment and object designs, sprite-sheet artwork, and review of visual consistency. ChatGPT can inspect repository context via the GitHub connection, but generated images do not automatically land in the repo.
 - **Human (product/art approver):** priorities, story and scope decisions, final visual approval, accepting gameplay changes, and transferring or authorizing transfer of approved image files.
 
+**Automated image generation:** Claude Code can also generate or edit source art itself with the project `/art` skill (`.claude/skills/art/SKILL.md`), which calls OpenAI's GPT Image API through `tools/art/imagegen.py`. Use it when the human asks Claude Code for the visual work or approves this route; otherwise route visual design to ChatGPT as below. Generated images are candidates: they are saved in `tools/art/reference/generated/`, reviewed by the human, and only then promoted with `tools/art/promote.py --approve`.
+
 Ownership means who should perform the primary task, not who is prohibited from advising. Both agents should flag dependencies and hand work to the other owner instead of independently recreating their work.
 
 ## Design memory
@@ -47,6 +49,7 @@ Never invent dimensions, crop boxes, asset availability, or repository changes. 
 - Before replacing art, verify frame sizes, directions, consistent alignment, transparency, palette, and that existing crop regions still work.
 - `js/assets.js` lists loaded art; `js/map.js` defines map collisions. Visual map changes may require corresponding collision changes.
 - Treat repository files as the source of truth for current implementation. This chat's visual history is reference context, not automatically present in the repository.
+- Never commit API keys. `OPENAI_API_KEY` lives in the environment or in `tools/art/.env.local`, which Git ignores.
 - Never overwrite approved artwork or alter quest logic without explicit authorization. No agent should silently substitute a generated image for an approved asset.
 
 ## Completion and status

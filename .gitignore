@@ -1,0 +1,10 @@
+# Secrets: never commit API keys
+.env
+.env.*
+tools/art/.env.local
+
+# Unreviewed image candidates and backups of replaced reference art
+tools/art/reference/generated/
+tools/art/reference/replaced/
+
+__pycache__/

@@ -22,6 +22,10 @@ python3 tools/art/build.py
 
 Карта села, портрети, сцени і персонажі зроблені з картинок у `tools/art/reference/`. Додай `?debug` до адреси, щоб побачити невидимі стіни. Будь-який PNG можна замінити намальованим вручну файлом того самого розміру.
 
+### Генерація арту (/art)
+
+`tools/art/imagegen.py` створює або редагує картинки через OpenAI GPT Image API. Ключ: змінна `OPENAI_API_KEY` або файл `tools/art/.env.local` (його Git ігнорує). Результати — лише кандидати в `tools/art/reference/generated/`; у референси вони потрапляють через `tools/art/promote.py ... --approve` після схвалення. Деталі: `.claude/skills/art/SKILL.md`.
+
 ## Локальний запуск
 
 ```
