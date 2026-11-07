@@ -21,6 +21,7 @@ They run the real game code without a browser (`tests/harness.js`) and play it t
 | The garden works only standing on it; the shop works from its steps | `game.test.js` | Actions firing from the wrong place |
 | Everything draws, day and night, every picture | `game.test.js` | Missing or misnamed art |
 | News has a picture for every line, in every language | `game.test.js` | Text and pictures drifting apart |
+| The hero's remarks last long enough to read and wait while a dialog or a panel would hide them | `game.test.js` | Text cut off or hidden under buttons |
 | All languages have the same texts | `game.test.js` | Missing translations |
 | The shop's list: prices, not enough money, the bag, beer only when asked for | `game.test.js` | Spending money wrongly, goods with no art or text |
 | Saves load, and old saves land safely | `game.test.js` | Heroes stuck in walls after an update |

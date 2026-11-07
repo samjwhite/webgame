@@ -22,6 +22,7 @@ function fakeElement() {
     addEventListener() {},
     setAttribute() {},
     setPointerCapture() {},
+    getBoundingClientRect: () => element.rect || { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 },
     append(...items) {
       element.children.push(...items);
     },

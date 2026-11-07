@@ -337,7 +337,10 @@ test("the hero remarks once on each place, in a bubble that does not stop the ga
     const first = heroSpeech.text;
     const walking = mode === "world" && !dialog.open;
     draw(1000);
-    for (let i = 0; i < 400; i++) update(0.05);
+    for (let i = 0; i < 400; i++) {
+      update(0.05);
+      draw(1000);
+    }
     const cleared = heroSpeech.text;
     update(0.02);
     const again = heroSpeech.text;
@@ -345,6 +348,47 @@ test("the hero remarks once on each place, in a bubble that does not stop the ga
     return [first === T().hero.places.pond, walking, cleared, again, missing];
   }`);
   assert.deepStrictEqual(result, [true, true, "", "", []]);
+});
+
+test("a remark stays long enough to read, and only counts down while it can be seen whole", () => {
+  const result = game.inGame(`() => {
+    kitGo("yard");
+    quest.heroSaid = Object.fromEntries(Object.keys(LOCATIONS).map((id) => [id, true]));
+    const short = readingTime("Ой.");
+    const long = readingTime(T().hero.foundBeer[0]);
+    heroInterrupt([T().hero.foundBeer[0]]);
+    const start = heroSpeech.time;
+    openDialog(["x"]);
+    for (let i = 0; i < 40; i++) {
+      update(0.05);
+      draw(1000);
+    }
+    const waitedForDialog = heroSpeech.time === start;
+    kitFinishDialogs();
+    draw(1000);
+    const aboveHead = heroSpeech.visible && heroSpeech.box[3] <= player.y - 40;
+    // A panel over his head: the remark moves under his feet.
+    const panel = document.getElementById("objective");
+    panel.hidden = false;
+    const zoom = worldZoom();
+    const camY = cameraOffset(player.y, view.height / zoom, ART[here().art].height);
+    const top = (player.y - 70 - camY) * view.scale * zoom;
+    panel.rect = { left: 0, right: 5000, top, bottom: top + 30 * view.scale * zoom, width: 5000, height: 30 * view.scale * zoom };
+    draw(1000);
+    const underFeet = heroSpeech.visible && heroSpeech.box[1] >= player.y;
+    // Panels over and under him: it waits, and its time does not run.
+    panel.rect = { left: 0, right: 5000, top: -100000, bottom: 100000, width: 5000, height: 200000 };
+    draw(1000);
+    const before = heroSpeech.time;
+    update(0.5);
+    const hiddenWaits = !heroSpeech.visible && heroSpeech.time === before;
+    panel.rect = null;
+    panel.hidden = true;
+    heroSpeech.queue = [];
+    heroSpeech.text = "";
+    return [short >= 3, long > 6, waitedForDialog, aboveHead, underFeet, hiddenWaits];
+  }`);
+  assert.deepStrictEqual(result, [true, true, true, true, true, true]);
 });
 
 test("all languages have the same texts", () => {

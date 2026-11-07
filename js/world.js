@@ -140,12 +140,18 @@ function drawGrandma(ctx, grandma, time) {
 }
 
 // The hero's own remarks, in a bubble over his head. They never stop the game.
-const SPEECH_MIN_SECONDS = 2.5;
-const SPEECH_SECONDS_PER_LETTER = 0.055;
+// A remark stays as long as it takes to read, and its time runs only while all of it can be seen:
+// it waits while a dialog, a close-up or the screen's buttons and panels would hide it.
+const SPEECH_BASE_SECONDS = 1.5;
+const SPEECH_SECONDS_PER_LETTER = 0.085;
+const SPEECH_MIN_SECONDS = 3;
 const SPEECH_WIDTH = 104;
 const SPEECH_FONT = 7;
 const SPEECH_LINE = 9;
-const heroSpeech = { queue: [], text: "", time: 0 };
+const SPEECH_GAP = 4;
+// Page elements drawn over the game; a remark is never placed under them.
+const SPEECH_COVERED_BY = ["objective", "map-button", "action-button", "location-name", "dev-toggle", "dev-panel", "dialog"];
+const heroSpeech = { queue: [], text: "", time: 0, visible: false, box: null };
 
 function heroSay(lines) {
   heroSpeech.queue.push(...lines);
@@ -158,9 +164,14 @@ function heroInterrupt(lines) {
   nextHeroLine();
 }
 
+function readingTime(text) {
+  return Math.max(SPEECH_MIN_SECONDS, SPEECH_BASE_SECONDS + text.length * SPEECH_SECONDS_PER_LETTER);
+}
+
 function nextHeroLine() {
   heroSpeech.text = heroSpeech.queue.shift() || "";
-  heroSpeech.time = heroSpeech.text ? Math.max(SPEECH_MIN_SECONDS, heroSpeech.text.length * SPEECH_SECONDS_PER_LETTER) : 0;
+  heroSpeech.time = heroSpeech.text ? readingTime(heroSpeech.text) : 0;
+  heroSpeech.visible = false;
 }
 
 // Says something the first time he comes somewhere, once per game.
@@ -174,7 +185,7 @@ function updateHeroSpeech(dt) {
   heroRemark(currentLocation, T().hero.places[currentLocation]);
   if (isNearGarden()) heroRemark("garden", T().hero.garden);
   if (isNight() && quest.discoDone) heroRemark("night", T().hero.night);
-  if (heroSpeech.text) {
+  if (heroSpeech.text && heroSpeech.visible) {
     heroSpeech.time -= dt;
     if (heroSpeech.time <= 0) nextHeroLine();
   }
@@ -196,24 +207,52 @@ function wrapSpeech(ctx, text) {
   return lines;
 }
 
-function drawHeroSpeech(ctx, worldView, camX, camY) {
+// The page's panels and buttons, in world pixels of the current view.
+function speechBlockers(camX, camY, zoom) {
+  const toWorld = view.scale * zoom;
+  return SPEECH_COVERED_BY.map((id) => document.getElementById(id))
+    .filter((element) => element && !element.hidden && element.getBoundingClientRect)
+    .map((element) => element.getBoundingClientRect())
+    .filter((r) => r.width > 0 && r.height > 0)
+    .map((r) => [camX + r.left / toWorld, camY + r.top / toWorld, camX + r.right / toWorld, camY + r.bottom / toWorld]);
+}
+
+function boxesMeet([l1, t1, r1, b1], [l2, t2, r2, b2]) {
+  return l1 < r2 && l2 < r1 && t1 < b2 && t2 < b1;
+}
+
+function drawHeroSpeech(ctx, worldView, camX, camY, zoom) {
+  heroSpeech.visible = false;
+  heroSpeech.box = null;
   if (!heroSpeech.text) return;
   ctx.font = `bold ${SPEECH_FONT}px monospace`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   const lines = wrapSpeech(ctx, heroSpeech.text);
-  const width = Math.max(...lines.map((line) => ctx.measureText(line).width)) + 8;
-  const height = lines.length * SPEECH_LINE + 5;
-  const headTop = player.y - (quest.riding ? 40 : 44);
+  const width = Math.max(...lines.map((line) => ctx.measureText(line).width)) + 10;
+  const height = lines.length * SPEECH_LINE + 6;
   const left = Math.max(camX + 2, Math.min(camX + worldView.width - width - 2, player.x - width / 2));
-  const top = Math.max(camY + 2, headTop - height - 5);
-  ctx.fillStyle = "#2a1d17";
-  ctx.fillRect(snap(left - 1), snap(top - 1), width + 2, height + 2);
-  ctx.fillStyle = "#fff8e8";
+  const headTop = player.y - (quest.riding ? 40 : 44);
+  const view = [camX + 1, camY + 1, camX + worldView.width - 1, camY + worldView.height - 1];
+  const blockers = speechBlockers(camX, camY, zoom);
+  // Over his head if it all fits there, else under his feet; if neither, it waits.
+  const place = [{ top: headTop - height - SPEECH_GAP, above: true }, { top: player.y + SPEECH_GAP, above: false }].find(({ top }) => {
+    const box = [left, top, left + width, top + height];
+    const inView = box[0] >= view[0] && box[1] >= view[1] && box[2] <= view[2] && box[3] <= view[3];
+    return inView && !blockers.some((b) => boxesMeet(box, [b[0] - 2, b[1] - 2, b[2] + 2, b[3] + 2]));
+  });
+  if (!place) {
+    ctx.textAlign = "left";
+    return;
+  }
+  const top = place.top;
+  heroSpeech.visible = true;
+  heroSpeech.box = [left, top, left + width, top + height];
+  ctx.fillStyle = "rgba(28, 18, 12, 0.72)";
   ctx.fillRect(snap(left), snap(top), width, height);
-  const tailX = Math.max(left + 3, Math.min(left + width - 6, player.x - 1));
-  ctx.fillRect(snap(tailX), snap(top + height), 3, 3);
-  ctx.fillStyle = "#2a1d17";
+  const tailX = snap(Math.max(left + 3, Math.min(left + width - 6, player.x - 1)));
+  ctx.fillRect(tailX, snap(place.above ? top + height : top - 3), 3, 3);
+  ctx.fillStyle = "#fff8e8";
   lines.forEach((line, i) => ctx.fillText(line, snap(left + width / 2), snap(top + 3 + i * SPEECH_LINE)));
   ctx.textAlign = "left";
 }
@@ -854,7 +893,8 @@ function drawWorld(ctx, view, time, target) {
   drawExitArrows(ctx);
   if (DEBUG) drawSolids(ctx);
   if (target) drawHint(ctx, target, time);
-  if (mode === "world" && !dialog.open) drawHeroSpeech(ctx, worldView, camX, camY);
+  if (mode === "world" && !dialog.open && !travel.active) drawHeroSpeech(ctx, worldView, camX, camY, zoom);
+  else heroSpeech.visible = false;
   ctx.restore();
   PIXEL = basePixel;
 
