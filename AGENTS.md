@@ -8,6 +8,8 @@ These instructions apply to every AI agent working on this repository. Read this
 - **ChatGPT (visual art owner):** art direction, visual references, pixel-art concepts, characters, environment and object designs, sprite-sheet artwork, and review of visual consistency. ChatGPT can inspect repository context via the GitHub connection, but generated images do not automatically land in the repo.
 - **Human (product/art approver):** priorities, story and scope decisions, final visual approval, accepting gameplay changes, and transferring or authorizing transfer of approved image files.
 
+**Automated image generation:** Claude Code can also draw source art with the project `/art` skill (`.claude/skills/art/SKILL.md`), which calls Codex CLI on the human's ChatGPT login through `tools/art/codex_art.py`. Use it when the human asks Claude Code for the visual work or approves this route; otherwise route visual design to ChatGPT as below. Generated images are candidates: they are saved in `tools/art/reference/generated/`, reviewed by the human, and only then promoted with `tools/art/promote.py --approve`.
+
 Ownership means who should perform the primary task, not who is prohibited from advising. Both agents should flag dependencies and hand work to the other owner instead of independently recreating their work.
 
 ## Design memory

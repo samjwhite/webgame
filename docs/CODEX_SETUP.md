@@ -2,7 +2,14 @@
 
 Goal: Claude Code running on the human's Windows PC asks **Codex CLI** (logged in with the human's **ChatGPT Plus** account, not an API key) to draw art, and the result lands in the local checkout as a reviewable candidate. GitHub `main` stays the source of truth.
 
-Status: **not verified yet.** Whether Codex CLI can generate images non-interactively has to be tested (step 4). If it can't, use option B in [ART_WORKFLOW.md](ART_WORKFLOW.md) and stop.
+Status: **verified on 2026-11-07** with codex-cli 0.167.0 on Windows 11 and a ChatGPT Plus login: `codex exec` generates images non-interactively through its built-in image tool (`image_generation` feature, on by default). If a later version stops doing this, use option B in [ART_WORKFLOW.md](ART_WORKFLOW.md) and stop.
+
+Day-to-day use goes through the `/art` skill and `tools/art/codex_art.py`. The steps below are for setting up a new machine.
+
+Known limits:
+- Codex has no flags for image size, seed or transparency. Results so far were 1254×1254 and 1536×1024 opaque RGB, so sizes in a spec are requests, not guarantees.
+- A "flat" background only comes back close to the requested colour (`#26222f` returned corners from `#27222f` to `#292332`), so cut-outs need a colour tolerance.
+- Each image spends the Plus plan's Codex allowance (a run was about 40k input tokens, mostly cached). The session log shows the plan and credits, and `codex_art.py` records them in the candidate's `.json`. Its credit balance was 0 in these runs.
 
 ## 1. Workspace (ask before installing anything)
 
@@ -51,9 +58,7 @@ Delete the test image afterwards. Do not commit it.
 
 ## 5. If the test passes
 
-- Add a small wrapper (for example `tools/art/codex_art.py`) that builds the prompt from `docs/ART_BIBLE.md` plus the asset spec, passes reference images from `tools/art/reference/`, calls Codex, and saves `generated/NAME.png` with a `NAME.json` (prompt, references, command, date). It must never overwrite an existing file.
-- Point the `/art` skill (`.claude/skills/art/SKILL.md`) at this wrapper. A draft skill with an API-key backend exists on branch `claude/cool-cannon-g86san` (commit "WIP: /art skill…"). Reuse its review step (`tools/art/promote.py`: side-by-side comparison, replace only with `--approve`) and its `.gitignore` rules.
-- Test once more, then commit, push a branch and open a PR.
+Done: `tools/art/codex_art.py` builds the prompt from `docs/ART_BIBLE.md` plus the asset spec, passes reference images from `tools/art/reference/`, calls Codex, and saves `generated/NAME.png` with a `NAME.json` (prompt, references, command, date). It never overwrites an existing file. Codex runs read-only from an empty temporary folder with API keys removed from its environment; the script copies the image from the Codex image store. `/art` (`.claude/skills/art/SKILL.md`) uses this wrapper, and `tools/art/promote.py` does the review (side-by-side comparison, replace only with `--approve`).
 
 ## 6. If the test fails
 
