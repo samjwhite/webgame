@@ -158,6 +158,8 @@ function update(dt) {
 }
 
 function draw(time) {
+  ctx.setTransform(PIXEL, 0, 0, PIXEL, 0, 0);
+  ctx.imageSmoothingEnabled = false;
   placeStage();
   if (mode === "world") {
     const target = dialog.open ? null : nearestTarget();
@@ -219,9 +221,9 @@ function resize() {
     width: Math.ceil(window.innerWidth / scale),
     height: Math.ceil(window.innerHeight / scale),
   };
-  canvas.width = view.width;
-  canvas.height = view.height;
-  ctx.imageSmoothingEnabled = false;
+  PIXEL = Math.max(1, Math.round(scale * (window.devicePixelRatio || 1)));
+  canvas.width = view.width * PIXEL;
+  canvas.height = view.height * PIXEL;
 
 }
 

@@ -64,7 +64,16 @@ function loadArt() {
   return Promise.all(loading);
 }
 
+// Screen pixels per game pixel. The canvas is drawn at full screen resolution,
+// so the camera can move smoothly by less than one game pixel.
+let PIXEL = 1;
+
+// Rounds a game coordinate to the nearest screen pixel.
+function snap(value) {
+  return Math.round(value * PIXEL) / PIXEL;
+}
+
 // Draws frame number `frame` from a horizontal strip of equal-width frames.
 function drawFrame(ctx, img, frame, frameWidth, x, y) {
-  ctx.drawImage(img, frame * frameWidth, 0, frameWidth, img.height, Math.round(x), Math.round(y), frameWidth, img.height);
+  ctx.drawImage(img, frame * frameWidth, 0, frameWidth, img.height, snap(x), snap(y), frameWidth, img.height);
 }
