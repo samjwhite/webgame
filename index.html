@@ -18,19 +18,30 @@
 <body>
   <canvas id="game"></canvas>
 
-  <div id="objective"></div>
+  <div id="objective" hidden></div>
 
   <div id="dialog" hidden>
     <p id="dialog-text"></p>
     <span id="dialog-next">▼</span>
   </div>
 
+  <div id="menu" hidden>
+    <h1>Літо в селі</h1>
+    <p>Полтавщина, 2003</p>
+    <button id="continue-button">Продовжити</button>
+    <button id="new-game-button">Нова гра</button>
+  </div>
+
   <button id="action-button" aria-label="Дія">A</button>
 
-  <script src="js/sprites.js"></script>
+  <script src="js/assets.js"></script>
   <script src="js/map.js"></script>
   <script src="js/story.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/dialog.js"></script>
   <script src="js/input.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/closeup.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>
