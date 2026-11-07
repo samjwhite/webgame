@@ -18,6 +18,10 @@ const actionButton = document.getElementById("action-button");
 const menu = document.getElementById("menu");
 const continueButton = document.getElementById("continue-button");
 const newGameButton = document.getElementById("new-game-button");
+const locationName = document.getElementById("location-name");
+const dayText = document.getElementById("day-text");
+const bagText = document.getElementById("bag-text");
+const mapLabels = document.getElementById("map-labels");
 
 // "title", "world" or "closeup"
 let mode = "title";
@@ -40,7 +44,7 @@ function showPicture(picture, lines, onClose, effect) {
 function startNewGame() {
   clearSave();
   Object.assign(quest, newQuest());
-  placePlayer(START_POSITION);
+  enterLocation(START.location, START);
   resetChickens();
   menu.hidden = true;
   showPicture("intro", T().intro);
@@ -49,7 +53,15 @@ function startNewGame() {
 function continueGame() {
   const saved = loadSave();
   Object.assign(quest, newQuest(), saved.quest);
-  placePlayer(saved.player);
+  if (saved.version === SAVE_VERSION && LOCATIONS[saved.location]) {
+    enterLocation(saved.location, saved.player, saved.player.dir);
+  } else {
+    // A save with coordinates from an older layout: keep the progress, restart from grandma's yard.
+    enterLocation(WAKE_UP_SPOT.location, WAKE_UP_SPOT);
+    quest.moped = { ...newQuest().moped };
+    quest.riding = false;
+    if (quest.discoDone) quest.time = "night";
+  }
   resetChickens();
   menu.hidden = true;
   closeup.type = null;
@@ -69,22 +81,38 @@ function getBeaten() {
       quest.riding = false;
       quest.moped = { ...CLUB_PARKING };
     }
-    placePlayer(WAKE_UP_POSITION);
+    enterLocation(WAKE_UP_SPOT.location, WAKE_UP_SPOT);
+    heroSay([T().hero.afterBeating]);
     showPicture("talkGrandma", wakeUpLines());
   }, "hit");
 }
 
+// The lads let the hero in: the evening has come, and night falls over the village.
 function goToDisco() {
-  showPicture("disco", T().disco, () => {
-    quest.discoDone = true;
-    finishCloseup();
-  }, "disco");
+  quest.time = "night";
+  showPicture("nightfall", T().nightfall, () => {
+    showPicture("disco", T().disco, () => {
+      quest.discoDone = true;
+      finishCloseup();
+      openDialog(T().afterDisco, saveGame);
+    }, "disco");
+  });
+}
+
+function goToSleep() {
+  showPicture("sleep", T().sleep, () => {
+    startNewDay();
+    enterLocation(MORNING_SPOT.location, MORNING_SPOT);
+    heroSay([T().hero.morning]);
+    showPicture("sleep", T().morning(quest.day), finishCloseup, "dawn");
+  }, "sleep");
 }
 
 // What happens after a dialog, as named by the story (see story.js).
 function afterTalk(next) {
   if (next === "beaten") getBeaten();
   else if (next === "disco") goToDisco();
+  else if (next === "shop") openShopMenu();
   else finishCloseup();
 }
 
@@ -94,6 +122,13 @@ const TALK_ACTIONS = {
   truck: useTruck,
   moped: useMoped,
   statue: useStatue,
+  shopDoor: useShopDoor,
+  bed: useBed,
+  tv: useTv,
+  borscht: useBorscht,
+  varenyky: useVarenyky,
+  fridge: useFridge,
+  beerBottle: useBeerBottle,
 };
 
 function useTarget(target) {
@@ -119,6 +154,15 @@ function useTarget(target) {
     const result = TALK_ACTIONS[target.id]();
     if (result.next === "ride") {
       showPicture("road", result.lines);
+    } else if (result.next === "speak") {
+      heroInterrupt(result.lines);
+      saveGame();
+    } else if (result.next === "sleep") {
+      openDialog(result.lines, goToSleep);
+    } else if (result.next === "fridge") {
+      showPicture("fridgeOpen", result.lines, finishCloseup, "fridge");
+    } else if (result.next === "tv") {
+      showPicture("tsn", result.lines, finishCloseup, "tv");
     } else {
       openDialog(result.lines, saveGame);
     }
@@ -132,7 +176,7 @@ function useTarget(target) {
 
 function getOffMoped() {
   quest.riding = false;
-  quest.moped = { x: player.x, y: player.y + 1 };
+  quest.moped = { location: currentLocation, x: player.x, y: player.y + 1 };
   saveGame();
 }
 
@@ -147,8 +191,19 @@ function update(dt) {
   let { action, tap } = takeInput();
   if (!mapView.hidden) return;
 
-  if (dialog.open && !dialog.isHint && (action || tap)) {
-    advanceDialog();
+  if (travel.active) {
+    updateTravel(dt);
+    return;
+  }
+
+  // Dialogs move on with the A button only; a tap on the screen does nothing here.
+  if (dialog.open && !dialog.isHint) {
+    if (action) advanceDialog();
+    action = false;
+    tap = null;
+  }
+  if (shopMenu.open && !dialog.open) {
+    updateShopMenu(action);
     action = false;
     tap = null;
   }
@@ -178,7 +233,7 @@ function draw(time) {
   ctx.imageSmoothingEnabled = false;
   placeStage();
   if (mode === "world") {
-    const target = dialog.open ? null : nearestTarget();
+    const target = dialog.open || travel.active ? null : nearestTarget();
     drawWorld(ctx, view, time, target);
     drawJoystick();
   } else if (mode === "closeup") {
@@ -196,6 +251,7 @@ function draw(time) {
   updateHud();
   actionButton.hidden = mode === "title";
   mapButton.hidden = mode !== "world" || dialog.open;
+  locationName.hidden = mapButton.hidden;
 }
 
 function setText(element, text) {
@@ -204,6 +260,10 @@ function setText(element, text) {
 
 function updateHud() {
   setText(objectiveText, currentObjective());
+  setText(dayText, T().ui.day(quest.day, isNight()));
+  setText(bagText, Object.keys(quest.bag).length ? T().shop.bag(bagLine()) : "");
+  shopMenuBox.hidden = !shopMenu.open || dialog.open;
+  setText(locationName, T().places[currentLocation]);
   setText(moneyText, quest.money > 0 || quest.metLads ? T().ui.money(quest.money) : "");
   checklist.hidden = !quest.metLads || quest.discoDone;
   setCheck(checkBeer, quest.beersDrunk >= BEERS_NEEDED, T().ui.checkBeer(quest.beersDrunk, BEERS_NEEDED));
@@ -235,9 +295,51 @@ function loadHudCollapsed() {
   }
 }
 
+// Location pictures are the map's source picture scaled by 0.65; the map screen scales it by 0.5.
+const LOCATION_TO_MAP = 0.5 / 0.65;
+const VILLAGE_MAP_W = 768;
+const VILLAGE_MAP_H = 512;
+
+function mapLabel(className, text, leftPixel, topPixel) {
+  const label = document.createElement("div");
+  label.className = className;
+  label.textContent = text;
+  label.style.left = `${(leftPixel / VILLAGE_MAP_W) * 100}%`;
+  label.style.top = `${(topPixel / VILLAGE_MAP_H) * 100}%`;
+  return label;
+}
+
+function fillMapLabels() {
+  mapLabels.textContent = "";
+  Object.entries(OPEN_PLACES).forEach(([id, { x, y }]) => {
+    mapLabels.append(mapLabel("map-label", T().places[id], x, y));
+  });
+  Object.entries(LOCKED_PLACES).forEach(([id, { box: [left, top, right, bottom] }]) => {
+    if (isPlaceUnlocked(id)) {
+      mapLabels.append(mapLabel("map-label", T().places[id], (left + right) / 2, (top + bottom) / 2));
+      return;
+    }
+    const shade = document.createElement("div");
+    shade.className = "map-locked";
+    shade.style.left = `${(left / VILLAGE_MAP_W) * 100}%`;
+    shade.style.top = `${(top / VILLAGE_MAP_H) * 100}%`;
+    shade.style.width = `${((right - left) / VILLAGE_MAP_W) * 100}%`;
+    shade.style.height = `${((bottom - top) / VILLAGE_MAP_H) * 100}%`;
+    shade.textContent = `${T().places[id]}\n${T().places.closed}`;
+    mapLabels.append(shade);
+  });
+}
+
 function openMap() {
-  mapMarker.style.left = `${(player.x / ART.map.width) * 100}%`;
-  mapMarker.style.top = `${((player.y - 10) / ART.map.height) * 100}%`;
+  const { mapOrigin, mapSpot, mapLine } = here();
+  // The road is one long picture, so only the hero's position along it counts on the map.
+  const spot = mapSpot || (mapLine && { x: player.x * mapLine.scale, y: mapLine.y }) || {
+    x: mapOrigin.x + player.x * LOCATION_TO_MAP,
+    y: mapOrigin.y + (player.y - 20) * LOCATION_TO_MAP,
+  };
+  mapMarker.style.left = `${(spot.x / VILLAGE_MAP_W) * 100}%`;
+  mapMarker.style.top = `${(spot.y / VILLAGE_MAP_H) * 100}%`;
+  fillMapLabels();
   mapView.hidden = false;
   input.joystick = null;
 }
@@ -321,7 +423,7 @@ applyLanguageToPage();
 loadArt().then(() => {
   initWorld();
   resize();
-  setupTouchControls(canvas, actionButton, document.getElementById("dialog"));
+  setupTouchControls(canvas, actionButton);
   showTitle();
   requestAnimationFrame((time) => {
     lastTime = time;

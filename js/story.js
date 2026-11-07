@@ -25,7 +25,7 @@ function newQuest() {
     mopedRidden: false,
     riding: false,
     arrivedOnMoped: false,
-    moped: { x: 236, y: 156 },
+    moped: { location: "yard", x: 400, y: 128 },
     unload: "none",
     cratesCarried: 0,
     carrying: false,
@@ -34,10 +34,24 @@ function newQuest() {
     discoDone: false,
     grandpaLine: 0,
     statueLooks: 0,
+    day: 1,
+    time: "day",
+    unlocked: {},
+    ateBorscht: false,
+    ateVarenyky: false,
+    newsWatched: 0,
+    metGrandmaToday: false,
+    foundBeer: false,
+    bag: {},
+    heroSaid: {},
   };
 }
 
 const quest = newQuest();
+
+function isNight() {
+  return quest.time === "night";
+}
 
 function stageReached(stage) {
   return GRANDMA_STAGES.indexOf(quest.stage) >= GRANDMA_STAGES.indexOf(stage);
@@ -64,6 +78,10 @@ function say(lines, next) {
 
 function talkToGrandma() {
   const text = T().grandma;
+  if (quest.day > 1 && !quest.metGrandmaToday) {
+    quest.metGrandmaToday = true;
+    return say(text.morning);
+  }
   switch (quest.stage) {
     case "arrive":
       quest.stage = "water";
@@ -124,11 +142,16 @@ function wakeUpLines() {
 
 // ---------- Valya, the shop ----------
 
+// What is on the counter while the seller talks: a name from COUNTER_GOODS, or null.
+let sellerCounter = null;
+
 function talkToValya() {
   const text = T().valya;
+  sellerCounter = null;
   if (quest.stage === "shop" && !quest.hasGroceries) {
     quest.hasGroceries = true;
     quest.money -= 5;
+    sellerCounter = "groceries";
     return say(text.groceries);
   }
 
@@ -147,23 +170,51 @@ function talkToValya() {
     return say(text.unloadAsk);
   }
 
-  if (quest.metLads && quest.beersDrunk < BEERS_NEEDED) return sellBeer();
-
-  return say([text.idle]);
+  sellerCounter = "stock";
+  return say([text.idle], "shop");
 }
 
-function sellBeer() {
+// What the shop sells. Art comes from the goods library, reference/shop_goods.png.
+const SHOP_GOODS = [
+  { id: "beer", art: "goodsBeer", price: BEER_PRICE },
+  { id: "bread", art: "goodsBread", price: 1 },
+  { id: "loaf", art: "goodsLoaf", price: 1 },
+  { id: "noodles", art: "goodsNoodles", price: 1 },
+  { id: "seeds", art: "goodsSeeds", price: 1 },
+  { id: "matches", art: "goodsMatches", price: 1 },
+  { id: "cigarettes", art: "goodsCigarettes", price: 2 },
+  { id: "sugar", art: "goodsSugar", price: 3 },
+  { id: "fish", art: "goodsFish", price: 3 },
+  { id: "oil", art: "goodsOil", price: 4 },
+  { id: "chocolate", art: "goodsChocolate", price: 4 },
+  { id: "sausage", art: "goodsSausage", price: 6 },
+];
+
+// Beer is on offer only once the lads have asked for it, and until the hero has had enough.
+function goodsOnOffer() {
+  return SHOP_GOODS.filter((good) => good.id !== "beer" || (quest.metLads && quest.beersDrunk < BEERS_NEEDED));
+}
+
+function buyGood(id) {
   const text = T().valya;
-  if (quest.money < BEER_PRICE) {
+  const good = SHOP_GOODS.find((g) => g.id === id);
+  if (quest.money < good.price) {
     const jobHint = quest.unload === "done" ? "" : text.noMoneyJob;
-    return say([text.noMoney + jobHint, text.noCredit]);
+    return [text.noMoney + jobHint, text.noCredit];
   }
-  quest.money -= BEER_PRICE;
-  quest.beersDrunk += 1;
-  return say([
-    quest.beersDrunk === 1 ? text.firstBeer : text.nextBeer,
-    text.drink(quest.beersDrunk, BEERS_NEEDED),
-  ]);
+  quest.money -= good.price;
+  sellerCounter = id;
+  if (id === "beer") {
+    quest.beersDrunk += 1;
+    return [quest.beersDrunk === 1 ? text.firstBeer : text.nextBeer, text.drink(quest.beersDrunk, BEERS_NEEDED)];
+  }
+  quest.bag[id] = (quest.bag[id] || 0) + 1;
+  return [T().shop.sold[id]];
+}
+
+// The bag, as a line of text: "bread ×2, matches".
+function bagLine() {
+  return Object.entries(quest.bag).map(([id, count]) => T().shop.goods[id] + (count > 1 ? ` ×${count}` : "")).join(", ");
 }
 
 // ---------- Grandpa Petro ----------
@@ -208,6 +259,64 @@ function useStatue() {
   quest.statueLooks += 1;
   if (first) return say(lines[0]);
   return say(pickRandom("statue", lines.slice(1)));
+}
+
+function useShopDoor() {
+  return say(T().yard.shopClosed);
+}
+
+// ---------- Inside grandma's house ----------
+
+function useBed() {
+  if (!isNight() || !quest.discoDone) return say([T().house.bedDay]);
+  return say(T().house.bedNight, "sleep");
+}
+
+// The evening news comes on at night; each bulletin is told once, then it is over.
+function useTv() {
+  const text = T().house;
+  if (!isNight()) return say([text.tvDay]);
+  const bulletin = T().tsn[quest.newsWatched];
+  if (!bulletin) return say([text.tvOver]);
+  quest.newsWatched += 1;
+  return say(bulletin, "tv");
+}
+
+function useBorscht() {
+  const text = T().house;
+  if (quest.ateBorscht) return say([text.borschtDone]);
+  quest.ateBorscht = true;
+  return say(text.borscht);
+}
+
+function useVarenyky() {
+  quest.ateVarenyky = true;
+  return say(T().house.varenyky);
+}
+
+function useFridge() {
+  return say(T().house.fridge, "fridge");
+}
+
+// A new day: tonight's food and news are back, and grandma has something to say.
+function startNewDay() {
+  quest.day += 1;
+  quest.time = "day";
+  quest.ateBorscht = false;
+  quest.ateVarenyky = false;
+  quest.newsWatched = 0;
+  quest.metGrandmaToday = false;
+}
+
+// Someone left a bottle on the table: it counts once the lads have asked for beer.
+function canFindBeer() {
+  return quest.metLads && !quest.foundBeer && quest.beersDrunk < BEERS_NEEDED && !quest.discoDone && !isNight();
+}
+
+function useBeerBottle() {
+  quest.foundBeer = true;
+  quest.beersDrunk += 1;
+  return say([...T().hero.foundBeer, T().hero.drank(quest.beersDrunk, BEERS_NEEDED)], "speak");
 }
 
 function useTruck() {
@@ -280,7 +389,9 @@ function canCollectBeetles() {
 
 function currentObjective() {
   const text = T().objective;
-  if (quest.discoDone) return text.end;
+  if (isNight() && quest.discoDone) return currentLocation === "house" ? text.goToBed : text.goHome;
+  if (quest.day > 1) return quest.metGrandmaToday ? text.morningLater : text.morning;
+  if (quest.discoDone) return text.goHome;
   if (quest.carrying) return text.carryCrate;
   switch (quest.stage) {
     case "arrive":

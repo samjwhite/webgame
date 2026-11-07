@@ -32,7 +32,8 @@ const closeup = {
   hand: null,
 };
 
-// effect: null, "disco" (moving lights) or "hit" (red flashes).
+// effect: null, "disco" (moving lights), "hit" (red flashes),
+// "tv" (the news on the screen), "sleep" or "dawn" (the bedroom at night or at sunrise).
 function startPictureScene(picture, effect) {
   closeup.type = "picture";
   closeup.picture = picture;
@@ -192,8 +193,9 @@ function drawSky(ctx, skyName, time) {
 
 function drawPictureScene(ctx, time) {
   const picture = ART[closeup.picture];
+  if (closeup.effect === "tv") drawNewsScreen(ctx, time);
   ctx.drawImage(picture, 0, 0);
-  if (closeup.picture === "talkSeller" && quest.hasGroceries) ctx.drawImage(ART.groceries, 98, 132);
+  if (closeup.picture === "talkSeller") drawCounterGoods(ctx);
 
   if (closeup.effect === "disco") {
     const colors = ["255, 60, 200", "60, 200, 255", "255, 220, 60"];
@@ -210,10 +212,191 @@ function drawPictureScene(ctx, time) {
     ctx.globalCompositeOperation = "source-over";
   }
 
+  if (closeup.effect === "fridge") drawFridgeShelves(ctx);
+  if (closeup.effect === "sleep") drawSleeping(ctx, picture, time);
+  if (closeup.effect === "dawn") drawDawn(ctx, picture);
+
   if (closeup.effect === "hit" && Math.floor(time / 120) % 3 === 0) {
     ctx.fillStyle = "rgba(200, 20, 20, 0.45)";
     ctx.fillRect(0, 0, picture.width, picture.height);
   }
+}
+
+// The news shows through the see-through screen of tsn.png. news_frames.png is a strip of pictures:
+// 0 newsreader, 1 poor harvest, 2 flour queue, 3 peacekeepers, 4 penalty, 5 song contest, 6 summit, 7 weather.
+// One picture for each line of each bulletin in the text files.
+const NEWS_SCREEN = { x: 39, y: 30, w: 96, h: 72 };
+const NEWS_PLAN = [
+  [0, 1, 2, 2, 3, 3],
+  [0, 4, 5, 5, 6, 7],
+];
+
+function drawNewsScreen(ctx, time) {
+  const { x, y, w, h } = NEWS_SCREEN;
+  const plan = NEWS_PLAN[Math.max(0, quest.newsWatched - 1)] || NEWS_PLAN[0];
+  const line = Math.max(0, Math.min(plan.length - 1, plan.length - 1 - dialog.lines.length));
+  ctx.drawImage(ART.newsFrames, plan[line] * w, 0, w, h, x, y, w, h);
+  ctx.fillStyle = "#c8323c";
+  ctx.fillRect(x + 8, y + h - 16, 22, 9);
+  ctx.fillStyle = "#fff8e8";
+  ctx.font = "bold 8px monospace";
+  ctx.textBaseline = "top";
+  ctx.fillText("ТСН", x + 10, y + h - 16);
+  ctx.fillText("1+1", x + w - 28, y + 6);
+  // Old set: a dark band rolls down the screen and the picture has lines across it.
+  ctx.fillStyle = "rgba(0, 0, 0, 0.16)";
+  ctx.fillRect(x, y + Math.floor(time / 40) % h, w, 6);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+  for (let row = 0; row < h; row += 2) ctx.fillRect(x, y + row, w, 1);
+}
+
+// What is in the fridge: fridge_items.png is a strip of 40x40 pictures, captions come from the text files.
+const FRIDGE_ITEM = 40;
+const FRIDGE_COLUMNS = [24, 76, 128];
+const FRIDGE_ROWS = [21, 73];
+
+function drawFridgeShelves(ctx) {
+  ctx.font = "bold 8px monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  T().house.fridgeItems.forEach((caption, i) => {
+    const x = FRIDGE_COLUMNS[i % 3];
+    const y = FRIDGE_ROWS[Math.floor(i / 3)];
+    drawFrame(ctx, ART.fridgeItems, i, FRIDGE_ITEM, x, y);
+    ctx.fillStyle = "#2a1d17";
+    ctx.fillRect(x - 5, y + 42, FRIDGE_ITEM + 10, 10);
+    ctx.fillStyle = "#fff8e8";
+    ctx.fillText(caption, x + FRIDGE_ITEM / 2, y + 43);
+  });
+  ctx.textAlign = "left";
+}
+
+// Goods on the seller's counter: art and centre x. They stand on the counter's front edge,
+// between her abacus and the scales.
+const COUNTER_FRONT = 148;
+const COUNTER_GOODS = {
+  beer: [["goodsBeer", 124]],
+  bread: [["goodsBread", 120]],
+  loaf: [["goodsLoaf", 120]],
+  noodles: [["goodsNoodles", 124]],
+  seeds: [["goodsSeeds", 124]],
+  matches: [["goodsMatches", 124]],
+  cigarettes: [["goodsCigarettes", 124]],
+  sugar: [["goodsSugar", 124]],
+  fish: [["goodsFish", 124]],
+  oil: [["goodsOil", 124]],
+  chocolate: [["goodsChocolate", 122]],
+  sausage: [["goodsSausage", 120]],
+  groceries: [["goodsBread", 106], ["goodsNoodles", 134]],
+  stock: [["goodsLoaf", 106], ["goodsSugar", 132], ["goodsMatches", 146]],
+};
+
+// The shop's list: a row for each thing on offer and a last one to leave.
+const SHOP_COLUMNS = 2;
+const shopMenu = { open: false, index: 0, rows: [], moved: false };
+const shopMenuBox = document.getElementById("shop-menu");
+const shopMenuMoney = document.getElementById("shop-money");
+const shopMenuList = document.getElementById("shop-list");
+
+function fillShopMenu() {
+  shopMenu.rows = goodsOnOffer();
+  shopMenu.index = Math.min(shopMenu.index, shopMenu.rows.length);
+  shopMenuMoney.textContent = T().ui.money(quest.money);
+  shopMenuList.textContent = "";
+  shopMenu.rows.forEach((good, index) => {
+    const row = document.createElement("button");
+    row.className = "shop-row";
+    const picture = document.createElement("img");
+    picture.src = `art/${ART_FILES[good.art]}?v=${ART_VERSION}`;
+    picture.alt = "";
+    const name = document.createElement("span");
+    name.textContent = T().shop.goods[good.id];
+    const price = document.createElement("b");
+    price.textContent = T().shop.price(good.price);
+    row.append(picture, name, price);
+    if (quest.money < good.price) row.classList.add("too-dear");
+    row.addEventListener("click", () => shopChoose(index));
+    shopMenuList.append(row);
+  });
+  const leave = document.createElement("button");
+  leave.className = "shop-row shop-leave";
+  leave.textContent = T().shop.leave;
+  leave.addEventListener("click", () => shopChoose(shopMenu.rows.length));
+  shopMenuList.append(leave);
+  markShopRow();
+}
+
+function markShopRow() {
+  Array.from(shopMenuList.children || []).forEach((row, index) => row.classList.toggle("selected", index === shopMenu.index));
+}
+
+function openShopMenu() {
+  sellerCounter = null;
+  shopMenu.open = true;
+  shopMenu.index = 0;
+  fillShopMenu();
+}
+
+function closeShopMenu() {
+  shopMenu.open = false;
+  sellerCounter = null;
+  finishCloseup();
+}
+
+function shopChoose(index) {
+  if (!shopMenu.open || dialog.open) return;
+  const good = shopMenu.rows[index];
+  if (!good) {
+    closeShopMenu();
+    return;
+  }
+  shopMenu.index = index;
+  openDialog(buyGood(good.id), () => {
+    saveGame();
+    fillShopMenu();
+  });
+}
+
+// Arrow keys or the joystick move the selection; A buys what is selected.
+function updateShopMenu(action) {
+  const count = shopMenu.rows.length + 1;
+  const stepX = Math.abs(input.moveX) > 0.5 ? Math.sign(input.moveX) : 0;
+  const stepY = Math.abs(input.moveY) > 0.5 ? Math.sign(input.moveY) : 0;
+  if (!stepX && !stepY) {
+    shopMenu.moved = false;
+  } else if (!shopMenu.moved) {
+    shopMenu.moved = true;
+    const next = shopMenu.index + stepX + stepY * SHOP_COLUMNS;
+    if (next >= 0 && next < count) {
+      shopMenu.index = next;
+      markShopRow();
+    }
+  }
+  if (action) shopChoose(shopMenu.index);
+}
+
+function drawCounterGoods(ctx) {
+  (COUNTER_GOODS[sellerCounter] || []).forEach(([art, x]) => {
+    const image = ART[art];
+    ctx.drawImage(image, Math.round(x - image.width / 2), COUNTER_FRONT - image.height);
+  });
+}
+
+function drawSleeping(ctx, picture, time) {
+  ctx.fillStyle = "#c8d6ff";
+  ctx.font = "bold 10px monospace";
+  ctx.textBaseline = "top";
+  ["z", "Z", "z"].forEach((letter, i) => {
+    const rise = (time / 60 + i * 14) % 42;
+    ctx.fillText(letter, 48 + i * 9 + Math.sin(rise / 6) * 2, 60 - rise);
+  });
+}
+
+function drawDawn(ctx, picture) {
+  ctx.globalCompositeOperation = "lighter";
+  ctx.fillStyle = "rgba(255, 170, 90, 0.42)";
+  ctx.fillRect(0, 0, picture.width, picture.height);
+  ctx.globalCompositeOperation = "source-over";
 }
 
 function drawWellScene(ctx) {
