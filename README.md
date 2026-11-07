@@ -26,6 +26,14 @@ python3 tools/art/build.py
 
 `tools/art/codex_art.py` малює картинки через Codex CLI з входом у ChatGPT Plus, без API-ключа. Результати — лише кандидати в `tools/art/reference/generated/`; у референси вони потрапляють через `tools/art/promote.py ... --approve` після схвалення. Деталі: `.claude/skills/art/SKILL.md` і `docs/CODEX_SETUP.md`.
 
+## Тести
+
+```
+npm test
+```
+
+Нічого встановлювати не треба, досить Node 22. Подробиці в `docs/TESTING.md`. Панель розробника: додай `?dev` до адреси гри.
+
 ## Локальний запуск
 
 ```

@@ -9,7 +9,7 @@ const SHED_DOOR = { x: 420, y: 100 };
 const CHICKEN_YARD = { left: 202, right: 271, top: 185, bottom: 275 };
 const SHOP_STEPS = [78, 124, 147, 161]; // the shop's steps and door, plus a stride in front of them
 const FADE_TIME = 0.18;
-const DEBUG = location.search.includes("debug");
+let DEBUG = location.search.includes("debug");
 
 const player = { x: START.x, y: START.y, dir: "down", moving: false, walkTime: 0, toldExit: null };
 
@@ -237,12 +237,21 @@ function updateAnimals(dt, time) {
   });
 }
 
+// A soft shadow on the ground, so an animal stands in the picture instead of floating over it.
+function drawFootShadow(ctx, x, y, width) {
+  ctx.fillStyle = "rgba(30, 18, 8, 0.32)";
+  ctx.beginPath();
+  ctx.ellipse(x, y, width, Math.max(1.5, width * 0.28), 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
 function drawAnimal(ctx, animal) {
   const sheet = animal.kind === "cat" ? ART.cats : ART.dogs;
   const { w, h } = animal.kind === "cat" ? CAT_CELL : DOG_CELL;
   const pose = animal.frame === undefined ? animal.pose : animal.frame;
   const left = snap(animal.x - w / 2);
   const top = snap(animal.y - h + 2);
+  drawFootShadow(ctx, animal.x, animal.y + 1, w * 0.3);
   ctx.save();
   ctx.translate(animal.flip ? left + w : left, top);
   if (animal.flip) ctx.scale(-1, 1);
@@ -738,6 +747,7 @@ function drawWorld(ctx, view, time, target) {
   if (currentLocation === "yard") chickens.forEach((c) => {
     add(c.y, () => {
       const img = ART[c.sprite];
+      drawFootShadow(ctx, c.x, c.y + 1, 5);
       const frameWidth = img.width / CHICKEN_FRAMES;
       ctx.save();
       ctx.translate(snap(c.x), snap(c.y - img.height + 2));

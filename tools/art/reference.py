@@ -85,7 +85,7 @@ APP_ICON_SIZES = (180, 192, 512)
 CHICKEN_COLUMNS = [225, 408, 536, 662, 776, 870, 1000, 1100, 1196, 1292, 1434]
 CHICKEN_WINDOW_W = 130
 CHICKEN_BANDS = {"rooster": (22, 190), "hen_white": (200, 330), "hen_ginger": (350, 475), "hen_black": (492, 625)}
-CHICKEN_SCALE = 0.09
+CHICKEN_SCALE = 0.11
 
 # Hero on the moped (reference/moped_sheet.png): rows right (6), left (6), up (1), down (1).
 MOPED_ROWS = [

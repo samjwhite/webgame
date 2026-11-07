@@ -33,13 +33,13 @@ const LOCATIONS = {
       [381, 139, 405, 159], // laundry basket
       [415, 96, 529, 182], // summer kitchen
       [529, 96, 568, 349], // east fence
-      [281, 190, 289, 285], // the garden's low fence; its way in is at the top
+      [281, 190, 289, 285], [289, 276, 396, 285], // the garden's low fences; its way in is at the top
       [396, 176, 533, 285], // beds beyond the potatoes
       [0, 284, 227, 349], [322, 284, 568, 349], // south fence, gate in the middle
       [227, 289, 322, 349], // beyond the gate
     ],
     exits: [
-      { id: "toStreet", area: [254, 282, 297, 289], to: "street", spawn: { x: 732, y: 169 }, dir: "down" },
+      { id: "toStreet", area: [254, 282, 281, 289], to: "street", spawn: { x: 732, y: 169 }, dir: "down" },
       {
         id: "toHouse",
         area: [237, 148, 265, 153],
@@ -252,7 +252,7 @@ function lockedLines(id) {
 }
 
 // Grandma's potato beds.
-const GARDEN_AREA = [289, 180, 396, 285];
+const GARDEN_AREA = [289, 180, 396, 276];
 
 function isInside(x, y, [left, top, right, bottom]) {
   return x >= left && x < right && y >= top && y < bottom;

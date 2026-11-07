@@ -14,6 +14,8 @@
 
 **Done with Codex and in the game on `dev`:** the house room and furniture, the TV close-up with news pictures, the night picture of the club, the monument and roadside trees. Still wanted: **night versions of every location**. Night is still a blue tint with lamps by code; the owner asked for a drawn night village or a good filter.
 
+**Sizes:** the full table and the scaling rule are in [PROPORTIONS.md](PROPORTIONS.md). Sprites placed on a painted picture need its warm light; ask for no black outline.
+
 ## Art direction (from the product owner)
 
 - **Our own look.** Do not copy Stardew Valley or Cast n Chill, or any other game. This has to be a design of its own.

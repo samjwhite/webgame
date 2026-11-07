@@ -12,22 +12,25 @@ from reference import cut_out, keep_largest_shape, limit_palette, load
 BACKGROUND_TOLERANCE = 30
 ENCLOSED_TOLERANCE = 22
 
-# yard_cats_v3.png. Rows: tabby, cream with a black cap, calico. Columns: standing, seated, curled asleep.
-# The game's sheet adds walking and washing frames, TEMPORARILY made by moving parts of those poses.
-CAT_SHEET = "incoming/yard_cats_v3.png"
-CAT_ROWS = [(30, 305), (345, 640), (680, 975)]
-CAT_COLUMNS = [(60, 480), (600, 900), (1065, 1435)]
+# cats_animated.png, the same coats as the designer's yard_cats_v3.png.
+# Rows: tabby, cream with a black cap, calico.
+# Columns: standing, seated, curled asleep, walking x2, washing x2.
+CAT_SHEET = "cats_animated.png"
+CAT_ROWS = [(50, 232), (305, 495), (560, 755)]
+CAT_COLUMNS = [(40, 305), (360, 545), (598, 810), (842, 1108), (1130, 1395), (1430, 1615), (1675, 1868)]
 # Sizes against people, who are 40 px tall: a sitting cat comes to about their knee.
-CAT_SCALE = 0.045
+CAT_SCALE = 0.07
 CAT_CELL = (24, 16)
-CAT_OUTLINE = (34, 24, 20, 255)
+# The picture around them is warm, late-afternoon light: animals get the same light and a soft outline.
+WARM_LIGHT = (1.05, 0.97, 0.8)
+SOFT_OUTLINE = (58, 38, 24)
 
 # village_dogs_sheet.png. Rows: ginger, black and tan, white with brown, grey shaggy.
 # Columns: standing, seated, asleep, walk 1, walk 2, sniffing, barking, standing again.
 DOG_SHEET = "incoming/village_dogs_sheet.png"
 DOG_ROWS = [(118, 256), (328, 492), (562, 726), (788, 952)]
 DOG_COLUMNS = [(22, 197), (205, 358), (362, 535), (540, 718), (722, 902), (908, 1062), (1066, 1212), (1252, 1424)]
-DOG_SCALE = 0.13
+DOG_SCALE = 0.11
 DOG_CELL = (24, 21)
 # Every dog stands on a baked-in strip of earth and grass this many source pixels tall: it is removed.
 DOG_GROUND_BAND = 16
@@ -76,15 +79,6 @@ def frame(sheet, box, scale, cell, clean=None):
     return result
 
 
-def grid(file, rows, columns, scale, cell, clean=None):
-    sheet = load(file)
-    result = Image.new("RGBA", (cell[0] * len(columns), cell[1] * len(rows)))
-    for r, (top, bottom) in enumerate(rows):
-        for c, (left, right) in enumerate(columns):
-            result.alpha_composite(frame(sheet, (left, top, right, bottom), scale, cell, clean), (c * cell[0], r * cell[1]))
-    return result
-
-
 # Grandma, TEMPORARY until a drawn sheet is approved: made by moving parts of her one standing sprite.
 # Rows: walking down, up, left, right, then standing and alive. Four columns each.
 GRANDMA_LEGS = 0.72  # the part of her height below this moves on its own when she walks
@@ -120,21 +114,31 @@ def grandma_sheet(out_world):
     return sheet
 
 
+def warmed(cell):
+    """The same late-afternoon light as the locations."""
+    r, g, b, alpha = cell.split()
+    r, g, b = (band.point(lambda v, f=factor: min(255, round(v * f))) for band, factor in zip((r, g, b), WARM_LIGHT))
+    return Image.merge("RGBA", (r, g, b, alpha))
+
+
 def outlined(cell):
-    """A dark 1 px outline, so a cat stands out from any ground."""
+    """A thin soft outline in the picture's own dark brown, half see-through, so an animal is not a sticker."""
     alpha = cell.getchannel("A").point(lambda a: 255 if a else 0)
-    edge = Image.new("RGBA", cell.size, CAT_OUTLINE)
-    edge.putalpha(alpha.filter(ImageFilter.MaxFilter(3)))
+    edge = Image.new("RGBA", cell.size, SOFT_OUTLINE + (0,))
+    edge.putalpha(alpha.filter(ImageFilter.MaxFilter(3)).point(lambda a: 150 if a else 0))
     edge.alpha_composite(cell)
     return edge
 
 
-def moved(cell, split, top_shift, bottom_shift):
-    """The cell with the part above split and the part below it moved by (x, y)."""
-    w, h = cell.size
-    result = Image.new("RGBA", cell.size)
-    result.alpha_composite(cell.crop((0, split, w, h)), (max(0, bottom_shift[0]), split + bottom_shift[1]))
-    result.alpha_composite(cell.crop((0, 0, w, split)), (max(0, top_shift[0]), max(0, top_shift[1])))
+def animal_grid(file, rows, columns, scale, cell, clean=None, outline=True):
+    sheet = load(file)
+    w, h = cell
+    result = Image.new("RGBA", (w * len(columns), h * len(rows)))
+    for r, (top, bottom) in enumerate(rows):
+        for c, (left, right) in enumerate(columns):
+            picture = frame(sheet, (left, top, right, bottom), scale, cell, clean)
+            picture = warmed(picture)
+            result.alpha_composite(outlined(picture) if outline else picture, (c * w, r * h))
     return result
 
 
@@ -156,32 +160,11 @@ def petro_strip():
     return strip
 
 
-def cat_sheet():
-    """Rows by coat. Columns: stand, sit, sleep, walk A, walk B, wash A, wash B."""
-    sheet = load(CAT_SHEET)
-    w, h = CAT_CELL
-    result = Image.new("RGBA", (w * 7, h * len(CAT_ROWS)))
-    legs = h - 5
-    head = h - 8
-    for r, (top, bottom) in enumerate(CAT_ROWS):
-        stand, sit, sleep = [frame(sheet, (left, top, right, bottom), CAT_SCALE, CAT_CELL) for left, right in CAT_COLUMNS]
-        cells = [
-            stand, sit, sleep,
-            moved(stand, legs, (0, 0), (1, 0)),
-            moved(stand, legs, (1, 0), (0, 0)),
-            moved(sit, head, (0, 1), (0, 0)),
-            moved(sit, head, (1, 2), (0, 0)),
-        ]
-        for c, cell in enumerate(cells):
-            result.alpha_composite(outlined(cell), (c * w, r * h))
-    return result
-
-
 def build(out_world):
     grandma_sheet(out_world).save(f"{out_world}/grandma_walk.png")
     petro_strip().save(f"{out_world}/petro_bench.png")
-    cat_sheet().save(f"{out_world}/cats.png")
-    grid(DOG_SHEET, DOG_ROWS, DOG_COLUMNS, DOG_SCALE, DOG_CELL, remove_ground).save(f"{out_world}/dogs.png")
+    animal_grid(CAT_SHEET, CAT_ROWS, CAT_COLUMNS, CAT_SCALE, CAT_CELL).save(f"{out_world}/cats.png")
+    animal_grid(DOG_SHEET, DOG_ROWS, DOG_COLUMNS, DOG_SCALE, DOG_CELL, remove_ground, outline=False).save(f"{out_world}/dogs.png")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,8 @@
+{
+  "name": "lito-v-seli",
+  "private": true,
+  "description": "Літо в селі. Tests run on plain Node, nothing to install.",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\""
+  }
+}

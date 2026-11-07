@@ -17,7 +17,14 @@ Ownership means who should perform the primary task, not who is prohibited from 
 - **`main` is the stable version** that players get (GitHub Pages publishes from it). Nothing goes there directly, art included. It changes only when the human asks for `dev` to be merged.
 - **`dev` is where all new work goes**: code, docs and art, from every agent. Upload new art to `tools/art/reference/incoming/` on `dev`.
 
+## Tests
+
+Run `npm test` before every commit. A bug fix comes with a test. See [docs/TESTING.md](docs/TESTING.md). Open the game with `?dev` to jump to any point of the story.
+
 ## Design memory
+
+[docs/PROPORTIONS.md](docs/PROPORTIONS.md) records the size rules: a person is 40 px and everything is judged against that. Read it before drawing, scaling or placing anything.
+
 
 [docs/ART_BIBLE.md](docs/ART_BIBLE.md) records the approved style, characters, places, design decisions, reference files and sprite specs. Read it before drawing or integrating any art. Local image generation through Codex CLI (option A) is described in [docs/CODEX_SETUP.md](docs/CODEX_SETUP.md).
 
