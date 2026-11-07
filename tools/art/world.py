@@ -1,23 +1,8 @@
 """Small animated world sprites drawn in code: animals, beetles, crates."""
 
-from lib import Sprite, strip, dither
+from lib import Sprite, strip
 
 LEAVES = ["leaf_dark", "leaf", "leaf_mid", "leaf_light"]
-
-
-def wattle(width, height):
-    """Woven wattle fence (тин), seen from the front."""
-    s = Sprite(width, height)
-    for x in range(0, width, 5):
-        s.rect(x + 1, 0, 2, height, "wood_dark")
-        s.px(x + 1, 0, "wood")
-    for row, y in enumerate(range(2, height - 1, 3)):
-        for x in range(width):
-            wave = 1 if ((x + row * 5) // 5) % 2 else 0
-            s.px(x, y + wave, "wood")
-            s.px(x, y + wave + 1, "wood_light" if dither(x, y, 0.4) else "wood")
-    s.outline()
-    return s
 
 
 def chicken(frame):

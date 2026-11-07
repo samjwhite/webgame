@@ -92,7 +92,14 @@ const TALK_ACTIONS = {
 function useTarget(target) {
   if (target.id === "well") {
     mode = "closeup";
-    startWellScene();
+    if (needsWater()) {
+      startWellScene("raise", () => {
+        quest.hasWater = true;
+        openDialog(["Повне відро холодної води! Аж зуби ломить."], finishCloseup);
+      });
+    } else {
+      showWellAtRest(["Вода в криниці холодна-холодна."]);
+    }
     return;
   }
   if (target.id === "garden") {
