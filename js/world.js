@@ -20,7 +20,7 @@ const npcs = [
 ];
 
 const places = {
-  well: { id: "well", x: 290, y: 170 },
+  well: { id: "well", x: 304, y: 194 },
   shed: { id: "shed", x: SHED_DOOR.x, y: SHED_DOOR.y },
   backpack: { id: "backpack", x: 196, y: 152 },
   truck: { id: "truck", x: 720, y: 268 },

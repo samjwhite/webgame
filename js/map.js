@@ -11,7 +11,7 @@ const SOLID_AREAS = [
   [6, 8, 12, 8], // grandma's fence
   [15, 3, 23, 3], // garden fence
   [22, 4, 23, 7], // bushes right of the garden
-  [17, 8, 18, 9], // well
+  [17, 9, 19, 11], // well
   [0, 9, 1, 14], // trees on the left edge
   [2, 9, 6, 13], // left house
   [7, 10, 9, 12], // big tree between houses
