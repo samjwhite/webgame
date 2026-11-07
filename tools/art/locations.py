@@ -25,20 +25,20 @@ CROPS = {
 # Shapes are relative to the box: ("rect", box), ("poly", points) or ("ellipse", box).
 # None means the object is told from its background by colour (the statue on the plain paving).
 WELL_SHAPE = [
-    ("poly", [(14, 0), (64, 0), (78, 28), (0, 28)]),  # roof
-    ("rect", (13, 28, 20, 66)),  # posts
-    ("rect", (60, 28, 67, 66)),
-    ("rect", (20, 34, 60, 42)),  # crank axle
-    ("rect", (39, 42, 47, 68)),  # bucket
-    ("ellipse", (20, 57, 67, 75)),  # ring: top, body, bottom
-    ("rect", (20, 66, 67, 88)),
-    ("ellipse", (20, 80, 67, 94)),
+    ("poly", [(12, 0), (55, 0), (67, 24), (0, 24)]),  # roof
+    ("rect", (11, 24, 17, 57)),  # posts
+    ("rect", (52, 24, 58, 57)),
+    ("rect", (17, 29, 52, 36)),  # crank axle
+    ("rect", (34, 36, 40, 59)),  # bucket
+    ("ellipse", (17, 49, 58, 65)),  # ring: top, body, bottom
+    ("rect", (17, 57, 58, 76)),
+    ("ellipse", (17, 69, 58, 81)),
 ]
 
 
 OCCLUDERS = {
     "yard": {
-        "occlude_yard_well": ((161, 193, 239, 287), WELL_SHAPE),
+        "occlude_yard_well": ((139, 166, 206, 247), WELL_SHAPE),
     },
     "club": {"occlude_club_statue": ((144, 156, 170, 212), None)},
 }
@@ -56,11 +56,11 @@ ROAD_PANELS = [
 ROAD_SEAM = 60
 ROAD_BENCH = (825, 695, 1115, 820)
 ROAD_BENCH_GRASS = (620, 700, 800, 800)
-ROAD_BENCH_SCALE = 0.5
-ROAD_SIGN = ((1614, 253, 1643, 290), [("rect", (0, 0, 29, 30)), ("rect", (12, 30, 18, 37))])
+ROAD_SIGN = ((1389, 218, 1414, 250), [("rect", (0, 0, 25, 26)), ("rect", (10, 26, 16, 32))])
 
-# Approved art: grandma's yard. Scaled so her door is a little taller than the hero; the road is cut off.
-YARD_SCALE = 0.43
+# Approved art: grandma's yard. The approved style's scale: a gate 2 m tall comes out about 1.3 times a person's
+# height. The road in the yard picture is cut off.
+YARD_SCALE = 0.37
 YARD_BOTTOM = 945
 
 
@@ -104,10 +104,10 @@ def paint_paths(village):
 # ---------- the shop, from the designer's scene ----------
 
 SHOP_SCENE = "incoming/village_shop_beer_garden.png"
-SHOP_SCALE = 0.26  # makes the shop door a little taller than the 44 px hero
+SHOP_SCALE = 0.23  # makes the shop door a little taller than the 40 px people
 SHOP_SCENE_BOTTOM = 905  # the road in the scene is cut off: the shop is reached by its own path
-SHOP_SIZE = (376, 300)
-SHOP_PATH = (150, 226, 190, 300)
+SHOP_SIZE = (333, 300)
+SHOP_PATH = (133, 200, 168, 300)
 # Night: the door shut with a padlock and the seller gone from her window. Boxes in the scene's pixels.
 SHOP_CLOSED_BOX = (400, 345, 790, 548)
 SHOP_DOORWAY = (435, 345, 572, 545)
@@ -118,16 +118,8 @@ SHOP_SHELVES = (632, 368, 717, 446)
 
 
 def shrink_road_bench(west):
-    """The bench in road_west.png is drawn far too wide for a person: cover it with grass, redraw it smaller."""
-    left, top, right, bottom = ROAD_BENCH
-    bench = west.crop(ROAD_BENCH)
-    grass = west.crop(ROAD_BENCH_GRASS)
-    lay_texture(west, ROAD_BENCH, grass, 8, 5)
-    width, height = round(bench.width * ROAD_BENCH_SCALE), round(bench.height * ROAD_BENCH_SCALE)
-    small = bench.resize((width, height), Image.Resampling.BOX)
-    mask = Image.new("L", small.size, 0)
-    ImageDraw.Draw(mask).rectangle((4, 4, width - 5, height - 5), fill=255)
-    west.paste(small, ((left + right - width) // 2, bottom - height - 4), mask.filter(ImageFilter.GaussianBlur(2)))
+    """The bench in road_west.png is far too wide for a person: it goes, and Did Petro's own sprite stands there."""
+    lay_texture(west, ROAD_BENCH, west.crop(ROAD_BENCH_GRASS), 8, 5)
     return west
 
 

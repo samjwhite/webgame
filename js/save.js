@@ -1,6 +1,6 @@
 const SAVE_KEY = "lito-v-seli-save";
 // Raise this whenever location coordinates change: older saves then restart from grandma's yard.
-const SAVE_VERSION = 7;
+const SAVE_VERSION = 8;
 
 // Storage can be blocked (private mode), so every call is wrapped and failures are ignored.
 function saveGame() {

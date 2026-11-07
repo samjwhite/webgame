@@ -2,13 +2,13 @@ const WALK_SPEED = 55;
 const MOPED_SPEED = 95;
 const TALK_DISTANCE = 22;
 const START = { location: "stop", x: 163, y: 109 };
-const WAKE_UP_SPOT = { location: "yard", x: 285, y: 290 };
+const WAKE_UP_SPOT = { location: "yard", x: 245, y: 250 };
 const MORNING_SPOT = { location: "house", x: 80, y: 128 };
 const CLUB_PARKING = { location: "club", x: 172, y: 268 };
-const SHED_DOOR = { x: 488, y: 116 };
-const CHICKEN_YARD = { left: 235, right: 315, top: 215, bottom: 320 };
+const SHED_DOOR = { x: 420, y: 100 };
+const CHICKEN_YARD = { left: 202, right: 271, top: 185, bottom: 275 };
 const NEAR_GARDEN = 12;
-const SHOP_STEPS = [88, 140, 166, 182]; // the shop's steps and door, plus a stride in front of them
+const SHOP_STEPS = [78, 124, 147, 161]; // the shop's steps and door, plus a stride in front of them
 const FADE_TIME = 0.18;
 const DEBUG = location.search.includes("debug");
 
@@ -22,8 +22,8 @@ function here() {
 
 // dayOnly: goes home for the night.
 const npcs = [
-  { id: "grandma", location: "yard", sprite: "grandma", x: 265, y: 225, talk: talkToGrandma, dayOnly: true, passable: true, walker: true, dir: "down", walking: false },
-  { id: "valya", location: "shop", sprite: "seller", x: 127, y: 170, area: SHOP_STEPS, inWindow: true, passable: true, talk: talkToValya, dayOnly: true },
+  { id: "grandma", location: "yard", sprite: "grandma", x: 228, y: 194, talk: talkToGrandma, dayOnly: true, passable: true, walker: true, dir: "down", walking: false },
+  { id: "valya", location: "shop", sprite: "seller", x: 112, y: 150, area: SHOP_STEPS, inWindow: true, passable: true, talk: talkToValya, dayOnly: true },
   { id: "grandpa", location: "pond", sprite: "grandpa", x: 212, y: 50, talk: talkToGrandpa, dayOnly: true },
   { id: "lads", location: "club", sprite: "ladRed", x: 120, y: 163, talk: talkToLads },
   { id: "lads", location: "club", sprite: "ladSquat", x: 192, y: 164, talk: talkToLads },
@@ -35,12 +35,12 @@ function npcsHere() {
 }
 
 const places = {
-  well: { id: "well", location: "yard", x: 205, y: 298 },
+  well: { id: "well", location: "yard", x: 176, y: 256 },
   shed: { id: "shed", location: "yard", x: SHED_DOOR.x, y: SHED_DOOR.y },
-  backpack: { id: "backpack", location: "yard", x: 455, y: 132 },
-  truck: { id: "truck", location: "shop", x: 118, y: 226 },
+  backpack: { id: "backpack", location: "yard", x: 392, y: 114 },
+  truck: { id: "truck", location: "shop", x: 105, y: 200 },
   statue: { id: "statue", location: "club", x: 157, y: 260 },
-  shopDoor: { id: "shopDoor", location: "shop", x: 127, y: 170, area: SHOP_STEPS },
+  shopDoor: { id: "shopDoor", location: "shop", x: 112, y: 150, area: SHOP_STEPS },
   bed: { id: "bed", location: "house", x: 41, y: 124 },
   tv: { id: "tv", location: "house", x: 103, y: 122 },
   borscht: { id: "borscht", location: "house", x: 164, y: 120 },
@@ -69,12 +69,12 @@ const DOG_BARK_DISTANCE = 34;
 // behaviour: none = stays in its pose; "guard" barks at a hero who comes close; "wander" walks along a line.
 const animals = [
   { kind: "cat", location: "pond", coat: CAT_COAT.calico, pose: CAT_POSE.sit, x: 190, y: 58, behaviour: "cat", friendly: true },
-  { kind: "cat", location: "yard", coat: CAT_COAT.cream, pose: CAT_POSE.sleep, x: 400, y: 150, behaviour: "cat", friendly: true },
+  { kind: "cat", location: "yard", coat: CAT_COAT.cream, pose: CAT_POSE.sleep, x: 344, y: 129, behaviour: "cat", friendly: true },
   { kind: "cat", location: "club", coat: CAT_COAT.calico, pose: CAT_POSE.sit, x: 76, y: 262, behaviour: "cat", friendly: true },
-  { kind: "cat", location: "street", coat: CAT_COAT.tabby, pose: CAT_POSE.stand, x: 620, y: 195, flip: true, behaviour: "cat" },
-  { kind: "dog", location: "yard", coat: DOG_COAT.blackTan, pose: DOG_POSE.sit, x: 170, y: 215, behaviour: "guard" },
+  { kind: "cat", location: "street", coat: CAT_COAT.tabby, pose: CAT_POSE.stand, x: 533, y: 168, flip: true, behaviour: "cat" },
+  { kind: "dog", location: "yard", coat: DOG_COAT.blackTan, pose: DOG_POSE.sit, x: 146, y: 185, behaviour: "guard" },
   { kind: "dog", location: "club", coat: DOG_COAT.white, pose: DOG_POSE.sleep, x: 236, y: 250 },
-  { kind: "dog", location: "street", coat: DOG_COAT.grey, pose: DOG_POSE.stand, x: 1000, y: 272, behaviour: "wander", from: 960, to: 1170, wait: 1 },
+  { kind: "dog", location: "street", coat: DOG_COAT.grey, pose: DOG_POSE.stand, x: 860, y: 234, behaviour: "wander", from: 826, to: 1007, wait: 1 },
   { kind: "dog", location: "stop", coat: DOG_COAT.ginger, pose: DOG_POSE.sit, x: 60, y: 125, behaviour: "wander", from: 40, to: 150, wait: 3 },
 ];
 
@@ -82,12 +82,12 @@ const animals = [
 // keep clear of everything he has to use: the shed, the backpack spot, the well and the door.
 // stop: seconds range she stays there. The other points only lead her round the fence.
 const GRANDMA_ROUTE = [
-  { x: 265, y: 225, stop: true }, // her usual spot on the path
-  { x: 316, y: 200 },
-  { x: 316, y: 248, stop: true }, // by the potatoes
-  { x: 316, y: 200 },
-  { x: 420, y: 178, stop: true }, // towards the shed
-  { x: 316, y: 200 },
+  { x: 228, y: 194, stop: true }, // her usual spot on the path
+  { x: 272, y: 172 },
+  { x: 272, y: 213, stop: true }, // by the potatoes
+  { x: 272, y: 172 },
+  { x: 361, y: 153, stop: true }, // towards the shed
+  { x: 272, y: 172 },
 ];
 const GRANDMA_SPEED = 20;
 const GRANDMA_WAITS_FOR_HERO = 28;
@@ -657,6 +657,10 @@ function drawMoon(ctx, x, y) {
   });
 }
 
+// Did Petro on his bench: mostly sitting, now and then a pull on the cigarette.
+const PETRO_FRAME_W = 36;
+const PETRO_SMOKING = [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 3, 0, 0, 0];
+
 function drawNpc(ctx, npc, time) {
   if (npc.inWindow) return; // painted into the picture, seen in the shop window
   if (npc.walker) {
@@ -664,7 +668,8 @@ function drawNpc(ctx, npc, time) {
     return;
   }
   if (npc.sprite === "grandpa") {
-    drawFrame(ctx, ART.grandpaSit, Math.floor(time / 450) % 4, 28, npc.x - 14, npc.y - ART.grandpaSit.height + 3);
+    const beat = PETRO_SMOKING[Math.floor(time / 500) % PETRO_SMOKING.length];
+    drawFrame(ctx, ART.petroBench, beat, PETRO_FRAME_W, npc.x - PETRO_FRAME_W / 2, npc.y - ART.petroBench.height + 2);
     return;
   }
   drawStanding(ctx, ART[npc.sprite], npc.x, npc.y, npc.x > player.x + 30);
@@ -703,7 +708,7 @@ function drawWorld(ctx, view, time, target) {
   ctx.translate(-camX, -camY);
   ctx.drawImage(picture, 0, 0);
 
-  if (currentLocation === "yard" && stageReached("moped")) drawStanding(ctx, ART.shedOpen, SHED_DOOR.x, 112);
+  if (currentLocation === "yard" && stageReached("moped")) drawStanding(ctx, ART.shedOpen, SHED_DOOR.x, 96);
 
   const drawables = [];
   const add = (y, draw) => drawables.push({ y, draw });
@@ -747,7 +752,7 @@ function drawWorld(ctx, view, time, target) {
   });
 
   if (canCollectBeetles() && currentLocation === "yard") {
-    [[350, 222], [400, 240], [430, 215], [375, 250]].forEach(([x, y], i) => {
+    [[301, 191], [344, 207], [370, 185], [323, 215]].forEach(([x, y], i) => {
       add(y, () => ctx.drawImage(ART.beetleSmall, x, y + (Math.floor(time / 500 + i) % 2)));
     });
   }

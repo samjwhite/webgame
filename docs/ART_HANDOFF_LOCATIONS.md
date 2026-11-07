@@ -47,7 +47,7 @@ Suggestions to check against real references, not a required list:
 
 ## Technical requirements
 
-Everything in game pixels. **Real-world proportions matter most: the owner rejected art where the hero looked like a small child next to the objects.** The hero and grandma are about 40–44 tall. So a door is a little taller than the hero (about 24 wide and 50 tall), a bench about 47 wide, a well ring about 38 wide, a window sill below the hero's shoulders. Check every object next to the hero before delivering.
+Everything in game pixels. **Real-world proportions matter most: the owner rejected art where the hero looked like a small child next to the objects.** The hero and grandma are about 40–44 tall. So a door is a little taller than the hero (about 24 wide and 50 tall), a bench about 47 wide, a well ring about 38 wide, a window sill below the hero's shoulders. Check every object next to the hero before delivering. Measured rule: approved pictures go into the game at 0.37, so in a 1536×1024 picture a person is about 108 px tall and **a door or gate 2 m tall should be about 125 px, not 140 or more**. Draw to that from the start.
 
 Sizes in the game, against people 40 px tall: a sitting cat about 12 tall and a standing cat about 18 long, a dog about 16 tall, a hen about 10 tall, a moped about 39 long. **A tree should be three or four times a person's height**: on the old map trees are barely one and a half, and the owner noticed. Did Petro also needs a real sitting sprite for his bench; he is only squashed by code for now.
 

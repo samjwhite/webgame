@@ -138,19 +138,22 @@ def moved(cell, split, top_shift, bottom_shift):
     return result
 
 
-# Did Petro on his bench, TEMPORARY until a sitting sprite is drawn: his standing frames with the
-# thighs taken out, so he sits lower with his feet on the ground.
-GRANDPA_FRAMES = 4
-GRANDPA_THIGHS = (27, 35)
+# Did Petro on his bench (reference/petro_bench.png): sitting still, raising the cigarette, smoking, lowering it.
+PETRO_SHEET = "petro_bench.png"
+PETRO_ROW = (120, 630)
+PETRO_COLUMNS = [(50, 485), (592, 1027), (1135, 1570), (1678, 2125)]
+PETRO_SCALE = 0.072
+PETRO_CELL = (36, 38)
 
 
-def grandpa_sitting(out_world):
-    strip = Image.open(f"{out_world}/grandpa.png").convert("RGBA")
-    top, bottom = GRANDPA_THIGHS
-    result = Image.new("RGBA", (strip.width, strip.height - (bottom - top)))
-    result.alpha_composite(strip.crop((0, 0, strip.width, top)), (0, 0))
-    result.alpha_composite(strip.crop((0, bottom, strip.width, strip.height)), (0, top))
-    return result
+def petro_strip():
+    sheet = load(PETRO_SHEET)
+    top, bottom = PETRO_ROW
+    w, h = PETRO_CELL
+    strip = Image.new("RGBA", (w * len(PETRO_COLUMNS), h))
+    for c, (left, right) in enumerate(PETRO_COLUMNS):
+        strip.alpha_composite(frame(sheet, (left, top, right, bottom), PETRO_SCALE, PETRO_CELL), (c * w, 0))
+    return strip
 
 
 def cat_sheet():
@@ -176,7 +179,7 @@ def cat_sheet():
 
 def build(out_world):
     grandma_sheet(out_world).save(f"{out_world}/grandma_walk.png")
-    grandpa_sitting(out_world).save(f"{out_world}/grandpa_sit.png")
+    petro_strip().save(f"{out_world}/petro_bench.png")
     cat_sheet().save(f"{out_world}/cats.png")
     grid(DOG_SHEET, DOG_ROWS, DOG_COLUMNS, DOG_SCALE, DOG_CELL, remove_ground).save(f"{out_world}/dogs.png")
 
