@@ -1,11 +1,12 @@
 // Close-up scenes: dialogs, the well, the garden and the title screen.
+// Mini-game scenes are 192x144; picture scenes take the size of their picture.
 const STAGE_W = 192;
 const STAGE_H = 144;
 
-const TALK_SCENES = {
-  grandma: { background: "sceneYard", sky: "skyDay", portrait: "portraitGrandma", x: 120, y: 64 },
-  valya: { background: "sceneShop", portrait: "portraitValya", front: "shopCounter", x: 104, y: 36 },
-  grandpa: { background: "sceneStreet", sky: "skyWarm", portrait: "portraitGrandpa", x: 118, y: 64 },
+const TALK_PICTURES = {
+  grandma: "talkGrandma",
+  valya: "talkSeller",
+  grandpa: "talkGrandpa",
 };
 
 // Same bush list as GARDEN_BUSHES in tools/art/scenes.py: [x, y, size].
@@ -62,8 +63,20 @@ function startGardenScene() {
 
 function startTitleScene() {
   closeup.type = "title";
-  closeup.busX = 104;
+}
+
+function startIntroScene() {
+  closeup.type = "intro";
+  closeup.busX = 116;
   closeup.busLeaving = false;
+}
+
+function stageSize() {
+  let picture = null;
+  if (closeup.type === "talk") picture = ART[TALK_PICTURES[closeup.npcId]];
+  if (closeup.type === "title") picture = ART.sceneTitle;
+  if (closeup.type === "intro") picture = ART.sceneBusStop;
+  return picture ? { w: picture.width, h: picture.height } : { w: STAGE_W, h: STAGE_H };
 }
 
 // ---------- update ----------
@@ -71,7 +84,7 @@ function startTitleScene() {
 function updateCloseup(dt, action, tap) {
   if (closeup.type === "well") updateWell(dt, action, tap);
   if (closeup.type === "garden") updateGarden(dt, action, tap);
-  if (closeup.type === "title" && closeup.busLeaving) {
+  if (closeup.type === "intro" && closeup.busLeaving) {
     closeup.busX += 70 * dt;
     if (closeup.busX > STAGE_W + 10) finishIntro();
   }
@@ -162,23 +175,12 @@ function drawSky(ctx, skyName, time) {
   ctx.drawImage(ART.clouds, Math.round(ART.clouds.width - offset), 2);
 }
 
-function portraitFrame(time) {
-  if (time % 3400 < 140) return 1;
-  if (isTyping() && Math.floor(time / 110) % 2 === 0) return 2;
-  return 0;
-}
-
-function drawTalkScene(ctx, time) {
-  const scene = TALK_SCENES[closeup.npcId];
-  if (scene.sky) drawSky(ctx, scene.sky, time);
-  ctx.drawImage(ART[scene.background], 0, 0);
-  const breathe = Math.round(Math.sin(time / 700));
-  drawFrame(ctx, ART[scene.portrait], portraitFrame(time), 64, scene.x, scene.y + breathe);
-  if (scene.front) ctx.drawImage(ART[scene.front], 0, 0);
-  if (closeup.npcId === "valya" && quest.hasGroceries) ctx.drawImage(ART.groceries, 60, 92);
+function drawTalkScene(ctx) {
+  ctx.drawImage(ART[TALK_PICTURES[closeup.npcId]], 0, 0);
+  if (closeup.npcId === "valya" && quest.hasGroceries) ctx.drawImage(ART.groceries, 98, 132);
   if (closeup.npcId === "grandma" && quest.stage === "done") {
     ctx.fillStyle = "rgba(255, 110, 40, 0.22)";
-    ctx.fillRect(0, 0, STAGE_W, STAGE_H);
+    ctx.fillRect(0, 0, ART.talkGrandma.width, ART.talkGrandma.height);
   }
 }
 
@@ -219,29 +221,28 @@ function drawGardenScene(ctx, time) {
   }
 }
 
-function drawTitleScene(ctx, time) {
-  drawSky(ctx, "skyWarm", time);
-  ctx.drawImage(ART.sceneTitle, 0, 0);
+function drawIntroScene(ctx, time) {
+  ctx.drawImage(ART.sceneBusStop, 0, 0);
   const bounce = closeup.busLeaving ? Math.floor(time / 90) % 2 : 0;
-  ctx.drawImage(ART.marshrutka, Math.round(closeup.busX), 74 - bounce);
+  ctx.drawImage(ART.marshrutka, Math.round(closeup.busX), 52 - bounce);
 }
 
 function drawStage(ctx, stage, time) {
+  const { w, h } = stageSize();
   ctx.fillStyle = "#2a1d17";
-  ctx.fillRect(stage.x - 3, stage.y - 3, STAGE_W + 6, STAGE_H + 6);
+  ctx.fillRect(stage.x - 3, stage.y - 3, w + 6, h + 6);
   ctx.fillStyle = "#fbf6ea";
-  ctx.fillRect(stage.x - 2, stage.y - 2, STAGE_W + 4, STAGE_H + 4);
+  ctx.fillRect(stage.x - 2, stage.y - 2, w + 4, h + 4);
 
   ctx.save();
   ctx.translate(stage.x, stage.y);
   ctx.beginPath();
-  ctx.rect(0, 0, STAGE_W, STAGE_H);
+  ctx.rect(0, 0, w, h);
   ctx.clip();
-  if (closeup.type === "talk") drawTalkScene(ctx, time);
+  if (closeup.type === "talk") drawTalkScene(ctx);
   if (closeup.type === "well") drawWellScene(ctx, time);
   if (closeup.type === "garden") drawGardenScene(ctx, time);
-  if (closeup.type === "title") drawTitleScene(ctx, time);
-  ctx.fillStyle = "rgba(255, 196, 120, 0.06)";
-  ctx.fillRect(0, 0, STAGE_W, STAGE_H);
+  if (closeup.type === "title") ctx.drawImage(ART.sceneTitle, 0, 0);
+  if (closeup.type === "intro") drawIntroScene(ctx, time);
   ctx.restore();
 }

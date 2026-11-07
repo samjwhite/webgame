@@ -29,6 +29,7 @@ function startNewGame() {
   resetPlayer(null);
   menu.hidden = true;
   mode = "intro";
+  startIntroScene();
   openDialog(INTRO_LINES, () => {
     closeup.busLeaving = true;
   });
@@ -91,6 +92,7 @@ function update(dt) {
 }
 
 function draw(time) {
+  placeStage();
   if (mode === "world") {
     const target = dialog.open ? null : nearestTarget();
     drawWorld(ctx, view, time, target);
@@ -143,11 +145,15 @@ function resize() {
   canvas.height = view.height;
   ctx.imageSmoothingEnabled = false;
 
-  // Keep the close-up picture above the dialog box.
-  const dialogSpace = Math.ceil(230 / scale);
+}
+
+// Keeps the close-up picture centered above the dialog box.
+function placeStage() {
+  const { w, h } = stageSize();
+  const dialogSpace = Math.ceil(230 / view.scale);
   stage = {
-    x: Math.floor((view.width - STAGE_W) / 2),
-    y: Math.max(4, Math.floor((view.height - dialogSpace - STAGE_H) / 2)),
+    x: Math.floor((view.width - w) / 2),
+    y: Math.max(4, Math.floor((view.height - dialogSpace - h) / 2)),
   };
 }
 
