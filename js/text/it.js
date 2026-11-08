@@ -558,7 +558,10 @@ TEXTS.it = {
     firstMeet: [
       "Mykola: Oh. E tu di chi sei? Di Hanja? Ah, quello di città che scorrazza per il villaggio sul Karpaty del nonno... Sì, sì, ho sentito.",
       "Tu: Nonno Petro mi manda per la cassetta degli attrezzi. Quella che lei si è fatto prestare in primavera.",
-      "Mykola: Gli attrezzi di Petro? Aspetta che te li porto... Ecco, tieni. Tanto io la cassetta la usavo solo per aprire le bottiglie.",
+      "Mykola: Gli attrezzi di Petro? Ah, la cassetta verde. Aspetta qui che te la porto.",
+      "Mykola sparisce nell'ingresso, fa sbatacchiare dei secchi e torna con una cassetta verde tutta scrostata.",
+      "Mykola: Tieni, portala a Petro. Tanto io la usavo solo per aprire le bottiglie.",
+      "Prendi la cassetta. Pesa da tirarti giù le braccia.",
       "Mykola: E con Tolik come va? Quello concia tutti quelli di città, vicino al circolo, lo so.",
       "Mykola: Senti qua. Ti insegno il kung fu. Quello vero, come Bruce Lee. Quel Bruce Lee l'ho visto duecento volte.",
       "Mykola: Solo che il kung fu a secco non s'insegna. Portami la birra. Quattro bottiglie — due a testa.",
@@ -682,6 +685,14 @@ TEXTS.it = {
     price: (n) => `${n} UAH`,
     leave: "Niente, grazie",
     bag: (items) => `Nella borsa: ${items}`,
+    // What he carries for the story (CARRIED in js/story.js).
+    carried: {
+      toolBox: "La cassetta degli attrezzi di nonno Petro",
+      worms: "Un barattolo di vermi",
+      battery: "Batteria dell'auto",
+      newBattery: "Batteria nuova",
+      catfish: "Il siluro",
+    },
     goods: {
       beer: "Birra",
       bread: "Pane nero",

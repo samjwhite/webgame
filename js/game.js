@@ -452,7 +452,8 @@ function setText(element, text) {
 function updateHud() {
   setText(objectiveText, currentObjective());
   setText(dayText, T().ui.day(quest.day, SUMMER_DAYS, T().ui.phases[quest.time]));
-  setText(bagText, Object.keys(quest.bag).length ? T().shop.bag(bagLine()) : "");
+  const bag = bagLine();
+  setText(bagText, bag ? T().shop.bag(bag) : "");
   shopMenuBox.hidden = !shopMenu.open || dialog.open;
   choiceBox.hidden = !choice.open || dialog.open;
   setText(locationName, T().places[currentLocation]);

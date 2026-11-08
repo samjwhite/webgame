@@ -35,8 +35,10 @@ LOCATION_PICTURES = {
     "stop": ("incoming/loc_stop.png", 0.27),
     "pond": ("incoming/loc_pond.png", 0.30),
     # Stage 3: Mykola's yard, from the approved concept (summer_locations_concepts.png, top left).
-    # The door shut (he sleeps by day); no pump, no barrel; old tyres and a bicycle by the house.
-    "mykola": ("incoming/loc_mykola_v4.png", 0.32),
+    # The door shut (he sleeps by day); no pump, no barrel; old tyres and a bicycle by the house, the
+    # bicycle redrawn in v5 to a real size next to the hero (the owner: v4's was as tall as a man), and
+    # in v6 the front fence and wicket lowered to a person's chest (the owner and the designer's review).
+    "mykola": ("incoming/loc_mykola_v6.png", 0.32),
 }
 
 # Parts of a picture drawn again over characters behind them: name -> (box in game pixels, shapes).

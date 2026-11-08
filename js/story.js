@@ -211,19 +211,21 @@ function grandmaSummer() {
     deeds.pigletAsked = quest.day;
     return [...text.pigletAsk, line(null, text.pigletThought)];
   }
-  if (deeds.pigletAsked && !deeds.pigletMoney) {
-    if (quest.money < PIGLET_SHARE) return [text.pigletWait];
-    quest.money -= PIGLET_SHARE;
-    deeds.pigletMoney = true;
-    addTrust("grandma", 1);
-    return [text.pigletThanks, line(null, text.pigletHidden)];
-  }
+  // Grandpa's tool box first: he may bring it from Mykola before he has the money.
+  const lines = [];
   if (quest.hasTool) {
     quest.hasTool = false;
     deeds.toolHome = true;
-    return text.toolThanks;
+    lines.push(...text.toolThanks);
   }
-  return [grandmaChatter()];
+  if (deeds.pigletAsked && !deeds.pigletMoney) {
+    if (quest.money < PIGLET_SHARE) return [...lines, text.pigletWait];
+    quest.money -= PIGLET_SHARE;
+    deeds.pigletMoney = true;
+    addTrust("grandma", 1);
+    return [...lines, text.pigletThanks, line(null, text.pigletHidden)];
+  }
+  return lines.length ? lines : [grandmaChatter()];
 }
 
 // What grandma has to tell first thing in the morning: the village's news about the hero's doings.
@@ -360,9 +362,14 @@ function buyGood(id) {
   return [T().shop.sold[id]];
 }
 
-// The bag, as a line of text: "bread ×2, matches".
+// What the hero carries for the story, shown in the bag line so he can see he has it: quest flag -> name.
+const CARRIED = { hasTool: "toolBox", hasWorms: "worms", hasBattery: "battery", hasNewBattery: "newBattery", hasCatfish: "catfish" };
+
+// The bag, as a line of text: "Did Petro's tool box, bread ×2, matches". Empty when he carries nothing.
 function bagLine() {
-  return Object.entries(quest.bag).map(([id, count]) => T().shop.goods[id] + (count > 1 ? ` ×${count}` : "")).join(", ");
+  const carried = Object.entries(CARRIED).filter(([flag]) => quest[flag]).map(([, id]) => T().shop.carried[id]);
+  const goods = Object.entries(quest.bag).map(([id, count]) => T().shop.goods[id] + (count > 1 ? ` ×${count}` : ""));
+  return [...carried, ...goods].join(", ");
 }
 
 // ---------- Grandpa Petro ----------
@@ -820,13 +827,13 @@ function stage3Objective() {
   const text = T().objective;
   const deeds = quest.deeds;
   if (!deeds.pigletAsked) return text.grandmaNews;
+  if (quest.hasTool) return text.toolHome;
   if (!deeds.pigletMoney) {
     if (quest.money >= PIGLET_SHARE) return text.giveMoney;
     return canSellPlayer() ? text.sellPlayer : text.earnMoney;
   }
   if (!deeds.toolAsked) return text.askTool;
   if (!deeds.mykolaMet) return text.toMykola;
-  if (quest.hasTool) return text.toolHome;
   if (!deeds.kungfu) return (quest.bag.beer || 0) < MYKOLA_BEERS ? text.beerForMykola : text.kungfu;
   return text.afterMykola;
 }

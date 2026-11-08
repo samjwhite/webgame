@@ -906,6 +906,77 @@ test("stage 3: piglet money from the player, grandpa's tool box from Mykola, kun
   game.inGame("() => clearSave()");
 });
 
+test("the tool box from Mykola before the piglet money: he sees it in the bag and grandma takes it", () => {
+  const result = game.inGame(`() => {
+    const out = {};
+    kitCheckpoint("Поросята: баба просить гроші");
+    quest.money = 0;
+    kitTalk("grandma");
+    // Grandma said grandpa has the tool, so he goes for it before he has the money.
+    kitGo("pond");
+    kitTalk("grandpa");
+    out.sent = quest.unlocked.mykola === true;
+    kitGo("mykola");
+    kitUse("mykolaDoor");
+    kitFinishDialogs();
+    kitChoose(0);
+    kitFinishDialogs();
+    kitUse("mykola");
+    const said = [];
+    for (let i = 0; i < 40 && dialog.open; i++) { said.push(dialog.text); kitPress(); kitPress(); }
+    out.handed = said.some((text) => text === T().mykola.firstMeet[3]);
+    out.carried = quest.hasTool && bagLine().includes(T().shop.carried.toolBox) && currentObjective() === T().objective.toolHome;
+    kitGo("yard");
+    kitTalk("grandma");
+    out.home = quest.deeds.toolHome && !quest.hasTool && !bagLine().includes(T().shop.carried.toolBox);
+    out.stillMoney = !quest.deeds.pigletMoney && currentObjective() === T().objective.sellPlayer;
+    // With the money she takes it; the tool needs no second trip to Mykola.
+    quest.money = PIGLET_SHARE;
+    kitTalk("grandma");
+    out.paid = quest.deeds.pigletMoney && quest.money === 0 && currentObjective() === T().objective.beerForMykola;
+    return out;
+  }`);
+  assert.deepStrictEqual(result, { sent: true, handed: true, carried: true, home: true, stillMoney: true, paid: true });
+  game.inGame("() => clearSave()");
+});
+
+test("people grow nearer the bottom of a picture painted in perspective, and their steps keep up", () => {
+  const result = game.inGame(`() => {
+    const out = {};
+    // Every depth grows downwards and stays within what still reads as the same person.
+    out.bad = Object.entries(LOCATIONS).filter(([, l]) => l.depth).filter(([, l]) => {
+      const [[farY, far], [nearY, near]] = l.depth;
+      return !(farY < nearY && far <= near && far >= 0.6 && near <= 1.5);
+    }).map(([name]) => name);
+    out.flat = Object.entries(LOCATIONS).filter(([, l]) => !l.depth).every(([name]) => depthScale(999, LOCATIONS[name]) === 1);
+    // Up the path to the stop he is drawn smaller, walks slower and takes as many steps for his stride.
+    currentLocation = "stop";
+    const walk = (x, y) => {
+      player.x = x;
+      player.y = y;
+      player.walked = 0;
+      input.moveX = 0;
+      input.moveY = -1;
+      updatePlayer(0.05);
+      input.moveY = 0;
+      return { moved: y - player.y, walked: player.walked };
+    };
+    const far = walk(152, 30);
+    const near = walk(200, 200);
+    out.smaller = depthScale(30) < 0.7 && depthScale(200) === 1;
+    out.slower = far.moved > 0 && far.moved < near.moved * 0.8;
+    out.sameSteps = Math.abs(far.walked - near.walked) < 0.001;
+    return out;
+  }`);
+  assert.deepStrictEqual(result, { bad: [], flat: true, smaller: true, slower: true, sameSteps: true });
+  game.inGame("() => clearSave()");
+});
+
+test("every carried story thing has a name in the bag line in every language", () => {
+  const result = game.inGame(`() => Object.values(CARRIED).filter((id) => Object.values(TEXTS).some((lang) => !lang.shop.carried[id]))`);
+  assert.deepStrictEqual(result, []);
+});
+
 test("the player sold to Vovchik plays at the club", () => {
   const result = game.inGame(`() => {
     kitCheckpoint("Плеєр: продати Вовчикові");

@@ -558,7 +558,10 @@ TEXTS.en = {
     firstMeet: [
       "Mykola: Oh. And whose are you? Hanya's? Ah, the city boy who rattles round the village on his grandpa's Karpaty... Yeah, I heard, I heard.",
       "You: Did Petro sent me for his tool box. The one you borrowed in the spring.",
-      "Mykola: Petro's box? Hang on, I'll fetch it... Here you go. I only ever used it to open bottles anyway.",
+      "Mykola: Petro's box? Ah, the green one. Wait here, I'll fetch it.",
+      "Mykola dives into the porch, rattles some buckets and brings out a battered green tool box.",
+      "Mykola: There, take it to Petro. I only ever used it to open bottles anyway.",
+      "You take the box. It's heavy enough to pull your arms down.",
       "Mykola: And how are you getting on with Tolik? He roughs up every city boy by the club, I know.",
       "Mykola: Listen here. I'll teach you kung fu. The real thing, like Bruce Lee. I've watched that Bruce Lee two hundred times.",
       "Mykola: Only kung fu isn't taught dry. Bring some beer. Four bottles — two each.",
@@ -682,6 +685,14 @@ TEXTS.en = {
     price: (n) => `${n} UAH`,
     leave: "Nothing, thanks",
     bag: (items) => `In the bag: ${items}`,
+    // What he carries for the story (CARRIED in js/story.js).
+    carried: {
+      toolBox: "Did Petro's tool box",
+      worms: "A tin of worms",
+      battery: "Car battery",
+      newBattery: "New car battery",
+      catfish: "Catfish",
+    },
     goods: {
       beer: "Beer",
       bread: "Dark bread",

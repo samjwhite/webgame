@@ -12,10 +12,15 @@
 //   scenery    people from a neighbouring location seen from here, just to look at
 //   occluders  parts of the picture drawn over a hero walking behind them
 //   lights     lamps and windows that glow at night
+//   depth      the picture's perspective: [[farY, farScale], [nearY, nearScale]]. People, animals and
+//              things placed on the ground are drawn bigger the lower their feet are, at scale 1 the
+//              yardstick of docs/PROPORTIONS.md. Measured on the picture: the hero put at several depths
+//              next to its doors, gates, fences and benches. No depth: everyone at scale 1.
 const LOCATIONS = {
   yard: {
     art: "locYard",
     backdrop: "#24452a",
+    depth: [[100, 0.94], [290, 1.12]],
     mapSpot: { x: 200, y: 110 },
     solids: [
       [0, 0, 568, 22], // trees along the top
@@ -93,6 +98,7 @@ const LOCATIONS = {
   club: {
     art: "locClub",
     backdrop: "#24452a",
+    depth: [[160, 0.9], [400, 1.3]],
     mapSpot: { x: 450, y: 60 },
     solids: [
       [0, 0, 614, 150], // Будинок культури, the shed and the trees behind
@@ -119,6 +125,7 @@ const LOCATIONS = {
   shop: {
     art: "locShop",
     backdrop: "#24452a",
+    depth: [[140, 1], [300, 1.12]],
     mapSpot: { x: 650, y: 130 },
     solids: [
       [0, 0, 333, 126], // shop, shed and trees
@@ -147,6 +154,7 @@ const LOCATIONS = {
   stop: {
     art: "locStop",
     backdrop: "#24452a",
+    depth: [[20, 0.62], [170, 1]],
     mapSpot: { x: 655, y: 380 },
     solids: [
       [0, 0, 140, 30], [168, 0, 415, 30], // woods either side of the path
@@ -173,6 +181,7 @@ const LOCATIONS = {
   pond: {
     art: "locPond",
     backdrop: "#24452a",
+    depth: [[10, 0.68], [160, 1]],
     mapSpot: { x: 170, y: 420 },
     solids: [
       [0, 0, 145, 60], [178, 0, 461, 50], // trees either side of the path in
@@ -195,17 +204,18 @@ const LOCATIONS = {
     lights: [{ x: 432, y: 30, radius: 30 }],
   },
 
-  // Mykola's yard, drawn by Codex in the approved style of the yard (incoming/loc_mykola_v4.png), scale 0.32.
+  // Mykola's yard, drawn by Codex in the approved style of the yard (incoming/loc_mykola_v6.png), scale 0.32.
   // The door stays shut: Mykola sleeps all day and comes out on his porch in the evening.
   mykola: {
     art: "locMykola",
     backdrop: "#24452a",
+    depth: [[160, 1], [310, 1.5]],
     mapSpot: { x: 79, y: 188 },
     solids: [
       [0, 0, 492, 60], // trees behind the house
       [0, 60, 160, 150], // the woodshed and the trees on the left
       [160, 60, 400, 135], // the house
-      [146, 106, 205, 152], // the bicycle against the wall
+      [146, 128, 196, 152], // the bicycle against the wall (v5: chest high to the hero)
       [206, 130, 256, 150], // the bench under the window
       [96, 140, 114, 163], // the chopping block
       [254, 135, 307, 160], // the porch steps
@@ -227,6 +237,7 @@ const LOCATIONS = {
   street: {
     art: "locStreet",
     backdrop: "#24452a",
+    depth: [[160, 0.88], [270, 1.02]],
     mapLine: { scale: 0.523, y: 285 },
     solids: [
       // North side: fences, with gaps at the gateways.

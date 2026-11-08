@@ -36,6 +36,14 @@ Do not fix a wrong-looking object alone. First check whether the whole picture i
 
 Small things are drawn slightly larger than life on purpose, because below about 10 px they stop reading. People's height and door height are not flexible; animals may go up only until they compete with a person. The owner rejected a cat at 24 px sitting (taller than half of grandpa) and rejected hens at 11 px once cats were reduced, so both are bounded from the two sides.
 
+## Depth: people grow nearer the bottom of a location
+
+Location pictures are painted in perspective: a fence in the foreground is drawn bigger than the same fence by the house. So the game draws people, animals, the moped and things placed on the ground at a depth scale (the owner's idea, November 2026). The 40 px yardstick holds at scale 1. Each location sets two rows in `js/map.js` (`depth`): a far row with its scale and a near row with its scale, straight in between and flat beyond. The hero's walking speed follows the same scale, and so does the length of his drawn step.
+
+The scale is measured on the picture. Put the hero at several depths (doors and the porch at the back, the front fence and gate at the bottom) and choose the far and near scales so a door stays a head taller than him, a fence reaches his chest or shoulder, and a bench reaches his knee, at every depth. Current values: Mykola's yard 1 by the house to 1.5 at the wicket; club 0.9 at the steps to 1.3 at the front gate; the bus-stop and pond paths 0.62 and 0.68 far up to 1 by the stop and the boardwalk; grandma's yard 0.94 to 1.12; shop 1 to 1.12; the road 0.88 to 1.02. The house inside has no depth.
+
+Depth does not excuse a wrong object. If the hero at a fence's own depth is still smaller than the fence, the fence is redrawn: Mykola's front fence was lowered in `loc_mykola_v6.png`. Do not keep making the hero bigger (the designer's review). Scales between 0.6 and 1.5 are allowed (`tests/game.test.js`).
+
 ## Close-ups have their own scale
 
 A close-up is nearer to the viewer, so the same object is larger. Measure against the person in that picture. In the seller close-up her face is about 45 px, so a beer bottle (a little taller than a face) is 44 px, while the same bottle on a table outside is 11 px. Goods on that counter are 26 px for bread and noodles, 34 for a bag of sugar and 8 for matches.

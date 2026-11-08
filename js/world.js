@@ -258,7 +258,7 @@ function drawHeroSpeech(ctx, worldView, camX, camY, zoom) {
   const width = Math.max(...lines.map((line) => ctx.measureText(line).width)) + 10;
   const height = lines.length * SPEECH_LINE + 6;
   const left = Math.max(camX + 2, Math.min(camX + worldView.width - width - 2, player.x - width / 2));
-  const headTop = player.y - (quest.riding ? 40 : 44);
+  const headTop = player.y - (quest.riding ? 40 : 44) * depthScale(player.y);
   const view = [camX + 1, camY + 1, camX + worldView.width - 1, camY + worldView.height - 1];
   const blockers = speechBlockers(camX, camY, zoom);
   // Over his head if it all fits there, else under his feet; if neither, it waits.
@@ -572,8 +572,37 @@ function checkExits(dx, dy) {
 
 const DIRECTION_STICKINESS = 1.4;
 
+// How big someone with feet at y is drawn in a location painted in perspective (`depth` in js/map.js):
+// 1 is the yardstick size, bigger nearer the bottom of the picture, smaller far up a path.
+function depthScale(y, location = here()) {
+  if (!location.depth) return 1;
+  const [[farY, far], [nearY, near]] = location.depth;
+  const t = Math.min(1, Math.max(0, (y - farY) / (nearY - farY)));
+  return far + (near - far) * t;
+}
+
+// Runs draw() scaled for the depth of the feet at (x, y), so a sprite grows from its feet.
+function atDepth(ctx, x, y, draw) {
+  const scale = depthScale(y);
+  if (scale === 1) {
+    draw();
+    return;
+  }
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.translate(-x, -y);
+  // Scaled art is resampled smoothly: nearest-neighbour at an odd scale makes uneven pixels.
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  draw();
+  ctx.restore();
+}
+
 function updatePlayer(dt) {
-  const speed = quest.riding ? MOPED_SPEED : WALK_SPEED;
+  // He walks as fast as he looks: slower far up a path, where he is drawn smaller.
+  const depth = depthScale(player.y);
+  const speed = (quest.riding ? MOPED_SPEED : WALK_SPEED) * depth;
   const dx = input.moveX * speed * dt;
   const dy = input.moveY * speed * dt;
   player.moving = dx !== 0 || dy !== 0;
@@ -593,9 +622,10 @@ function updatePlayer(dt) {
   const fromY = player.y;
   stepAxis(dx, 0, speed, dt);
   stepAxis(0, dy, speed, dt);
-  // Walking into a wall leaves the hero standing, not walking on the spot.
+  // Walking into a wall leaves the hero standing, not walking on the spot. The steps follow the ground
+  // as it is drawn at his size, so a smaller hero far away takes as many steps for his shorter stride.
   const covered = Math.hypot(player.x - fromX, player.y - fromY);
-  player.walked = player.moving && covered > 0 ? player.walked + covered : 0;
+  player.walked = player.moving && covered > 0 ? player.walked + covered / depth : 0;
   checkExits(dx, dy);
 }
 
@@ -905,7 +935,7 @@ function drawWorld(ctx, view, time, target) {
   const add = (y, draw) => drawables.push({ y, draw });
   const addPlace = (place, art) => {
     if (place.location === currentLocation && isPlaceAvailable(place)) {
-      add(place.y, () => drawStanding(ctx, art, place.x, place.y));
+      add(place.y, () => atDepth(ctx, place.x, place.y, () => drawStanding(ctx, art, place.x, place.y)));
     }
   };
 
@@ -915,17 +945,20 @@ function drawWorld(ctx, view, time, target) {
     const plate = quest.ateVarenyky ? ART.housePlate : ART.houseVarenyky;
     add(205.5, () => drawArt(ctx, plate, snap(250 - plate.w / 2), 182));
   }
-  npcsHere().forEach((npc) => add(npc.y, () => drawNpc(ctx, npc, time)));
+  npcsHere().forEach((npc) => add(npc.y, () => atDepth(ctx, npc.x, npc.y, () => drawNpc(ctx, npc, time))));
   (location.scenery || []).forEach((person) => {
-    if (!(person.dayOnly && isNight())) add(person.y, () => drawNpc(ctx, person, time));
+    if (!(person.dayOnly && isNight())) add(person.y, () => atDepth(ctx, person.x, person.y, () => drawNpc(ctx, person, time)));
   });
-  add(player.y, () => drawPlayer(ctx, time));
+  add(player.y, () => atDepth(ctx, player.x, player.y, () => drawPlayer(ctx, time)));
   addPlace(places.backpack, ART.backpack);
   addPlace(places.truck, ART.truck);
   addPlace(places.car, carState() === "empty" ? ART.carEmpty : ART.car);
-  if (isMopedHere()) add(quest.moped.y, () => drawStanding(ctx, ART.moped, quest.moped.x, quest.moped.y));
+  if (isMopedHere()) {
+    const { x, y } = quest.moped;
+    add(y, () => atDepth(ctx, x, y, () => drawStanding(ctx, ART.moped, x, y)));
+  }
   animals.forEach((animal) => {
-    if (animal.location === currentLocation) add(animal.y, () => drawAnimal(ctx, animal));
+    if (animal.location === currentLocation) add(animal.y, () => atDepth(ctx, animal.x, animal.y, () => drawAnimal(ctx, animal)));
   });
   if (currentLocation === "shop" && canFindBeer()) {
     add(BEER_BOTTLE.sortY, () => drawStanding(ctx, ART.beerBottle, BEER_BOTTLE.x, BEER_BOTTLE.y, false, 0, false));
@@ -935,7 +968,7 @@ function drawWorld(ctx, view, time, target) {
   }
 
   if (currentLocation === "yard") chickens.forEach((c) => {
-    add(c.y, () => {
+    add(c.y, () => atDepth(ctx, c.x, c.y, () => {
       const img = ART[c.sprite];
       drawFootShadow(ctx, c.x, c.y + 1, 5);
       const frameWidth = img.w / CHICKEN_FRAMES;
@@ -944,7 +977,7 @@ function drawWorld(ctx, view, time, target) {
       if (c.flip) ctx.scale(-1, 1);
       drawFrame(ctx, img, chickenFrame(c, time), frameWidth, -frameWidth / 2, 0);
       ctx.restore();
-    });
+    }));
   });
 
   if (canCollectBeetles() && currentLocation === "yard") {
@@ -1032,8 +1065,8 @@ function drawSolids(ctx) {
 
 function drawHint(ctx, target, time) {
   const x = snap(target.x) - 3;
-  // High enough to clear the hair of a 40 px person.
-  const y = snap(target.y) - 55 + (Math.floor(time / 300) % 2);
+  // High enough to clear the hair of a 40 px person, at the size of the target's depth.
+  const y = snap(target.y - 55 * depthScale(target.y)) + (Math.floor(time / 300) % 2);
   // Never over the hero's remark: it waits until he has finished saying it.
   if (heroSpeech.visible && boxesMeet([x - 1, y - 1, x + 7, y + 10], heroSpeech.box)) return;
   ctx.fillStyle = "#2a1d17";
