@@ -34,6 +34,10 @@ Run `npm test` before every commit. A bug fix comes with a test. See [docs/TESTI
 
 [docs/ART_BIBLE.md](docs/ART_BIBLE.md) records the approved style, characters, places, design decisions, reference files and sprite specs. Read it before drawing or integrating any art. Local image generation through Codex CLI (option A) is described in [docs/CODEX_SETUP.md](docs/CODEX_SETUP.md).
 
+## New game doctrine and roadmap (8 November 2026)
+
+For any narrative, gameplay, NPC schedule, economy or new-art task, read [docs/GAME_DOCTRINE_2003.md](docs/GAME_DOCTRINE_2003.md) and [docs/ROADMAP_VILLAGE_LIFE.md](docs/ROADMAP_VILLAGE_LIFE.md) in addition to the existing decision and art files. The owner permits revisiting old narrative design when justified; approved art is not automatically superseded. Follow the roadmap's state contracts, vertical-slice gates and multi-agent file ownership. Write on `dev`, not `main`. A roadmap proposal is not a claim of implemented code.
+
 ## Routing every request
 
 Before executing a substantial task, decide whether it belongs to Claude Code, ChatGPT, or requires both. If the request is for the other agent, **say so clearly in the current chat** and provide a ready-to-paste handoff. Do not claim to have sent a message to the other agent or to have synchronized conversations.
