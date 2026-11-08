@@ -364,7 +364,8 @@ test("the hero remarks once on each place, in a bubble that does not stop the ga
     const cleared = heroSpeech.text;
     update(0.02);
     const again = heroSpeech.text;
-    const missing = LANGUAGES.flatMap((l) => Object.keys(LOCATIONS).filter((id) => !TEXTS[l].hero.places[id]).map((id) => l + ":" + id));
+    // The road has no remark (the owner removed it); every other place has one in every language.
+    const missing = LANGUAGES.flatMap((l) => Object.keys(LOCATIONS).filter((id) => id !== "street" && !TEXTS[l].hero.places[id]).map((id) => l + ":" + id));
     return [first === T().hero.places.pond, walking, cleared, again, missing];
   }`);
   assert.deepStrictEqual(result, [true, true, "", "", []]);
@@ -391,7 +392,7 @@ test("a remark stays long enough to read, and only counts down while it can be s
     const panel = document.getElementById("objective");
     panel.hidden = false;
     const zoom = worldZoom();
-    const camY = cameraOffset(player.y, view.height / zoom, ART[here().art].height);
+    const camY = cameraOffset(player.y, view.height / zoom, ART[locationArt(here())].height);
     const top = (player.y - 70 - camY) * view.scale * zoom;
     panel.rect = { left: 0, right: 5000, top, bottom: top + 30 * view.scale * zoom, width: 5000, height: 30 * view.scale * zoom };
     draw(1000);
@@ -1035,14 +1036,25 @@ test("the hero's walk follows the ground he covers, and he stands still when he 
     }
     input.moveX = 0;
     updatePlayer(0.02);
+    // Near a diagonal the facing does not flick back to up/down.
+    input.moveX = 0.7;
+    input.moveY = 0.75;
+    updatePlayer(0.02);
+    const sticky = player.dir;
+    input.moveX = 0;
+    input.moveY = 0;
+    updatePlayer(0.02);
+    const covered = 8 * 0.02 * WALK_SPEED;
     return {
       rows: frames.every((f) => f.row === HERO_ROWS.right),
-      forward: frames.every((f, i) => i === 0 || f.col >= frames[i - 1].col),
-      last: frames[7].col === Math.floor((8 * 0.02 * WALK_SPEED) / HERO_FRAME_PX) % 8,
+      poses: frames.every((f) => HERO_SIDE_POSES.includes(f.col) && f.col % 2 === 0),
+      first: frames[0].col === 2,
+      last: frames[7].col === HERO_SIDE_POSES[Math.floor((covered + HERO_WALK_START) / HERO_FRAME_PX) % 8],
+      sticky,
       standing: heroFrame(0),
     };
   }`);
-  assert.deepStrictEqual(result, { rows: true, forward: true, last: true, standing: { row: 5, col: 3 } });
+  assert.deepStrictEqual(result, { rows: true, poses: true, first: true, last: true, sticky: "right", standing: { row: 5, col: 3 } });
   game.inGame("() => clearSave()");
 });
 
@@ -1074,6 +1086,12 @@ test("old saves from before the summer story load and go on", () => {
     return [objective, sprayer, dayShown, stranger, quest.deeds.svetkaMet, quest.deeds.svetkaNamed];
   }`);
   assert.deepStrictEqual(result, [true, true, "День 2 / 92 · День", true, "shop", true]);
+});
+
+test("everyone who speaks has a portrait file that is really there", () => {
+  const files = game.inGame(`() => Object.keys(T().speakers).map((id) => [id, PORTRAIT_FILES[PORTRAIT_OF[id] || id] || null])`);
+  const missing = files.filter(([, file]) => !file || !require("fs").existsSync(require("path").join(__dirname, "..", "art", file)));
+  assert.deepStrictEqual(missing, []);
 });
 
 test("dialogs name who speaks; the person talked to speaks unless a line names someone else", () => {

@@ -2,6 +2,8 @@
 
 Read [AGENTS.md](AGENTS.md) first. Its ownership, handoff, art style and completion rules apply here.
 
+Then read [docs/DECISIONS.md](docs/DECISIONS.md): every decision the owner has already made (style, characters, story, speech). Do not ask the owner again; write every new decision there the same turn.
+
 You are the **implementation owner**. Own code, game logic, map/collision consistency, Python/Pillow asset tooling, sprite extraction, animation playback, tests, commits and deployment.
 
 **ChatGPT is the visual art owner**: visual direction, period references, environment and character illustrations, and sprite artwork. Do not independently redesign visual assets when the user wants artwork from ChatGPT. Instead, produce a ready-to-paste ChatGPT handoff using the exact format in AGENTS.md. Include current game pixel dimensions, frame layout, expected filenames, and references after checking the actual code.

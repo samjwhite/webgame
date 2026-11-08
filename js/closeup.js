@@ -16,13 +16,12 @@ const GARDEN_BUSHES = [
   [15, 74, 34], [67, 74, 34], [119, 74, 34], [172, 74, 34],
   [51, 114, 44], [103, 114, 44], [162, 114, 44],
 ];
-// The hand sheet (HAND_CELL in tools/art/reference.py): frames 30 wide, the grab point at (15, 3).
-const HAND_FRAME_W = 30;
-// The sleeve under the hand, by outfit, and where it is on the open and closed hand.
-const SLEEVE = { city: "#d6cdbd", sport: "#2b2e52" };
-const HAND_REST = { x: 172, y: 150 };
-const JAR_POSITION = { x: 4, y: 104 };
-const JAR_MOUTH = { x: 17, y: 108 };
+// The jar moves by itself to a beetle and scoops it up (the owner found a drawn hand creepy).
+// Positions are the jar's mouth; the jar picture hangs below it.
+const JAR_REST = { x: 17, y: 112 };
+const JAR_MOUTH_OFFSET = { x: 13, y: 4 }; // from the jar picture's corner to its mouth
+// A soft light under each beetle, so it stands out on the soil and the leaves.
+const BEETLE_GLOW = { radius: 12, low: 0.5, high: 0.85, period: 900 };
 
 const closeup = {
   type: null,
@@ -33,7 +32,7 @@ const closeup = {
   done: false,
   beetles: [],
   caught: 0,
-  hand: null,
+  jar: null,
 };
 
 // effect: null, "disco" (moving lights), "hit" (red flashes),
@@ -87,7 +86,7 @@ function startSprayScene() {
   closeup.caught = 0;
   closeup.done = true;
   closeup.beetles = [];
-  closeup.hand = { state: "idle", t: 0, from: HAND_REST, to: HAND_REST, beetle: null };
+  closeup.jar = { state: "idle", t: 0, from: JAR_REST, to: JAR_REST, beetle: null };
 }
 
 function startGardenScene() {
@@ -95,7 +94,7 @@ function startGardenScene() {
   closeup.sprayed = false;
   closeup.caught = 0;
   closeup.done = false;
-  closeup.hand = { state: "idle", t: 0, from: HAND_REST, to: HAND_REST, beetle: null };
+  closeup.jar = { state: "idle", t: 0, from: JAR_REST, to: JAR_REST, beetle: null };
   const spots = [];
   GARDEN_BUSHES.forEach(([x, y, size]) => {
     spots.push({ x: x - size * 0.3, y: y - size * 0.1 });
@@ -143,65 +142,65 @@ function lerp(a, b, t) {
 
 function pickBeetle(tap) {
   const free = closeup.beetles.filter((b) => !b.held);
-  if (!tap) return free[0];
+  if (!tap) {
+    // With the A button the jar goes to the nearest beetle.
+    const at = jarPosition();
+    return free.sort((a, b) => Math.hypot(a.x - at.x, a.y - at.y) - Math.hypot(b.x - at.x, b.y - at.y))[0];
+  }
   return free.find((b) => Math.hypot(b.x - tap.x, b.y - tap.y) < 14);
 }
 
-function moveHand(state, to) {
-  const hand = closeup.hand;
-  hand.from = handPosition();
-  hand.to = to;
-  hand.state = state;
-  hand.t = 0;
+function moveJar(state, to) {
+  const jar = closeup.jar;
+  jar.from = jarPosition();
+  jar.to = to;
+  jar.state = state;
+  jar.t = 0;
 }
 
-function handPosition() {
-  const hand = closeup.hand;
-  return lerp(hand.from, hand.to, Math.min(1, hand.t));
+function jarPosition() {
+  const jar = closeup.jar;
+  return lerp(jar.from, jar.to, Math.min(1, jar.t));
 }
 
 function updateGarden(dt, action, tap) {
-  const hand = closeup.hand;
+  const jar = closeup.jar;
   if (closeup.done) return;
   showHint(T().ui.garden(closeup.caught, BEETLE_COUNT));
 
-  if (hand.state === "idle" || hand.state === "back") {
+  // The jar goes to the beetle tapped (or the nearest one), scoops it in, and stays there.
+  if (jar.state === "idle") {
     const beetle = (tap || action) && pickBeetle(tap);
     if (beetle) {
-      hand.beetle = beetle;
-      moveHand("reach", beetle);
-      return;
+      jar.beetle = beetle;
+      moveJar("reach", { x: beetle.x, y: beetle.y + 2 });
     }
+    return;
   }
-  if (hand.state === "idle") return;
 
-  const durations = { reach: 0.22, grab: 0.12, carry: 0.25, back: 0.2 };
-  hand.t += dt / durations[hand.state];
-  if (hand.t < 1) return;
+  const durations = { reach: 0.25, scoop: 0.18 };
+  jar.t += dt / durations[jar.state];
+  if (jar.t < 1) return;
 
-  if (hand.state === "reach") {
-    hand.beetle.held = true;
-    hand.from = hand.to;
-    hand.state = "grab";
-    hand.t = 0;
-  } else if (hand.state === "grab") {
-    moveHand("carry", JAR_MOUTH);
-  } else if (hand.state === "carry") {
-    closeup.beetles = closeup.beetles.filter((b) => b !== hand.beetle);
-    hand.beetle = null;
-    closeup.caught += 1;
-    if (grandmaStopsPicking(closeup.caught)) {
-      closeup.done = true;
-      grandmaStopsHandPicking();
-      return;
-    }
-    moveHand("back", HAND_REST);
-  } else {
-    hand.state = "idle";
-    if (closeup.caught >= BEETLE_COUNT) {
-      closeup.done = true;
-      openDialog(finishBeetleJar(), finishCloseup);
-    }
+  if (jar.state === "reach") {
+    jar.beetle.held = true;
+    jar.from = jar.to;
+    jar.state = "scoop";
+    jar.t = 0;
+    return;
+  }
+  closeup.beetles = closeup.beetles.filter((b) => b !== jar.beetle);
+  jar.beetle = null;
+  jar.state = "idle";
+  closeup.caught += 1;
+  if (grandmaStopsPicking(closeup.caught)) {
+    closeup.done = true;
+    grandmaStopsHandPicking();
+    return;
+  }
+  if (closeup.caught >= BEETLE_COUNT) {
+    closeup.done = true;
+    openDialog(finishBeetleJar(), finishCloseup);
   }
 }
 
@@ -438,27 +437,37 @@ function drawWellScene(ctx) {
 
 function drawGardenScene(ctx, time) {
   drawArt(ctx, ART.sceneGarden, 0, 0);
+  // A soft, slow light under each beetle, so it can be seen on the soil and the leaves.
+  const glow = BEETLE_GLOW.low + (BEETLE_GLOW.high - BEETLE_GLOW.low) * (0.5 + 0.5 * Math.sin(time / BEETLE_GLOW.period));
   closeup.beetles.forEach((b, i) => {
     if (b.held) return;
+    const light = ctx.createRadialGradient(b.x, b.y, 1, b.x, b.y, BEETLE_GLOW.radius);
+    light.addColorStop(0, `rgba(255, 244, 190, ${glow})`);
+    light.addColorStop(0.55, `rgba(255, 236, 160, ${glow * 0.5})`);
+    light.addColorStop(1, "rgba(255, 236, 160, 0)");
+    ctx.fillStyle = light;
+    ctx.fillRect(b.x - BEETLE_GLOW.radius, b.y - BEETLE_GLOW.radius, BEETLE_GLOW.radius * 2, BEETLE_GLOW.radius * 2);
     const wiggle = Math.round(Math.sin(time / 150 + i * 2));
     drawArt(ctx, ART.beetleBig, Math.round(b.x - 6 + wiggle), Math.round(b.y - 6));
   });
   if (closeup.sprayed) return;
 
-  drawArt(ctx, ART.jar, JAR_POSITION.x, JAR_POSITION.y);
+  // The jar with what it has caught; while scooping it tips toward the beetle.
+  const jar = closeup.jar;
+  const pos = jarPosition();
+  const left = Math.round(pos.x - JAR_MOUTH_OFFSET.x);
+  const top = Math.round(pos.y - JAR_MOUTH_OFFSET.y);
+  ctx.save();
+  if (jar.state === "scoop") {
+    ctx.translate(pos.x, pos.y + 16);
+    ctx.rotate(-0.35 * Math.sin(Math.PI * Math.min(1, jar.t)));
+    ctx.translate(-pos.x, -(pos.y + 16));
+  }
+  drawArt(ctx, ART.jar, left, top);
   for (let i = 0; i < closeup.caught; i++) {
-    drawArt(ctx, ART.beetleSmall, JAR_POSITION.x + 6 + (i % 2) * 8, JAR_POSITION.y + 24 - Math.floor(i / 2) * 5);
+    drawArt(ctx, ART.beetleSmall, left + 6 + (i % 2) * 8, top + 24 - Math.floor(i / 2) * 5);
   }
-
-  const hand = closeup.hand;
-  const pos = handPosition();
-  const closed = hand.state === "grab" || hand.state === "carry";
-  ctx.fillStyle = SLEEVE[quest.outfit] || SLEEVE.city;
-  ctx.fillRect(Math.round(pos.x - (closed ? 15 : 9)), Math.round(pos.y + 28), 9, STAGE_H);
-  drawFrame(ctx, ART.hand, closed ? 1 : 0, HAND_FRAME_W, pos.x - 15, pos.y - 3);
-  if (closed && hand.beetle) {
-    drawArt(ctx, ART.beetleSmall, Math.round(pos.x - 3), Math.round(pos.y - 2));
-  }
+  ctx.restore();
 }
 
 function drawStage(ctx, stage, time) {

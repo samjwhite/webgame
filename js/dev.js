@@ -69,7 +69,10 @@ const DEV_CHECKPOINTS = [
 function devJump(index) {
   const checkpoint = DEV_CHECKPOINTS[index];
   // Copies, so playing from a checkpoint never changes the checkpoint itself.
+  // What the hero has already remarked on stays said: jumping around does not repeat every remark.
+  const said = { ...quest.heroSaid };
   Object.assign(quest, newQuest(), JSON.parse(JSON.stringify(checkpoint.quest)));
+  quest.heroSaid = { ...said, ...quest.heroSaid };
   enterLocation(checkpoint.at.location, checkpoint.at);
   resetChickens();
   travel.active = false;

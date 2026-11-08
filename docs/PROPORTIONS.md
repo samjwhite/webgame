@@ -18,7 +18,7 @@ Do not fix a wrong-looking object alone. First check whether the whole picture i
 | Person sitting on a bench, with the bench | 30–38 tall, 24–34 wide | | Never taller than a standing person. |
 | Door or gate | about 50 tall | 2 m | A little taller than a person, not much more. |
 | Bench | about 40–50 wide | 1.7 m | |
-| Well ring | about 40 wide | 1 m plus exaggeration | |
+| Well ring | about 26 wide, 14 tall | 1 m wide, 0.8 m tall | The owner found a 56 px ring far too big: a person looked small beside it. The posts and drum reach about 1.3 people. |
 | Tree | 3–4 people tall, 120–160 | 5–7 m | On the old map they were only 1.5 people, and it looked like a toy. |
 | Cat sitting | 10–15 tall | 0.3 m | Reaches a person's knee. |
 | Cat standing | 14–22 long, about 11 tall | 0.45 m | Deliberately a little larger than life to stay readable. |

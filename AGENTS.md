@@ -72,3 +72,7 @@ Never invent dimensions, crop boxes, asset availability, or repository changes. 
 ## Completion and status
 
 At the end of work, state: **Completed by**, **Files changed** (or none), **Verification performed**, **Next owner/task** (if any). If an image exists only in chat, explicitly state that it has not been committed to GitHub.
+
+## Owner's decisions
+
+Everything the owner has already decided is in [docs/DECISIONS.md](docs/DECISIONS.md). Read it before any work and add new decisions there at once.

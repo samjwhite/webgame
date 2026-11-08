@@ -166,10 +166,10 @@ MOPED_FRAME = (48, 46)
 MOPED_SIDE_LENGTH = 42  # the moped's length in game pixels when seen from the side
 MOPED_FRONT_HEIGHT = 42  # rider and moped seen from the front or back
 
-# Well close-up: a whitewashed concrete ring with a lid, a drum and a chain (incoming/well_scene_v4.png,
+# Well close-up: a whitewashed concrete ring with a lid, a drum and a chain (incoming/well_scene_v5.png,
 # drawn without the bucket and the crank handle), and its animation parts (incoming/well_parts_v2.png).
 # Coordinates are in the source pictures. js/closeup.js (WELL_*) places the parts on the scene.
-WELL_SCENE = "incoming/well_scene_v4.png"
+WELL_SCENE = "incoming/well_scene_v5.png"
 WELL_PARTS = "incoming/well_parts_v2.png"
 WELL_SCENE_BOX = (30, 30, 1506, 994)  # inside the picture frame
 WELL_RIM = (752, 662, 252, 48)  # centre x, centre y, radius x, radius y of the ring's top
@@ -572,12 +572,11 @@ def well_bucket_frames():
 
 
 # The potato-beetle mini-game: the plot (incoming/garden_closeup.png) and its parts
-# (incoming/garden_parts.png): the hand open and closed, the glass jar, the beetle big and small.
+# (incoming/garden_parts.png): the glass jar and the beetle, big and small. The game moves the jar itself:
+# the owner found a drawn hand creepy, so the hands on that sheet are not used.
 GARDEN_PICTURE = "incoming/garden_closeup.png"
 GARDEN_PARTS = "incoming/garden_parts.png"
 # (box in the parts sheet, cell in game pixels, the box's point placed at the cell's point, or None to centre)
-HAND_CELL = (30, 32)
-HAND_FRAMES = [((420, 6, 710, 315), (570, 35)), ((840, 46, 1130, 355), (985, 75))]  # window, grab point
 JAR_BOX, JAR_CELL = (670, 372, 866, 668), (26, 32)
 BEETLE_BIG_BOX, BEETLE_BIG_CELL = (300, 715, 555, 980), (12, 12)
 BEETLE_SMALL_BOX, BEETLE_SMALL_CELL = (712, 792, 838, 924), (6, 6)
@@ -600,11 +599,6 @@ def fitted(img, cell, colors=48):
 def garden_scene(out_scenes, out_world):
     scene(load(GARDEN_PICTURE)).save(f"{out_scenes}/garden.png")
     parts = load(GARDEN_PARTS)
-    hands = []
-    for (left, top, right, bottom), _ in HAND_FRAMES:
-        window = cut_out(parts.crop((left, top, right, bottom)), 30)
-        hands.append(solid_sprite(window, larger(HAND_CELL)))
-    cut_strip(hands, larger(HAND_CELL)).save(f"{out_scenes}/hand.png")
     fitted(cut_out(parts.crop(JAR_BOX), 30), JAR_CELL, 64).save(f"{out_scenes}/jar.png")
     fitted(cut_out(parts.crop(BEETLE_BIG_BOX), 30), BEETLE_BIG_CELL).save(f"{out_scenes}/beetle.png")
     fitted(cut_out(parts.crop(BEETLE_SMALL_BOX), 30), BEETLE_SMALL_CELL).save(f"{out_world}/beetle.png")

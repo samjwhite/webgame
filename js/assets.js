@@ -80,7 +80,6 @@ const ART_FILES = {
   bucket: "scenes/bucket.png",
   sceneGarden: "scenes/garden.png",
   beetleBig: "scenes/beetle.png",
-  hand: "scenes/hand.png",
   jar: "scenes/jar.png",
   tsn: "scenes/tsn.png",
   newsFrames: "scenes/news_frames.png",

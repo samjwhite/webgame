@@ -22,14 +22,13 @@ const LOCATIONS = {
       [0, 22, 52, 138], // trees left of the house
       [52, 22, 296, 148], // grandma's house
       [157, 132, 219, 159], // bench and buckets
-      [294, 124, 314, 156], // rain barrel
       [296, 22, 379, 109], // cellar mound and walnut tree
       [379, 22, 436, 95], // woodpile
       [436, 22, 568, 96], // shed
       [0, 138, 129, 217], // apple tree
       [0, 217, 83, 284], [83, 254, 112, 284], // bushes along the west fence
       [83, 219, 124, 241], // chopping block
-      [140, 236, 208, 266], // the well: concrete ring and posts
+      [155, 247, 188, 258], // the well: concrete ring and posts
       [381, 139, 405, 159], // laundry basket
       [415, 96, 529, 182], // summer kitchen
       [529, 96, 568, 349], // east fence
@@ -50,7 +49,7 @@ const LOCATIONS = {
       },
     ],
     props: [],
-    occluders: [{ art: "occludeYardWell", x: 126, y: 162, baseY: 264 }],
+    occluders: [{ art: "occludeYardWell", x: 147, y: 198, baseY: 257 }],
     lights: [
       { x: 37, y: 108, radius: 52 },
       { x: 118, y: 116, radius: 26 },
@@ -196,29 +195,31 @@ const LOCATIONS = {
     lights: [{ x: 432, y: 30, radius: 30 }],
   },
 
-  // Mykola's yard, drawn by Codex in the approved style of the yard (incoming/loc_mykola.png), scale 0.32.
-  // He sleeps all day; in the evening he comes out on the porch, and the TV inside plays Bruce Lee.
+  // Mykola's yard, drawn by Codex in the approved style of the yard (incoming/loc_mykola_v4.png), scale 0.32.
+  // The door stays shut: Mykola sleeps all day and comes out on his porch in the evening.
   mykola: {
     art: "locMykola",
     backdrop: "#24452a",
     mapSpot: { x: 79, y: 188 },
     solids: [
       [0, 0, 492, 60], // trees behind the house
-      [0, 60, 170, 150], // the woodshed and the trees on the left
-      [170, 60, 258, 130], [258, 60, 283, 132], [305, 60, 400, 132], // the house, the door in between
-      [185, 128, 245, 146], // the bench under the window
-      [100, 145, 120, 165], // the chopping block
-      [312, 118, 360, 165], [300, 150, 314, 166], // the pump, its basin and the bucket
-      [400, 60, 492, 150], // the apple tree
-      [335, 166, 492, 215], // the overgrown patch
-      [0, 150, 40, 215], // hollyhocks
-      [0, 215, 212, 290], [275, 215, 492, 290], // the fence, the gate open in the middle
-      [0, 290, 228, 328], [268, 290, 492, 328], // grass beyond the fence, the path in between
+      [0, 60, 160, 150], // the woodshed and the trees on the left
+      [160, 60, 400, 135], // the house
+      [146, 106, 205, 152], // the bicycle against the wall
+      [206, 130, 256, 150], // the bench under the window
+      [96, 140, 114, 163], // the chopping block
+      [254, 135, 307, 160], // the porch steps
+      [305, 150, 322, 168], // an old bucket
+      [400, 60, 492, 160], // the apple tree
+      [330, 165, 492, 215], // the overgrown patch
+      [0, 150, 90, 215], // hollyhocks
+      [0, 215, 212, 290], [270, 215, 492, 290], // the fence, the gate open in the middle
+      [0, 290, 215, 328], [265, 290, 492, 328], // grass beyond the fence, the path in between
     ],
-    exits: [{ id: "toStreet", area: [228, 320, 268, 328], to: "street", spawn: { x: 128, y: 170 }, dir: "down" }],
+    exits: [{ id: "toStreet", area: [215, 320, 265, 328], to: "street", spawn: { x: 128, y: 170 }, dir: "down" }],
     props: [],
     occluders: [],
-    lights: [{ x: 294, y: 92, radius: 40 }, { x: 222, y: 104, radius: 26 }],
+    lights: [{ x: 293, y: 92, radius: 40 }, { x: 222, y: 100, radius: 26 }],
   },
 
   // The road through the village: three approved pictures joined by tools/art/locations.py.
@@ -252,7 +253,7 @@ const LOCATIONS = {
       { id: "toStop", area: [1360, 250, 1378, 255], to: "stop", spawn: { x: 154, y: 14 }, dir: "down" },
       // Locked places: they open as the story goes on (see isPlaceUnlocked).
       // Mykola's gate opens once grandpa has sent the hero for his tool box (summer story, stage 3).
-      { id: "toMykola", area: [113, 155, 143, 160], to: "mykola", spawn: { x: 248, y: 312 }, dir: "up", closed: () => lockedLines("mykola") },
+      { id: "toMykola", area: [113, 155, 143, 160], to: "mykola", spawn: { x: 240, y: 312 }, dir: "up", closed: () => lockedLines("mykola") },
       { id: "lockedLyuba", area: [317, 155, 346, 160], closed: () => lockedLines("lyuba") },
       { id: "lockedSvitka", area: [1031, 250, 1053, 256], closed: () => lockedLines("svitka") },
     ],

@@ -53,7 +53,7 @@ TEXTS.it = {
 
   grandma: {
     arrive: [
-      "Oh, chi si vede! Il mio nipotino! Ma come sei cresciuto — in città mangiate solo salame, scommetto.",
+      "Oh, chi è venuto a trovarci! Il mio nipotino! Ma quanto sei cresciuto, Dio ti benedica! In città mangiate solo salame, scommetto.",
       "Il tuo zaino l'ha già portato l'autista, è lì vicino alla rimessa. Qui non siamo a Kyiv, non ruba nessuno... o quasi.",
       "E adesso corri al pozzo a prendermi un po' d'acqua. Ci facciamo un tè dopo il viaggio.",
     ],
@@ -65,7 +65,7 @@ TEXTS.it = {
     beetlesWait: "Ce ne sono ancora, le vedo! Non mi servono gli occhiali per vedere una dorifora.",
     stopPicking: [
       "Ma che fai, le raccogli a mano? Prima che arrivi in fondo al filare, la prima pianta se la sono già mangiata.",
-      "Vai da Petro allo stagno. Fatti dare l'aggeggio, che le spruzziamo.",
+      "Vai allo stagno da nonno Petro. Fatti dare il suo aggeggio, che le spruzziamo.",
       "È lì sulla panchina vicino all'acqua. E dove vuoi che sia.",
     ],
     sprayerWait: "Petro è allo stagno, sulla panchina. Digli che ti manda Hanja per l'aggeggio, lui sa.",
@@ -78,7 +78,7 @@ TEXTS.it = {
       "Questo sì che è lavoro! Adesso mangino pure, se ci riescono.",
       "Eccoti cinque grivnie, e non sprecarle. Corri al negozio da Valja: prendi il pane, e per te un pacchetto di quella Mivina — lo so che non ne puoi fare a meno.",
     ],
-    shopWait: "Il negozio è oltre il circolo, vicino al campo di grano. Valja non la perdi: la sente tutta la strada.",
+    shopWait: "Il negozio è più avanti sulla strada, oltre il circolo: c'è scritto \"Produkty\". Valja non la perdi: la sente tutta la strada.",
     shopDone: [
       "Pane fresco! Siediti, i varenyky alle ciliegie sono già in tavola.",
       "Dicono che stasera c'è la discoteca al circolo. Vai a vedere i nostri ragazzi.",
@@ -94,17 +94,17 @@ TEXTS.it = {
     ],
     morning: [
       "Ti sei svegliato, festaiolo? Ti ho sentito inciampare sulla soglia, stanotte.",
-      "Siediti e mangia, poi ti dico cosa c'è da fare. Di lavoro qui, figliolo, ce n'è per tutta l'estate.",
+      "Siediti e mangia. Poi magari raccogli un po' di dorifore, finché non fa caldo: di lavoro qui, figliolo, ce n'è per tutta l'estate.",
     ],
     // The morning after the date: grandpa wants the hero, and the driver will take her for piglets.
     morningCatfish: [
       "Ti sei svegliato? Petro è già passato due volte al cancello: \"Dov'è tuo nipote? Gli faccio vedere il pesce gatto\". Vai da lui allo stagno, sennò non ti molla più.",
-      "E un'altra cosa: sabato l'autista mi ha promesso di portarmi al capoluogo, a prendere i maialini. La sua vecchia Kopijka dorme sulla strada, vicino al circolo. Se lo vedi, ringrazialo, quel brav'uomo.",
+      "E un'altra cosa: sabato l'autista, quello con la vecchia Kopijka, mi ha promesso di portarmi al capoluogo, a prendere i maialini. La sua macchina dorme sulla strada, vicino al circolo. Se lo vedi, ringrazialo, quel brav'uomo.",
     ],
     // The morning after grandpa's way.
     morningRod: [
-      "Hai sentito? Petro gira per il villaggio da stamattina presto e racconta a tutti come \"io e il nipote abbiamo preso il pesce gatto\". L'ha raccontato a Valja, l'ha raccontato all'autista, perfino alla mucca di nonna Ljuba l'ha raccontato.",
-      "Dice che il pesce gatto era grande come mezzo stagno. Ieri era grande come mezza passerella. Va be', lasciamolo dire. Lo friggo per pranzo, ma le squame te le togli tu.",
+      "Hai sentito? Petro gira per il villaggio da stamattina presto e racconta a tutti come \"io e il nipote di Hanja abbiamo preso il pesce gatto\". L'ha raccontato a Valja, l'ha raccontato all'autista, perfino alla mucca di nonna Ljuba l'ha raccontato.",
+      "Dice che il pesce gatto era grande come mezzo stagno. Stamattina era ancora grande come mezza passerella. Va be', lasciamolo dire. Lo friggo per pranzo, ma a pulirlo ci pensi tu.",
     ],
     // Stage 3: the piglets need money, the fence needs mending.
     pigletAsk: [
@@ -118,7 +118,7 @@ TEXTS.it = {
     pigletHidden: "Annuisci. La nonna nasconde i soldi nel fazzoletto, il fazzoletto nell'armadio, e l'armadio lo chiude a chiave.",
     toolThanks: [
       "Oh, la cassetta degli attrezzi di Petro! Me l'hai portata fin da Mykola? Bravo. Lì dentro c'è il martello, il seghetto, i chiodi — il recinto lo rattoppi in un attimo.",
-      "Solo, se Mykola ti offre la birra — tu non bere. Quello, appena beve, comincia ad agitare le braccia.",
+      "Solo, se Mykola ti chiama a bere la birra — tu non andarci. Quello, appena beve, comincia ad agitare braccia e gambe. Dice che è kung fu, figurati.",
     ],
     // The morning after the battery went missing.
     morningTheft: [
@@ -127,14 +127,14 @@ TEXTS.it = {
     ],
     chatter: [
       "Le dorifore sono tornate. Riempi un barattolo e ti do due grivnie.",
-      "Dove vai così elegante? Ah, a ballare... Va bene, vai.",
+      "Dove vai con quella tuta? Dai ragazzi? Va bene, vai, ma torna prima che faccia notte.",
       "Mangia, che sei magro come un palo. In città non vi danno da mangiare?",
     ],
     beerSmell: "Cos'è quest'odore? Ah, figliolo, figliolo... Tutto tuo nonno.",
     tracksuit: "Ma sei andato con quei jeans! La mamma ti ha messo la tuta nello zaino, quella vecchia della scuola, con le strisce. Lo zaino è vicino alla rimessa.",
     wakeFirst: [
       "Madonna santa! Chi ti ha conciato così, tesoro?",
-      "I ragazzi del circolo, dici? Saranno Tolik e Vovchyk. Ogni estate accolgono così tutti quelli di città. Prima del matrimonio guarisce.",
+      "Vicino al circolo, dici? Saranno Tolik e Vovchyk. Ogni estate accolgono così tutti quelli di città. Prima del matrimonio guarisce.",
     ],
     wakeAgain: ["Di nuovo?! Colleziona bernoccoli come Pinocchio. Mettici sopra una moneta di rame, aiuta."],
   },
@@ -148,12 +148,12 @@ TEXTS.it = {
     crateIn: (left) => `Così! Mettila lì. Ne mancano ancora ${left}.`,
     unloadDone: "Finito? Questo sì che è un uomo! Ecco le tue quattro grivnie — guadagnate onestamente.",
     unloadAsk: [
-      "Senti, tesoro, è arrivato il camion della merce e l'autista, guarda un po', si è bloccato la schiena.",
+      "Senti, tesoro, è arrivato il camion della merce e il camionista, guarda un po', si è bloccato la schiena.",
       "Portami le casse dal camion e ti do quattro grivnie. Il camion è lì, vicino al recinto.",
     ],
     // The truck comes every morning; from the second time on.
     unloadAgain: [
-      "Oh, tesoro, è arrivato di nuovo il camion, e l'autista si tiene di nuovo la schiena.",
+      "Oh, tesoro, è arrivato di nuovo il camion, e il camionista si tiene di nuovo la schiena.",
       "Me le porti le casse? Quattro grivnie, come ieri.",
     ],
     idle: "Pane c'è, zucchero c'è, fiammiferi ci sono. Fidanzati no — sono andati tutti a Poltava.",
@@ -163,7 +163,7 @@ TEXTS.it = {
     catfishDay: "Ma sei scemo? Girare per il villaggio in pieno giorno con un pesce gatto così? Vieni di notte, alla porta di servizio. E che nessuno ti veda.",
     batterySell: [
       "Una batteria? Ne ho una, una Ista, nuova di zecca, la tenevo per il mio compare. Cento grivnie.",
-      "Le dai cento grivnie. Proprio quelle che lei ti ha dato per il pesce gatto.",
+      "Dammi le cento. Oh, ma questi soldi li conosco: te li ho dati io, quella notte, per il pesce gatto.",
       "Cento giuste giuste. Vedi come va il mondo, tesoro: i soldi girano in tondo.",
     ],
     batteryNoMoney: "La batteria costa cento grivnie, tesoro. Senza cento non te la do, piangi pure quanto vuoi.",
@@ -171,14 +171,14 @@ TEXTS.it = {
       "Valja: Dicono che hai un walkman, di quelli a cassette? Fammi vedere. Oh, gli Okean Elzy!",
       "Valja: Cercavo giusto un regalo per il compleanno di mia nipote. Ti do cinquanta grivnie. Di più non vale, non mercanteggiare.",
     ],
-    beerForMykola: "La birra — per Mykola? Eh, sì, sì. Quello mi deve ancora le sue da maggio. Va be', prendi, prendi.",
+    beerForMykola: "È per Mykola? Eh, sì, sì. Quello mi deve ancora le sue da maggio. Va be', prendi, prendi.",
     firstBeer: "Birra? Hai diciott'anni? Eh, vedo, vedo — già spuntano i baffi. Due grivnie.",
     nextBeer: "Un'altra? Ah, questo ragazzo si perde... Due grivnie.",
     drink: (n, total) => `Apri la bottiglia lì sulla veranda e la bevi. Fresca, un po' amara. (${n}/${total})`,
   },
 
   grandpa: {
-    greeting: "Oh, il nipote di Hanja! Siediti qui e ascolta il vecchio Petro — cose cattive non te ne dico.",
+    greeting: "Oh, e tu di chi sei? Di Hanja? Be', siediti qui e ascolta il vecchio Petro — cose cattive non te ne dico.",
     sprayerStranger: "E tu di chi sei? Ah, il nipote di Hanja! Be', salve, cittadino. Che c'è, ti manda la nonna?",
     sprayerKnown: "Oh, ancora tu, nipote di Hanja. Che c'è, ti manda la nonna?",
     sprayer: [
@@ -197,33 +197,33 @@ TEXTS.it = {
       "Non fare il passo più lungo della gamba. E non entrare al circolo prima di Tolik.",
       "Avevo una Zaporozhets, quella gobba. L'ho guidata trent'anni e non sono mai arrivato da nessuna parte senza un guasto. Però che risate.",
       "Il pane non si butta sul tavolo, e col temporale la televisione non si accende. Qui non è la città, i fulmini sono cattivi.",
-      "Il mio vicino Mykola si è giocato mezza pensione alla lotteria Loto-Zabava. Ha vinto una volta — una maglietta. Adesso ci porta al pascolo la mucca.",
+      "Il mio vicino Mykola si è giocato mezzo stipendio alla lotteria Loto-Zabava. Ha vinto una volta — una maglietta. Adesso ci dorme.",
       "Ascolta il nonno: con l'ubriaco non discutere, col sobrio non bere, e con la nonna Hanja non discutere mai.",
       "Rosso di sera, domani vento. Meglio di qualsiasi previsione in televisione.",
       "Nel nostro stagno c'è un pesce gatto grosso come un cinghiale. L'ho visto con i miei occhi. Beh, quasi.",
       "Il pulmino per Poltava parte alle sette del mattino. Se dopo la discoteca ti alzi, sei un eroe.",
       "Kuchma in televisione dice di nuovo che si vive meglio. Gli credo. Ma provasse lui a vivere con la mia pensione.",
       "Con Kuchma è aumentato tutto, tranne la mia pensione. Quella è stabile, vedi. Stabilmente piccola.",
-      "Una volta il salame costava trenta copeche — e c'era la carne dentro! E adesso? Carta che sa di salame.",
+      "Una volta il salame costava due e venti — e c'era la carne dentro! E adesso? Carta che sa di salame.",
       "Hai mai mangiato la vera mortadella Doktorska? Appunto. Io sì. Quello sì che era salume — profumava tutta la casa.",
       "Le macchine come una volta non le fanno più. Il mio trattore YuMZ — trent'anni ad arare e niente. Adesso è tutto plastica.",
       "Il frigorifero Dnipro di Hanja sta lì dal settantanove. Ronza come un trattore, ma ghiaccia! Quelli nuovi durano un anno e poi in discarica.",
-      "Tra poco bisogna spruzzare le dorifore, sennò si mangiano le patate. Io una volta usavo il Decis — e quelle ingrassavano pure.",
+      "Quest'estate le dorifore toccherà spruzzarle più di una volta, sennò si mangiano le patate. Io una volta usavo il Decis — e quelle ingrassavano pure.",
       "La dorifora è come il fisco: avvelenala quanto vuoi, torna sempre.",
     ],
     // After the date: how to take the catfish, and the other way, mentioned "just so".
     catfishTalk: [
       "Oh, sei venuto! Siediti. Te l'avevo detto: il pesce gatto vive sotto la passerella. Grosso come un cinghiale.",
       "Si prende col verme, di notte, quando l'acqua si rinfresca. Scava un po' di vermi da Hanja, in fondo all'orto, vicino alla cucina estiva — lì sono grassi come salsicce. E vieni quando fa buio: ci sediamo sulla passerella.",
-      "Mykola una volta voleva prenderlo con la corrente. Una batteria, due fili — e addio pesce. Gli ho detto: questa non è pesca, è roba da ladri.",
+      "Il mio vicino Mykola una volta voleva prenderlo con la corrente. Una batteria, due fili — e addio pesce. Gli ho detto: questa non è pesca, è roba da ladri.",
       "Anche se Valja, per un pesce gatto così, cento grivnie forse le darebbe. Non dico che bisogna farlo. Dico così, per dire.",
     ],
     wormsWait: "Senza vermi non venire neanche. Il pesce gatto non è una mucca, l'erba non la mangia. Scava da Hanja, in fondo all'orto.",
     rodWait: ["Hai i vermi? Così si fa. Solo che adesso il pesce gatto dorme, come Mykola dopo la paga. Andiamo quando fa buio."],
     // Stage 3: his tool box is at Mykola's.
     toolAtMykola: [
-      "Gli attrezzi? Certo che ce li ho. Solo che sono da Mykola. Se li è fatti prestare in primavera: \"Per una settimana, Petro, una settimana sola\". E ormai è quasi agosto.",
-      "Vai a riprenderli. Il suo cancelletto è sulla strada, a ovest del villaggio, dove il recinto è tutto coperto di luppolo.",
+      "Gli attrezzi? Certo che ce li ho. Solo che sono da Mykola. Se li è fatti prestare in primavera: \"Per una settimana, Petro, una settimana sola\". Ormai è estate, e quella settimana non è ancora finita.",
+      "Vai a riprenderli. Il suo cancelletto è sulla strada, in fondo al villaggio: uno di legno, vicino a una casa bianca sotto un melo.",
       "Solo non andarci di giorno: Mykola di giorno dorme come un ghiro. Verso sera, quando senti parlare la sua televisione — allora sì.",
     ],
     rodNight: ["Zitto. Siediti sulla passerella e lancia sotto il palo. E non respirare."],
@@ -235,16 +235,16 @@ TEXTS.it = {
   },
 
   yard: {
-    backpackEmpty: "Nello zaino sono rimasti uno spazzolino e un panino di tre giorni fa.",
+    backpackEmpty: "Nello zaino sono rimasti uno spazzolino e il panino del viaggio, che ormai è meglio non mangiare.",
     backpackOpen: [
       "Apri lo zaino: uno spazzolino, il walkman, delle cassette... e sul fondo la tua vecchia tuta Adidas della scuola, con le tre strisce e le ginocchia sformate.",
       "Altri vestiti di ricambio non ne hai: la mamma l'aveva messa \"per ogni evenienza\". Ti cambi. Adesso sembri quasi uno del posto... quasi.",
     ],
     takePlayer: [
       "Tiri fuori dallo zaino il walkman, le cuffie e le tue cassette: gli Okean Elzy e una di Skriabin, registrata dalla radio.",
-      "Sulla cassetta di Skriabin c'è \"Movchaty\", quella con Iryna Bilyk. L'inizio è un po' tagliato: lo speaker parlava ancora e non hai fatto in tempo a premere REC.",
+      "Sulla cassetta di Skriabin c'è \"Movchaty\", quella con Iryna Bilyk. L'inizio è un po' tagliato: hai aspettato che lo speaker smettesse di parlare e hai premuto REC troppo tardi.",
     ],
-    jarsDone: "Per oggi di dorifore ne hai raccolte abbastanza. Domani ne arriveranno di nuove dall'orto di Mykola.",
+    jarsDone: "Per oggi di dorifore ne hai raccolte abbastanza. Domani ne arriveranno di nuove dai vicini.",
     shedChickens: "La rimessa è aperta, ma le galline non entrano. Bisogna spingerle dentro.",
     shedLocked: "La rimessa è chiusa col chiavistello. Puzza di benzina e di cacca di gallina.",
     shedFound: [
@@ -267,7 +267,7 @@ TEXTS.it = {
     ],
     handsFull: "Hai le mani occupate. Porta la cassa a Valja.",
     takeCrate: (n, total) => `Prendi una cassa. Pesante, accidenti — saranno scatolette. (${n}/${total})`,
-    jarMore: "Un altro barattolo di dorifore — arrivano dall'orto di Mykola, lì non spruzza nessuno. La nonna dalla porta: \"Bravo! Eccoti due grivnie\".",
+    jarMore: "Un altro barattolo di dorifore — continuano ad arrivare dai vicini, lì non spruzza nessuno. La nonna dalla porta: \"Bravo! Eccoti due grivnie\".",
     spray: [
       "Pompi il serbatoio, ti metti la cinghia in spalla e parti lungo i filari. Pssst... pssst...",
       "Le dorifore cadono dalle foglie come gli ubriachi dalla panchina. Le patate sono bagnate e amare, e tu puzzi come il magazzino del kolchoz.",
@@ -275,7 +275,7 @@ TEXTS.it = {
     ],
     clubClosed: ["Prima passa dalla nonna, sei appena arrivato. Il circolo non scappa."],
     noMopedInside: ["Il motorino in casa? La nonna vi butta fuori tutti e due. Prima scendi."],
-    shopClosed: ["Un lucchetto alla porta e un cartone: \"Chiuso. Torna domattina.\" Di notte non si sente nemmeno Valja."],
+    shopClosed: ["Un lucchetto alla porta e un cartone: \"Chiuso. Torno domattina.\" Di notte non si sente nemmeno Valja."],
   },
 
   lads: {
@@ -285,26 +285,26 @@ TEXTS.it = {
       "Tolik lo dice come se niente fosse, ma le tue scarpe da ginnastica le guarda un po' più a lungo del necessario.",
       "Tolik: Solo che così non sei dei nostri. Un damerino fatto e finito. Da noi conciato così non si viene — vai a metterti qualcosa da cristiani.",
     ],
-    sober: "Vovchyk: Sobrio come il nostro agronomo di lunedì. Almeno una birra per farti coraggio.",
+    sober: "Vovchyk: Sobrio come il nostro agronomo prima della paga. Almeno una birra per farti coraggio.",
     weakBeer: "Vovchyk: Sai di birra, ma come se l'avessi solo annusata.",
     onFoot: "Sanja: A piedi? Perfino il vecchio Petro veniva in discoteca in bicicletta.",
     noticeSuit: "Tolik: Ti sei messo l'Adidas — oh, adesso sembri una persona.",
-    noticeBeer: "Vovchyk: Sai di birra, come dopo la fienagione. Uno dei nostri.",
+    noticeBeer: "Vovchyk: Oh, sai di birra come dopo la fienagione. Giusto, uno dei nostri.",
     noticeMoped: "Sanja: E sei arrivato col Karpaty del nonno! Pensavo l'avessero venduto a pezzi da un pezzo.",
     friends: [
       "Tolik: Domattina andiamo allo stagno a pescare carassi. Quando ti svegli, vieni.",
       "Vovchyk: Papà dice che giovedì portiamo il fieno. Se dai una mano, ti versa il latte appena munto.",
-      "Sanja: Svetka ha chiesto se torni. Le ho detto che sei di città, non puoi.",
+      "Sanja: Con Svetka non metterti troppo in mostra. Tolik sta zitto, ma vede tutto.",
       "Tolik: Sabato partita sul prato, noi contro Mykhailivka. Vai in porta?",
-      "Vovchyk: Al circolo ho trovato una cassetta dei Ruki Vverkh, consumata fino ai buchi. L'abbiamo ascoltata fino all'alba.",
-      "Sanja: La mucca va portata al pascolo alle cinque. Ecco la nostra discoteca dopo la discoteca.",
+      "Vovchyk: Al circolo la cassetta dei Ruki Vverkh si è mangiata di nuovo il nastro. Mezza serata a riavvolgerla con la matita.",
+      "Sanja: Io alle cinque devo portare la mucca alla mandria. Ecco la mia discoteca: ballo fino alle due, pascolo dalle cinque.",
     ],
     playerOffer: [
-      "Vovchyk: Ho sentito che vendi il walkman? Fammi vedere. Oh, gli Okean Elzy! Ti do cinquanta.",
+      "Vovchyk: Ehi, è un walkman quello? Fammi vedere. Oh, gli Okean Elzy! Me lo vendi? Ti do cinquanta.",
       "Vovchyk: Lo mettiamo su al circolo. Che da noi c'è una cassetta sola dei Ruki Vverkh, e pure masticata.",
     ],
     playerPlays: [
-      "Vovchyk: Il tuo walkman suona al circolo da tre giorni. Gli Okean Elzy ormai li sappiamo a memoria, perfino Sanja.",
+      "Vovchyk: Il tuo ex walkman al circolo non lo spegniamo mai. Gli Okean Elzy ormai li sappiamo a memoria, perfino Sanja.",
       "Sanja: Vovchyk adesso dorme con le cuffie. Dice che gli viene in sogno Vakarchuk.",
     ],
     readyEarly: [
@@ -320,12 +320,12 @@ TEXTS.it = {
     firstMeet: [
       "Tolik: Ehi, e questo chi è, tutto pulito e lucido? Ti sei perso?",
       "Vovchyk: È il nipote di Hanja, quello di città. Stamattina è sceso dal Bohdan tutto vestito nuovo, come un turista.",
-      "Sanja: Vai in discoteca? Qui non funziona così — prima dimostraci che non sei fatto d'asfalto.",
+      "Sanja: Vuoi andare in discoteca? Qui non si entra così — prima dimostraci che non sei fatto d'asfalto.",
     ],
     again: "Tolik: Oh, sei tornato? Testardo come la capra di nonna Hanja.",
     beforeBeating: [
       "Vovchyk: Non prendertela, da noi si fa così.",
-      "Sanja: Chi arriva la prima volta e non è dei nostri viene \"presentato\" alla comunità.",
+      "Sanja: Chi arriva e non è dei nostri, noi lo \"presentiamo\" un po' al villaggio.",
     ],
   },
 
@@ -340,7 +340,7 @@ TEXTS.it = {
       "Balli con i ragazzi come mai in vita tua. Stasera non sei quello di città. Stasera sei uno di loro.",
     ],
     notice: [
-      "Vicino alla cassa balla una ragazza che non hai mai visto. Coda di cavallo, vestito a fiorellini, e ride come se questo non fosse il circolo del villaggio, ma il mare.",
+      "Vicino alla cassa balla una ragazza che non hai mai visto. Coda di cavallo castana con un elastico rosso, camicetta rosso scuro, gonna di jeans sbiadita, e ride come se questo non fosse il circolo del villaggio, ma il mare.",
     ],
     choiceTitle: "La ragazza vicino alla cassa. Che fai?",
     goOver: "Avvicinarti e invitarla a ballare",
@@ -390,7 +390,7 @@ TEXTS.it = {
   svetka: {
     firstMeet: [
       "Accanto al tavolino sotto l'ombrellone c'è Svetka con una gazzosa Sytro. Proprio lei, quella della discoteca.",
-      "Svetka: Oh, il nipote di Hanja. Ieri saltavi coi ragazzi così forte che pensavo crollasse il circolo.",
+      "Svetka: Oh, il nipote di Hanja. In discoteca saltavi coi ragazzi così forte che pensavo crollasse il circolo.",
       "Tu: Ti ho vista. Cioè, là. Vicino alla cassa.",
       "Svetka: Lo so che mi hai vista. Svetka. Resta un po', visto che sei venuto.",
       "Parlate un po' di tutto: di Kyiv, delle mucche e del fatto che a Makitryne, per divertirsi, ci sono solo il circolo e lo stagno.",
@@ -404,12 +404,12 @@ TEXTS.it = {
     afterDance: [
       "Accanto al tavolino sotto l'ombrellone c'è Svetka con una gazzosa Sytro.",
       "Svetka: Oh, il ballerino. Piedi interi? I miei a malapena.",
-      "Tu: Ieri non ti ho pestata troppo?",
-      "Svetka: Due volte. Ma ne ho contata solo una.",
+      "Tu: Quella sera non ti ho pestato troppo i piedi?",
+      "Svetka: Tre volte. Ma non porto rancore: le conto come una.",
     ],
     dateIntent: [
       "La guardi ridere e capisci: devi chiederle un appuntamento. Solo che qui, dove si portano le ragazze?",
-      "E poi ti viene in mente: il fiume fuori dal villaggio, il tramonto, e nello zaino il walkman con Skriabin.",
+      "E poi ti viene in mente: il fiume fuori dal villaggio, il tramonto, e tu hai il walkman con la cassetta di Skriabin.",
     ],
     askAgain: "Svetka: Allora, hai deciso dove portarmi? Basta che non sia allo stagno da nonno Petro.",
     inviteTitle: "Chiedere a Svetka un appuntamento?",
@@ -419,7 +419,7 @@ TEXTS.it = {
     invite: [
       "Tu: Andiamo al fiume stasera? Col motorino. Ho il walkman, e Skriabin, \"Movchaty\".",
       "Svetka: Col tuo Karpaty? Ma ci arriva?",
-      "Tu: Nonno Petro lo accende ogni primavera.",
+      "Tu: Ci arriva. Parte al secondo colpo di pedale.",
       "Svetka: Be'... va bene. Quando tramonta il sole, passa a prendermi qui, al negozio. A mia madre dico che sono da Olka.",
     ],
     playerAtHome: "Il walkman, tra l'altro, è rimasto nello zaino vicino alla rimessa della nonna. Bisogna andare a prenderlo.",
@@ -438,9 +438,9 @@ TEXTS.it = {
     letsGo: ["Svetka: Oh, sei arrivato. E il walkman l'hai preso? Dai, andiamo, finché mia madre munge la mucca."],
     // After the river.
     later: [
-      "Svetka: Valja mi ha chiesto di nuovo di chi sei. Le ho detto: di Hanja.",
-      "Svetka: Ieri torno a casa e mia madre: \"Dove sei stata?\" E io: \"Da Olka.\" E intanto avevo l'erba nei capelli.",
-      "Svetka: Dovrei andare a casa, mia madre aspetta la mucca. Ma resto ancora un po'.",
+      "Svetka: Valja mi ha già chiesto se tra noi è una cosa seria. Le ho detto che non sono affari suoi.",
+      "Svetka: Quella sera torno a casa dal fiume e mia madre: \"Dove sei stata?\" E io: \"Da Olka.\" E intanto avevo l'erba nei capelli.",
+      "Svetka: Dovrei andare a casa, a prendere la mucca dalla mandria. Ma resto ancora un po'.",
     ],
   },
 
@@ -455,8 +455,8 @@ TEXTS.it = {
       "Nonno Petro: Ecco, bravo. E la corrente lasciala a Mykola. Tanto nella vita si è già lasciato scappare tutto.",
     ],
     electroChosen: [
-      "Tu: Ma no, chiedevo così.",
-      "Fai di sì col capo al nonno, ma intanto pensi alle cento grivnie. E alla Kopijka dell'autista, che passa la notte sulla strada vicino al circolo.",
+      "Tu: Va bene. Ci penso, nonno.",
+      "Fai di sì col capo al nonno, ma intanto pensi alle cento grivnie. E alla Kopijka dell'autista sulla strada vicino al circolo: sotto il cofano c'è una batteria.",
     ],
     worms: [
       "Scavi in fondo all'orto, vicino alla cucina estiva. I vermi sono grassi come salsicce: il nonno non ha detto bugie.",
@@ -472,9 +472,9 @@ TEXTS.it = {
       "Dall'acqua scura spunta la testa del pesce gatto, con dei baffi come quelli della statua in piazza.",
       "Lo tiri su sulla passerella. Il pesce gatto è grosso come un cinghiale. Nonno Petro russa.",
       "Nonno Petro: Eh? Che c'è? Tira! Tira, ti dico! ...Oh. L'hai già tirato su. Be', te l'avevo detto: sotto la passerella.",
-      "Nonno Petro: Me lo sono perso di nuovo, dormendo. Per la seconda volta. Ma pazienza: l'importante è che l'abbiamo preso. L'abbiamo preso insieme, vero?",
+      "Nonno Petro: Anche le altre due volte è andata così: io mi appisolo — e lui abbocca. Ma pazienza: l'importante è che l'abbiamo preso. L'abbiamo preso insieme, vero?",
     ],
-    carLook: ["La vecchia Kopijka azzurra dell'autista, la prima Zhiguli. Ruggine, portapacchi sul tetto, una mosca sul vetro. Una belva di macchina."],
+    carLook: ["Una vecchia Kopijka azzurra, la prima Zhiguli. Ruggine, portapacchi sul tetto, una mosca sul vetro. Una belva di macchina."],
     carNotNow: ["Di giorno intorno alla macchina c'è gente: l'autista ci armeggia, le donne vanno al negozio. Di notte è un'altra storia."],
     carTake: [
       "Notte. Il villaggio dorme, solo da qualche parte abbaia un cane.",
@@ -482,7 +482,7 @@ TEXTS.it = {
       "Abbassi il cofano e te ne vai senza voltarti. Il cuore ti batte come le casse del circolo.",
     ],
     carEmpty: ["Il cofano è alzato, e al posto della batteria c'è solo il vuoto e due capi di filo. Distogli lo sguardo."],
-    boardwalk: ["La vecchia passerella, con le assi che scricchiolano. Da qualche parte lì sotto vive il pesce gatto."],
+    boardwalk: ["La vecchia passerella, con le assi che scricchiolano. L'acqua lì sotto è scura e profonda: se un pesce gatto vive da qualche parte, è qui."],
     boardwalkDay: ["Di giorno intorno allo stagno ci sono persone e mucche. Sulla passerella con una batteria — solo di notte."],
     electroCatch: [
       "Notte. Avvolgi i fili presi nella rimessa intorno a un bastone, li attacchi alla batteria e sali sulla passerella.",
@@ -556,11 +556,11 @@ TEXTS.it = {
       "La porta cigola. Sulla veranda esce Mykola in canottiera, con una bottiglia in mano, e ti squadra strizzando gli occhi.",
     ],
     firstMeet: [
-      "Mykola: Oh. E tu di chi sei? Di Hanja? Ah, quello di città, quello del pesce gatto... Sì, sì, ho sentito.",
+      "Mykola: Oh. E tu di chi sei? Di Hanja? Ah, quello di città che scorrazza per il villaggio sul Karpaty del nonno... Sì, sì, ho sentito.",
       "Tu: Nonno Petro mi manda per la cassetta degli attrezzi. Quella che lei si è fatto prestare in primavera.",
-      "Mykola: Gli attrezzi di Petro? Prendili. Tanto io la cassetta la usavo solo per aprire le bottiglie. È lì, sotto la panca.",
-      "Mykola: E tu, dicono, con Tolik sei ai ferri corti? Ti ha conciato lui, al circolo?",
-      "Mykola: Senti qua. Ti insegno il kung fu. Quello vero, come Bruce Lee. Quella videocassetta l'ho vista duecento volte.",
+      "Mykola: Gli attrezzi di Petro? Aspetta che te li porto... Ecco, tieni. Tanto io la cassetta la usavo solo per aprire le bottiglie.",
+      "Mykola: E con Tolik come va? Quello concia tutti quelli di città, vicino al circolo, lo so.",
+      "Mykola: Senti qua. Ti insegno il kung fu. Quello vero, come Bruce Lee. Quel Bruce Lee l'ho visto duecento volte.",
       "Mykola: Solo che il kung fu a secco non s'insegna. Portami la birra. Quattro bottiglie — due a testa.",
     ],
     noBeer: "Mykola: Il kung fu a secco non s'insegna. Quattro bottiglie, ho detto. Valja ce l'ha.",
@@ -623,7 +623,7 @@ TEXTS.it = {
     street: "La strada del villaggio",
     mykola: "Il cortile di Mykola",
     lyuba: "Il cortile di nonna Ljuba",
-    svitka: "La casa di Svetka",
+    svitka: "La casa di fronte al circolo",
     closed: "chiuso",
     closedYet: (name) => `${name}: il cancello è chiuso e non si vede nessuno. Magari un'altra volta.`,
   },
@@ -671,7 +671,7 @@ TEXTS.it = {
     "Te ne stai sulla panchina con i ragazzi a sgranocchiare semi, finché dal circolo non cominciano a pompare le casse.",
   ],
 
-  afterDisco: ["La discoteca è finita. Notte, grilli, nelle orecchie rimbomba ancora. È ora di tornare a casa: la nonna ha detto che lascerà la cena in casa."],
+  afterDisco: ["La discoteca è finita. Notte, grilli, nelle orecchie rimbomba ancora. È ora di tornare a casa: la nonna avrà lasciato la cena in casa."],
 
   sleep: ["Dormi.", "Sogni che Tolik ti vende a Valja per due grivnie, e che una dorifora legge il telegiornale."],
 
@@ -707,7 +707,7 @@ TEXTS.it = {
       sugar: "Zucchero, a peso, senza imbrogli. Quasi.",
       fish: "Scatoletta. Basta per l'inverno. O per stasera.",
       oil: "Olio nostro, profumato. Portalo a tua nonna.",
-      chocolate: "Oh, e per chi è il cioccolato? Non sarà per Svetka?",
+      chocolate: "Oh, e per chi è il cioccolato? Hai già adocchiato una ragazza?",
       sausage: "Salame di oggi. Be', di questa settimana.",
     },
   },
@@ -715,18 +715,18 @@ TEXTS.it = {
   hero: {
     places: {
       stop: "Ecco Makitryne. Niente campo per il cellulare, ovvio.",
-      street: "Qui non ci sono strade, solo direzioni. L'autista ubriaco lo riconosci da lontano: è l'unico che va dritto.",
-      yard: "Il cortile della nonna. Il recinto è ancora più rattoppato dell'anno scorso.",
+      street: "",
+      yard: "Il cortile della nonna. Il recinto è ancora più rattoppato di come me lo ricordavo.",
       house: "Ha lo stesso odore di quando ero bambino.",
       club: "La casa della cultura. La cultura non c'è, ma a volte c'è la discoteca.",
       shop: "\"Produkty\". Chissà se c'è qualcosa oltre a pane e fiammiferi.",
-      pond: "Che posto. Silenzio, zanzare e nonno Petro.",
-      mykola: "Il cortile di Mykola. Il recinto sta in piedi per miracolo. E per il luppolo.",
+      pond: "Che posto. Silenzio, zanzare e un vecchio sulla panchina.",
+      mykola: "Il cortile di Mykola. Una casa bianca sotto un melo, una vecchia bicicletta contro il muro. Più in ordine di quanto pensassi.",
     },
     garden: "Salve, dorifore. È da un po' che non ci si vede.",
     night: "È già notte. Meglio andare a casa prima che la nonna esca a cercarmi.",
     afterBeating: "Ahi... Piacere di conoscervi.",
-    morning: "La testa mi ronza come il frigo della nonna.",
+    morning: "Ancora cinque minuti... Ma vallo a spiegare al gallo.",
     foundBeer: ["Oh. Qualcuno non ha finito la birra... Be', due grivnie non si trovano per strada."],
     drank: (n, total) => `Ah, che bontà! (${n}/${total})`,
   },
@@ -735,7 +735,7 @@ TEXTS.it = {
     goHome: "È notte. Torna a casa della nonna.",
     goToBed: "Vai a dormire. Cena e telegiornale, se vuoi.",
     morning: "Un nuovo giorno. Parla con la nonna in cortile.",
-    findSvetka: "Svetka ha detto che la mattina va al negozio. Cercala lì.",
+    findSvetka: "Cerca Svetka. Forse è davanti al negozio?",
     meetSvetka: "Svetka sta spesso davanti al negozio. Vai a conoscerla.",
     dateNext: "Svetka è davanti al negozio. Chiedile un appuntamento.",
     datePlayer: "Prendi il walkman dallo zaino vicino alla rimessa della nonna.",

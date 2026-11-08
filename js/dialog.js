@@ -16,6 +16,13 @@ const dialogText = document.getElementById("dialog-text");
 const dialogNext = document.getElementById("dialog-next");
 const dialogName = document.getElementById("dialog-name");
 const dialogPortrait = document.getElementById("dialog-portrait");
+// If a portrait cannot be loaded (a bad connection), show the name only instead of a broken image.
+let portraitFailed = "";
+dialogPortrait.addEventListener("error", () => {
+  portraitFailed = dialogPortrait.getAttribute("src") || "";
+  dialogPortrait.hidden = true;
+  dialogBox.classList.remove("with-portrait");
+});
 
 // Portraits come from PORTRAIT_FILES (js/assets.js); a speaker without one shows only a name.
 // Svetka before the hero knows her name: her portrait, captioned "unknown girl".
@@ -88,8 +95,9 @@ function showSpeaker() {
     if (src) dialogPortrait.setAttribute("src", src);
     else dialogPortrait.removeAttribute("src");
   }
-  dialogPortrait.hidden = !src;
-  dialogBox.classList.toggle("with-portrait", Boolean(src));
+  const shown = Boolean(src) && src !== portraitFailed;
+  dialogPortrait.hidden = !shown;
+  dialogBox.classList.toggle("with-portrait", shown);
 }
 
 function updateDialog(dt) {

@@ -35,33 +35,32 @@ LOCATION_PICTURES = {
     "stop": ("incoming/loc_stop.png", 0.27),
     "pond": ("incoming/loc_pond.png", 0.30),
     # Stage 3: Mykola's yard, from the approved concept (summer_locations_concepts.png, top left).
-    "mykola": ("incoming/loc_mykola.png", 0.32),
+    # The door shut (he sleeps by day); no pump, no barrel; old tyres and a bicycle by the house.
+    "mykola": ("incoming/loc_mykola_v4.png", 0.32),
 }
 
 # Parts of a picture drawn again over characters behind them: name -> (box in game pixels, shapes).
 # Only the object itself is kept, not the ground around it, so the hero vanishes behind its real shape.
 # Shapes are relative to the box: ("rect", box), ("poly", points) or ("ellipse", box).
-# The yard's well: one concrete ring, a plank lid, two posts with a drum and a chain, a lean-to of
-# corrugated iron (incoming/loc_yard_well.png, the owner asked for a real Poltava well, not stones).
+# The yard's well: one whitewashed concrete ring with a lid, two posts with a drum and a chain, a small
+# roof (incoming/loc_yard_well_v4.png: a real Poltava well, its ring reaching a person's hip).
 WELL_SHAPE = [
-    ("poly", [(1, 4), (6, 1), (69, 7), (87, 26), (79, 28), (19, 22), (4, 12)]),  # the lean-to
-    ("rect", (10, 12, 19, 85)),  # posts
-    ("rect", (73, 25, 82, 83)),
-    ("rect", (19, 28, 74, 43)),  # drum
-    ("rect", (80, 31, 90, 38)),  # crank: the arm, then the handle (no ground around them)
-    ("rect", (86, 42, 104, 49)),
-    ("rect", (85, 36, 92, 45)),
-    ("rect", (50, 34, 71, 70)),  # chain and bucket
-    ("poly", [(5, 47), (13, 44), (31, 61), (31, 71), (22, 71), (5, 53)]),  # the plank lid
-    ("ellipse", (19, 59, 75, 73)),  # the concrete ring: top, body, bottom
-    ("rect", (19, 66, 75, 100)),
-    ("ellipse", (19, 94, 75, 105)),
+    ("poly", [(1, 10), (7, 2), (37, 1), (44, 10), (39, 12), (3, 12)]),  # the small roof
+    ("rect", (6, 10, 12, 54)),  # posts
+    ("rect", (35, 10, 40, 52)),
+    ("rect", (12, 16, 36, 27)),  # drum
+    ("rect", (40, 18, 45, 25)),  # crank: the arm, then the handle
+    ("rect", (44, 24, 52, 28)),
+    ("rect", (24, 26, 35, 44)),  # chain and bucket
+    ("ellipse", (12, 39, 38, 49)),  # the ring with its lid: top, body, bottom
+    ("rect", (12, 44, 38, 56)),
+    ("ellipse", (12, 52, 38, 60)),
 ]
 
 
 OCCLUDERS = {
     "yard": {
-        "occlude_yard_well": ((126, 162, 231, 268), WELL_SHAPE),
+        "occlude_yard_well": ((147, 198, 201, 260), WELL_SHAPE),
     },
     "club": {
         "occlude_club_statue": ((300, 178, 354, 297), [
@@ -109,7 +108,8 @@ ROAD_SIGN = ((1389, 218, 1414, 250), [("rect", (0, 0, 25, 26)), ("rect", (10, 26
 YARD_SCALE = 0.37
 YARD_BOTTOM = 945
 # The approved yard, redrawn by Codex only to give it a real concrete-ring well (approved by the owner).
-YARD_PICTURE = "incoming/loc_yard_well_v2.png"
+# No rain barrel by the porch, a dog kennel by the shed (the owner, 7 November).
+YARD_PICTURE = "incoming/loc_yard_v6.png"
 
 
 def tile(sample, width, height):
