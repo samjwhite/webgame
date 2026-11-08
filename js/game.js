@@ -4,8 +4,6 @@ const objectiveBox = document.getElementById("objective");
 const objectiveText = document.getElementById("objective-text");
 const moneyText = document.getElementById("money");
 const checklist = document.getElementById("checklist");
-const sideBox = document.getElementById("side-tasks");
-const sideText = document.getElementById("side-text");
 const checkBeer = document.getElementById("check-beer");
 const checkSuit = document.getElementById("check-suit");
 const checkMoped = document.getElementById("check-moped");
@@ -484,9 +482,6 @@ function updateHud() {
   setText(dayText, T().ui.day(quest.day, SUMMER_DAYS, T().ui.phases[quest.time]));
   const bag = bagLine();
   setText(bagText, bag ? T().shop.bag(bag) : "");
-  const side = sideTasks();
-  sideBox.hidden = side.length === 0;
-  setText(sideText, side.join(" "));
   shopMenuBox.hidden = !shopMenu.open || dialog.open;
   choiceBox.hidden = !choice.open || dialog.open;
   setText(locationName, T().places[currentLocation]);

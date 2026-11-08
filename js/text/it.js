@@ -10,7 +10,6 @@ TEXTS.it = {
     toggleTasks: "Mostra o nascondi i compiti",
     money: (n) => `Soldi: ${n} grivnie`,
     checklistTitle: "Per entrare in discoteca:",
-    sideTitle: "Compiti extra:",
     checkBeer: (n, total) => `Bere 3 birre (${n}/${total})`,
     checkSuit: "Mettere la tuta",
     checkMoped: "Arrivare col motorino Karpaty",
@@ -241,11 +240,6 @@ TEXTS.it = {
       "Te lo ricordi, quel pesce gatto che abbiamo preso... Cioè, tu tiravi e io dirigevo.",
       "Il pesce gatto era grande così. No, così! Be', l'hai visto anche tu. E io — quasi.",
     ],
-  },
-
-  // What the hero may do besides the story (sideTasks in js/story.js).
-  side: {
-    tsn: "La sera, in casa della nonna, alla TV c'è il TSN.",
   },
 
   yard: {
@@ -790,6 +784,7 @@ TEXTS.it = {
     night: "È già notte. Meglio andare a casa prima che la nonna esca a cercarmi.",
     afterBeating: "Ahi... Piacere di conoscervi.",
     morning: "Ancora cinque minuti... Ma vallo a spiegare al gallo.",
+    tv: "Devo vedere cosa danno alla televisione.",
     foundBeer: ["Oh. Qualcuno non ha finito la birra... Be', due grivnie non si trovano per strada."],
     drank: (n, total) => `Ah, che bontà! (${n}/${total})`,
   },

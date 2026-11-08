@@ -332,7 +332,7 @@ test("the bottle on the far table: only once the lads asked, once, and it counts
 test("at night he says it is time to go home only away from home", () => {
   const result = game.inGame(`() => {
     kitCheckpoint("Ніч: у хаті, новини, сон");
-    quest.heroSaid = { house: true, yard: true, club: true };
+    quest.heroSaid = { house: true, yard: true, club: true, ["tv" + quest.day]: true };
     heroSpeech.queue = [];
     nextHeroLine();
     updateHeroSpeech(0.02);
@@ -979,14 +979,11 @@ test("people grow nearer the bottom of a picture painted in perspective, and the
   game.inGame("() => clearSave()");
 });
 
-test("TSN is on from the evening, by day he may wait for it, and the side task ends once it is watched", () => {
+test("TSN is on from the evening, by day he may wait for it, and passing the TV he thinks of it until it is watched", () => {
   const result = game.inGame(`() => {
     const out = {};
-    kitCheckpoint("Початок: автобус");
-    out.notOnArrival = sideTasks().length === 0;
     // Day 1: the evening comes with the disco, so no waiting at the TV.
     kitCheckpoint("Вода: набрати");
-    out.reminded = sideTasks().includes(T().side.tsn);
     currentLocation = "house";
     const dayOne = useTv();
     out.dayOne = dayOne.next === null && dayOne.lines[0] === T().house.tvDay;
@@ -1001,11 +998,10 @@ test("TSN is on from the evening, by day he may wait for it, and the side task e
     kitFinishDialogs();
     out.firstBulletin = quest.newsWatched === 1 && closeup.effect === "tv";
     finishCloseup();
-    // In the evening it simply comes on; once all is watched the side task is gone for good.
-    out.stillReminded = sideTasks().includes(T().side.tsn);
+    // In the evening it simply comes on.
     kitUse("tv");
     kitFinishDialogs();
-    out.allWatched = quest.newsWatched === T().tsn.length && sideTasks().length === 0;
+    out.allWatched = quest.newsWatched === T().tsn.length && quest.deeds.tsnSeen === true;
     kitUse("tv");
     out.over = dialog.text === T().house.tvOver;
     kitFinishDialogs();
@@ -1016,9 +1012,45 @@ test("TSN is on from the evening, by day he may wait for it, and the side task e
     return out;
   }`);
   assert.deepStrictEqual(result, {
-    notOnArrival: true, reminded: true, dayOne: true, offered: true, evening: true, firstBulletin: true,
-    stillReminded: true, allWatched: true, over: true, bed: true, noBedByDay: true,
+    dayOne: true, offered: true, evening: true, firstBulletin: true, allWatched: true, over: true, bed: true, noBedByDay: true,
   });
+  game.inGame("() => clearSave()");
+});
+
+test("the reminder of the news is only a thought by the TV: once a day, until it is all watched", () => {
+  const result = game.inGame(`() => {
+    const out = {};
+    const says = () => [heroSpeech.text, ...heroSpeech.queue].includes(T().hero.tv);
+    const hush = () => { heroSpeech.text = ""; heroSpeech.queue = []; };
+    kitCheckpoint("ТСН: вечір у хаті");
+    quest.heroSaid = { house: true };
+    hush();
+    // Across the room he thinks nothing; passing the TV he does, and only once that day.
+    player.x = 320;
+    player.y = 200;
+    updateHeroSpeech(0.02);
+    out.farAway = !says();
+    player.x = places.tv.x;
+    player.y = places.tv.y + 6;
+    updateHeroSpeech(0.02);
+    out.passing = says();
+    hush();
+    updateHeroSpeech(0.02);
+    out.onceToday = !says();
+    // Not watched yet: the next day he thinks of it again.
+    startNewDay();
+    updateHeroSpeech(0.02);
+    out.nextDay = says();
+    hush();
+    // All watched: he never thinks of it again.
+    quest.time = "evening";
+    T().tsn.forEach(() => useTv());
+    startNewDay();
+    updateHeroSpeech(0.02);
+    out.watched = quest.deeds.tsnSeen === true && !says();
+    return out;
+  }`);
+  assert.deepStrictEqual(result, { farAway: true, passing: true, onceToday: true, nextDay: true, watched: true });
   game.inGame("() => clearSave()");
 });
 

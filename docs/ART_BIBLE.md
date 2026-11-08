@@ -46,7 +46,7 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 | Pond | `incoming/loc_pond.png` (approved), `grandpa_pond.png` |
 | Mykola's yard | `incoming/loc_mykola_v6.png` (Codex, from the approved concept; the door shut, no hand pump and no rain barrel in `summer_locations_concepts.png`; the bicycle redrawn to a real size next to the hero and the front fence lowered to a person's chest; approved by the owner. `loc_mykola_v4.png` had a bicycle as tall as a man and a fence taller than the hero). His room is the close-up `incoming/mykola_kungfu_v2.png` (the approved concept, the hero redrawn) |
 | Shop "Продукти", houses, bus stop, props | `props_sheet_1.png`, `props_sheet_2.png`, `props_sheet_3.png`, `sheet_club.png` |
-| Well close-up and its animation parts | `incoming/well_scene_v5.png` and `incoming/well_parts_v2.png`: a whitewashed concrete ring with a lid, a drum and a chain (the owner: a real Poltava well). The stone well of `well_scene.png` is out of date. The yard is `incoming/loc_yard_v6.png`, the approved yard with that well. |
+| Well close-up and its animation parts | `incoming/well_scene_v5.png` and `incoming/well_parts_v2.png`: a whitewashed concrete ring with a lid, a drum and a chain (the owner: a real Poltava well). The stone well of `well_scene.png` is out of date. The yard is `incoming/loc_yard_v6.png`; its well keeps its small wooden roof (the owner, 8 November 2026). |
 | Potato-beetle mini-game | `incoming/garden_closeup.png` (the plot) and `incoming/garden_parts.png` (hand, jar, Colorado beetle) |
 | Grandma's fence left of the gate | `incoming/yard_fence_hole.png` and `incoming/yard_fence_mended.png`: `loc_yard_v6.png` redrawn by Codex with only this part of the fence changed, cut and laid over the yard. The patch is an amateur's: mismatched old and pale boards, crooked, never tidy carpentry |
 | Fence-mending mini-game | `incoming/fence_closeup.png` (the hole from inside the yard) and `incoming/fence_parts.png` (five boards, a hammer with no hand, a nail at each stage) |
@@ -68,7 +68,7 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 
 - Beside the **Продукти** grocery shop, group simple outdoor tables under a faded green **Чернігівське** beer umbrella. Keep the furniture weathered and the setup modest, in keeping with Makitryne in summer 2003.
 - Use a concrete lamp post, or a concrete base with a wooden upper section. Keep the shop frontage clear of crates and loose bottles.
-- Place a seated mixed-breed village dog near the shop as part of the scene.
+- Place a mixed-breed village dog near the shop as part of the scene. In the approved shop picture it lies down, and the owner keeps it so (8 November 2026).
 
 ### Village dogs
 

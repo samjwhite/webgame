@@ -492,13 +492,6 @@ function useTv() {
   return say(bulletin, "tv");
 }
 
-// Things the hero may do besides the story, shown under the tasks. Each leaves the list once done.
-function sideTasks() {
-  const tasks = [];
-  if (quest.stage !== "arrive" && !quest.deeds.tsnSeen) tasks.push(T().side.tsn);
-  return tasks;
-}
-
 function useBorscht() {
   const text = T().house;
   if (quest.ateBorscht) return say([text.borschtDone]);

@@ -205,9 +205,19 @@ function heroRemark(key, line) {
   heroSay([line]);
 }
 
+// How close the hero passes the TV before he thinks of looking at it.
+const TV_NOTICED_WITHIN = 40;
+
+function isNearTv() {
+  const tv = places.tv;
+  return currentLocation === tv.location && Math.hypot(tv.x - player.x, tv.y - player.y) < TV_NOTICED_WITHIN;
+}
+
 function updateHeroSpeech(dt) {
   heroRemark(currentLocation, T().hero.places[currentLocation]);
   if (isNearGarden()) heroRemark("garden", T().hero.garden);
+  // The only reminder of the news: a thought when he passes the TV, once a day, until he has seen it all.
+  if (isNearTv() && !quest.deeds.tsnSeen) heroRemark(`tv${quest.day}`, T().hero.tv);
   // "Time to go home": a hint, once each night it applies, only away from grandma's yard and house and
   // only when going home is the task (not on a night out for the catfish).
   if (isNight() && quest.discoDone && !catfishNightTask() && currentLocation !== "yard" && currentLocation !== "house") {

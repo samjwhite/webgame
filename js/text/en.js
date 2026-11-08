@@ -10,7 +10,6 @@ TEXTS.en = {
     toggleTasks: "Show or hide tasks",
     money: (n) => `Money: ${n} UAH`,
     checklistTitle: "To get into the disco:",
-    sideTitle: "Side tasks:",
     checkBeer: (n, total) => `Drink 3 beers (${n}/${total})`,
     checkSuit: "Put on the tracksuit",
     checkMoped: "Ride up on the Karpaty moped",
@@ -241,11 +240,6 @@ TEXTS.en = {
       "Remember how we got that catfish... Well, you did the pulling, and I was in charge.",
       "The catfish was this big. No, this big! Well, you saw it yourself. And I nearly did.",
     ],
-  },
-
-  // What the hero may do besides the story (sideTasks in js/story.js).
-  side: {
-    tsn: "In the evening, TSN is on the TV in Grandma's house.",
   },
 
   yard: {
@@ -790,6 +784,7 @@ TEXTS.en = {
     night: "It's night already. Better get home before Gran comes looking.",
     afterBeating: "Ow... Nice to meet you too.",
     morning: "Five more minutes... But try telling that to the rooster.",
+    tv: "I should see what's on the telly.",
     foundBeer: ["Oh. Someone didn't finish their beer... Well, two hryvnias don't lie around in the road."],
     drank: (n, total) => `Ah, that went down well! (${n}/${total})`,
   },
