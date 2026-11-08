@@ -40,7 +40,8 @@ TEXTS.en = {
     sanya: "Sanya",
     svetka: "Svetka",
     stranger: "Unknown girl",
-    driver: "Hrysha",
+    driver: "Driver",
+    mykola: "Mykola",
   },
 
   intro: [
@@ -98,16 +99,30 @@ TEXTS.en = {
     // The morning after the date: grandpa wants the hero, and the driver will take her for piglets.
     morningCatfish: [
       "Up, are you? Petro's been at the gate twice already: \"Where's that grandson of yours? I'm going to show him the catfish.\" Go down to the pond and see him, or he'll never leave off.",
-      "And another thing: on Saturday Hrysha promised to drive me to the district town for piglets. His old Kopiyka sleeps out on the road, by the club. If you see him, say thank you to the man.",
+      "And another thing: on Saturday the driver promised to drive me to the district town for piglets. His old Kopiyka sleeps out on the road, by the club. If you see him, say thank you to the man.",
     ],
     // The morning after grandpa's way.
     morningRod: [
-      "Have you heard? Petro's been going round the village since first light telling everyone how \"me and the grandson landed the catfish\". He told Valya, he told Hrysha, he even told Granny Lyuba's cow.",
+      "Have you heard? Petro's been going round the village since first light telling everyone how \"me and the grandson landed the catfish\". He told Valya, he told the driver, he even told Granny Lyuba's cow.",
       "He says the catfish was half the size of the pond. Yesterday it was half the size of the footbridge. Well, let him. I'll fry it for lunch, only you do the scaling yourself.",
+    ],
+    // Stage 3: the piglets need money, the fence needs mending.
+    pigletAsk: [
+      "Listen, child. On Saturday we're off for the piglets, I'm taking two. And piglets these days cost like they're made of gold. I'm forty hryvnias short, and my pension's not till next week.",
+      "Maybe you can think of something? You're my clever city boy, after all.",
+      "And the fence by the vegetable patch is full of holes: the piglets will be out through that gap inside a day. Petro said he's got the tools. Go and ask him.",
+    ],
+    pigletThought: "You pat your pocket: the cassette player, with Okean Elzy in it. Somebody would give you fifty hryvnias for that, probably.",
+    pigletWait: "Forty hryvnias, child. No money, no piglets — unless I move into the sty myself.",
+    pigletThanks: "Oh, child... Forty hryvnias? Where did you get it? No, don't tell me, don't tell me. The main thing is it's honest money. It is honest, isn't it?",
+    pigletHidden: "You nod. Grandma hides the money in a headscarf, the headscarf in the wardrobe, and the wardrobe under lock and key.",
+    toolThanks: [
+      "Oh, Petro's tool box! Brought it all the way from Mykola's? Good boy. There's a hammer in there, a saw, nails — you'll have that fence patched up in no time.",
+      "Only if Mykola tries to treat you to beer — don't you drink it. Once he's had a few, he starts waving his arms about.",
     ],
     // The morning after the battery went missing.
     morningTheft: [
-      "Oh, what a to-do! Somebody stole the battery out of Hrysha's car last night! Right outside the club!",
+      "Oh, what a to-do! Somebody stole the battery out of the driver's car last night! Right outside the club!",
       "He says he's going nowhere till he gets hold of a new one. And Saturday's the piglets... Who'd do a thing like that, eh? Not our lot, surely. Ours wouldn't.",
     ],
     chatter: [
@@ -152,6 +167,11 @@ TEXTS.en = {
       "A hundred exactly. See how it goes, sunshine: money just goes round in circles.",
     ],
     batteryNoMoney: "The battery's a hundred hryvnias, sunshine. Not a kopeck less, cry all you like.",
+    playerOffer: [
+      "Valya: They say you've got a player, a cassette one? Show us. Oh, Okean Elzy!",
+      "Valya: I'm looking for something for my granddaughter's birthday, as it happens. I'll give you fifty hryvnias. It's not worth a kopeck more, so don't you haggle.",
+    ],
+    beerForMykola: "Beer — for Mykola? Well, well. He still owes me for his own since May. Go on, take it, take it.",
     firstBeer: "Beer? Are you eighteen? Oh, I see, I see — there's a moustache coming in already. Two hryvnias.",
     nextBeer: "Another one? Oh, that boy's going to the dogs... Two hryvnias.",
     drink: (n, total) => `You open the bottle right there on the porch and drink it. Cold, a bit bitter. (${n}/${total})`,
@@ -200,6 +220,12 @@ TEXTS.en = {
     ],
     wormsWait: "Don't come back without worms. A catfish isn't a cow, he doesn't eat grass. Dig at Hanya's, at the far end of the patch.",
     rodWait: ["Got the worms? Now we're talking. Only the catfish is asleep right now, like Mykola after payday. We'll go when it gets dark."],
+    // Stage 3: his tool box is at Mykola's.
+    toolAtMykola: [
+      "The tools? I've got them, course I have. Only they're at Mykola's. He borrowed them in the spring: \"Just for a week, Petro, just a week.\" And August's just round the corner.",
+      "Go and fetch them. His gate's on the road, at the west end of the village, where the fence is all grown over with hops.",
+      "Only don't go in the daytime: Mykola sleeps all day like a dormouse. Towards evening, when you hear his telly start talking — that's when.",
+    ],
     rodNight: ["Quiet. Sit down on the footbridge and cast in by the post. And don't breathe."],
     // Added to his sayings after grandpa's way.
     brag: [
@@ -272,6 +298,14 @@ TEXTS.en = {
       "Tolik: Football on the common on Saturday, us against Mykhailivka. Will you go in goal?",
       "Vovchyk: I found a Ruki Vverkh tape at the club, worn to holes. We listened to it till dawn.",
       "Sanya: The cow has to go out to pasture at five. That's our disco after the disco.",
+    ],
+    playerOffer: [
+      "Vovchyk: Heard you're selling your player? Let's have a look. Oh, Okean Elzy! I'll give you fifty.",
+      "Vovchyk: We'll play it at the club. All we've got is one Ruki Vverkh tape, and that one's chewed up.",
+    ],
+    playerPlays: [
+      "Vovchyk: Your player's been going at the club three days straight. We know Okean Elzy by heart now, even Sanya.",
+      "Sanya: Vovchyk sleeps with the headphones on now. Says Vakarchuk visits him in his dreams.",
     ],
     readyEarly: [
       "Tolik: Now that's more like it! Only you're early. The disco starts in the evening, when the cows come home.",
@@ -422,7 +456,7 @@ TEXTS.en = {
     ],
     electroChosen: [
       "You: Oh, I was only asking.",
-      "You nod at Did Petro, but you're thinking about a hundred hryvnias. And about Uncle Hrysha's Kopiyka, sleeping out on the road by the club.",
+      "You nod at Did Petro, but you're thinking about a hundred hryvnias. And about the driver's Kopiyka, sleeping out on the road by the club.",
     ],
     worms: [
       "You dig at the far end of the vegetable patch, by the summer kitchen. The worms are fat as sausages: Did Petro wasn't lying.",
@@ -440,8 +474,8 @@ TEXTS.en = {
       "Did Petro: Eh? What? Pull! Pull, I said! ...Oh. Got him out already. Well, I told you: under the footbridge.",
       "Did Petro: Slept through him again. Second time. Never mind: the main thing is we got him. We got him together, didn't we?",
     ],
-    carLook: ["Uncle Hrysha's old sky-blue Kopiyka, the very first Zhiguli. Rust, a roof rack, a fly on the windscreen. A beast of a car."],
-    carNotNow: ["In the daytime there are people round the car: Hrysha tinkering with it, the old women walking to the shop. At night it's a different story."],
+    carLook: ["The driver's old sky-blue Kopiyka, the very first Zhiguli. Rust, a roof rack, a fly on the windscreen. A beast of a car."],
+    carNotNow: ["In the daytime there are people round the car: the driver tinkering with it, the old women walking to the shop. At night it's a different story."],
     carTake: [
       "Night. The village is asleep, only a dog barking somewhere.",
       "You quietly lift the bonnet. A ten-millimetre spanner, two terminals... The battery's heavy as a sack of potatoes.",
@@ -468,29 +502,81 @@ TEXTS.en = {
     ],
   },
 
-  // Uncle Hrysha, the driver, by his car on the road.
+  // The driver, by his car on the road.
   driver: {
     idle: [
-      "Hrysha: Oh, Hanya's grandson! Tell your gran: Saturday we're off for the piglets, like we agreed. The car's a beast!",
-      "Hrysha: A Zhiguli Kopiyka, nineteen seventy-eight. She'll outlive me yet.",
-      "Hrysha: Petrol keeps going up, and the pension doesn't. Well, never mind, we'll make the trip on Saturday.",
+      "Driver: Oh, Hanya's grandson! Tell your gran: Saturday we're off for the piglets, like we agreed. The car's a beast!",
+      "Driver: A Zhiguli Kopiyka, nineteen seventy-eight. She'll outlive me yet.",
+      "Driver: Petrol keeps going up, and the pension doesn't. Well, never mind, we'll make the trip on Saturday.",
     ],
     robbed: [
-      "Hrysha: Did you see? Did you see?! The battery! In the night! Right outside the club!",
-      "Hrysha: If I got my hands on that thief... I'd... Tfoo! Till I get a new one, I'm going nowhere. And where are you meant to find one in a village?",
+      "Driver: Did you see? Did you see?! The battery! In the night! Right outside the club!",
+      "Driver: If I got my hands on that thief... I'd... Tfoo! Till I get a new one, I'm going nowhere. And where are you meant to find one in a village?",
     ],
     rant: [
       "Without a word, you set the new battery down by the car.",
-      "Hrysha: A new one?! An Ista? Where did you... From Valya's? Well, aren't you something, lad!",
-      "Hrysha: And I'll tell you what I'd do to that thief if I caught him. I'd...",
+      "Driver: A new one?! An Ista? Where did you... From Valya's? Well, aren't you something, lad!",
+      "Driver: And I'll tell you what I'd do to that thief if I caught him. I'd...",
       "What follows is several minutes of the kind of thing they don't print in books. You learn a great deal that's new about the thief.",
-      "Hrysha: ...and then into the pond with him. To the catfish!",
+      "Driver: ...and then into the pond with him. To the catfish!",
       "You nod and look away. Good thing you kept quiet. Bad thing there was anything to keep quiet about.",
-      "Hrysha screws the terminals back on. The Kopiyka sneezes and starts. Hrysha: Saturday we're off for the piglets! Tell your gran.",
+      "The driver screws the terminals back on. The Kopiyka sneezes and starts. Driver: Saturday we're off for the piglets! Tell your gran.",
     ],
     after: [
-      "Hrysha: The car's a beast! And now with a brand-new heart, too.",
-      "Hrysha: They never did find the thief. But I remember. I remember everything.",
+      "Driver: The car's a beast! And now with a brand-new heart, too.",
+      "Driver: They never did find the thief. But I remember. I remember everything.",
+    ],
+  },
+
+  // Selling the cassette player with the Okean Elzy tape (stage 3).
+  player: {
+    title: "Sell the cassette player for fifty hryvnias?",
+    sell: { valya: "Sell it to Valya", vovchik: "Sell it to Vovchyk" },
+    keep: "No, I'm keeping it",
+    kept: "You put the player back in your pocket. You'll think about it.",
+    valya: [
+      "You take out the Skriabin tape and put it in your pocket. That one's not for sale, not even for a hundred.",
+      "Valya: There we are. Fifty hryvnias, exactly. My granddaughter will be pleased, and you've got money in your pocket.",
+    ],
+    vovchik: [
+      "You take out the Skriabin tape and put it in your pocket. That one's not for sale, not even for a hundred.",
+      "Vovchyk: Here's your fifty. That's it, now there'll be music at the club. Come and have a listen — it's on the house.",
+    ],
+  },
+
+  // Mykola, grandpa's neighbour: asleep all day, Bruce Lee every evening (stage 3).
+  mykola: {
+    asleep: [
+      "The door's shut. From inside comes snoring so loud the windowpanes rattle. Mykola sleeps in the daytime.",
+    ],
+    waitTitle: "Mykola wakes up towards evening. Wait?",
+    waitHere: "Sit on the bench till evening",
+    evening: [
+      "The sun goes down. A telly comes on in the house, and through the window you hear \"Hi-yaaah!\" and gunfire.",
+      "The door creaks. Out onto the porch comes Mykola in his vest, with a bottle, squinting at you.",
+    ],
+    firstMeet: [
+      "Mykola: Oh. And whose are you? Hanya's? Ah, the city boy, the one with the catfish... Yeah, I heard, I heard.",
+      "You: Did Petro sent me for his tool box. The one you borrowed in the spring.",
+      "Mykola: Petro's box? Take it. I only ever used it to open bottles anyway. Over there, under the bench.",
+      "Mykola: And they say you and Tolik are at daggers drawn? Gave you a going-over at the club, did he?",
+      "Mykola: Listen here. I'll teach you kung fu. The real thing, like Bruce Lee. I've watched that tape two hundred times.",
+      "Mykola: Only kung fu isn't taught dry. Bring some beer. Four bottles — two for you, two for me.",
+    ],
+    noBeer: "Mykola: Kung fu isn't taught dry. Four bottles, I said. Valya's got some.",
+    lesson: [
+      "Mykola opens the beer on the edge of the table and puts on the video. There's Bruce Lee on the screen, a bit green and a bit stripy.",
+      "Mykola: Watch this. The crane stance. Leg up, arms like so... and breathe.",
+      "Mykola stands on one leg for about three seconds. Then he wobbles and grabs the china cabinet. The china cabinet tinkles.",
+      "Mykola: That was on purpose. That's a feint. The enemy thinks I'm falling, but I'm — not falling!",
+      "You each have another one. Mykola rewinds the tape and shows you a strike, a block, another strike. You copy him.",
+      "Mykola: There! Now we're getting somewhere. The main thing is, don't wave your arms about like a windmill. Hit once, but so he's still thinking about it the next day.",
+      "On the way home your hands keep slipping into the stance by themselves. You even half believe you've learned something.",
+    ],
+    later: [
+      "Mykola: So, practising the crane? Keep at it. Bruce Lee wasn't born knowing it either.",
+      "Mykola: Tell Petro I gave you the box. So he doesn't go round saying I drank it away.",
+      "Mykola: Lost at Loto-Zabava again. But at least they didn't give me a T-shirt this time — so my big win's still to come.",
     ],
   },
 
@@ -535,7 +621,7 @@ TEXTS.en = {
     stop: "The bus stop",
     pond: "The pond",
     street: "The village road",
-    mykola: "Grandpa Mykola's yard",
+    mykola: "Mykola's yard",
     lyuba: "Granny Lyuba's yard",
     svitka: "Svetka's house",
     closed: "closed",
@@ -635,6 +721,7 @@ TEXTS.en = {
       club: "The house of culture. No culture, but sometimes a disco.",
       shop: "\"Produkty\". I wonder if they have anything but bread and matches.",
       pond: "What a spot. Silence, mosquitoes and Did Petro.",
+      mykola: "Mykola's yard. The fence stays up on a wing and a prayer. And the hops.",
     },
     garden: "Hello again, Colorado beetles. Long time no see.",
     night: "It's night already. Better get home before Gran comes looking.",
@@ -658,12 +745,22 @@ TEXTS.en = {
     catfishGrandpa: "Did Petro called you to the pond: he promised to show you how to catch the catfish.",
     worms: "Dig worms in Grandma's yard, at the far end of the vegetable patch by the summer kitchen.",
     rodNight: "At night, to the pond to see Did Petro: the catfish comes out after dark.",
-    battery: "You need a battery. Uncle Hrysha's Kopiyka sleeps out on the road by the club.",
+    battery: "You need a battery. The driver's Kopiyka sleeps out on the road by the club.",
     electroNight: "You've got the battery. At night — onto the footbridge at the pond.",
     sellCatfish: "Valya takes fish at night, through the shop's back door.",
-    buyBattery: "Hrysha's got no battery, so there'll be no trip for the piglets. Valya has a new one, for a hundred hryvnias.",
-    giveBattery: "Take the new battery to Uncle Hrysha, at his car.",
+    buyBattery: "The driver's got no battery, so there'll be no trip for the piglets. Valya has a new one, for a hundred hryvnias.",
+    giveBattery: "Take the new battery to the driver, at his car.",
     afterCatfish: "The summer goes on. To be continued.",
+    grandmaNews: "Grandma wanted to tell you something. She's in the yard.",
+    sellPlayer: "Grandma's forty hryvnias short for the piglets. You could sell the cassette player with the Okean Elzy tape to Valya or Vovchyk.",
+    earnMoney: "Grandma's forty hryvnias short for the piglets. You can earn money in the vegetable patch and at Valya's.",
+    giveMoney: "Take Grandma the forty hryvnias for the piglets.",
+    askTool: "The fence needs tools. Ask Did Petro at the pond.",
+    toMykola: "Mykola has the tool box: his gate is on the road, at the west end of the village. He sleeps in the daytime.",
+    toolHome: "Take Did Petro's tool box to Grandma.",
+    beerForMykola: "Mykola only teaches kung fu over beer. Buy four bottles at Valya's.",
+    kungfu: "You've got the beer. In the evening — to Mykola's, for kung fu.",
+    afterMykola: "The summer goes on. To be continued.",
     carryCrate: "Carry the crate to Valya's shop.",
     arrive: "Find Grandma's cottage — by the well, at the north end of the village.",
     water: "Fetch water from the well.",

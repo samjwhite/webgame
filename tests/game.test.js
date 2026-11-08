@@ -36,7 +36,7 @@ test("all art the game asks for is there", () => {
 test("every location: all ways in, ways out, people and things can be reached", () => {
   const problems = game.inGame(`() => {
     const problems = [];
-    Object.assign(quest, { stage: "done", mopedFound: true, backpackShown: true, unload: "working" });
+    Object.assign(quest, { stage: "done", mopedFound: true, backpackShown: true, unload: "working", unlocked: { mykola: true } });
     for (const id of Object.keys(LOCATIONS)) {
       currentLocation = id;
       const points = kitWalkable();
@@ -87,7 +87,8 @@ test("walking straight at a closed gate says why", () => {
   const said = game.inGame(`() => {
     const results = [];
     currentLocation = "street";
-    for (const id of ["lockedMykola", "lockedLyuba", "lockedSvitka"]) {
+    quest.unlocked = {};
+    for (const id of ["toMykola", "lockedLyuba", "lockedSvitka"]) {
       const area = here().exits.find((e) => e.id === id).area;
       const fromAbove = id === "lockedSvitka";
       player.x = (area[0] + area[2]) / 2;
@@ -665,7 +666,7 @@ test("the whole story can be played, from the bus to the second morning", () => 
     kitUse("grandma");
     expect(dialog.text === T().grandma.morningRod[0] && quest.trust.grandpa === 2 && quest.trust.valya === 1, "the village has heard");
     kitFinishDialogs();
-    expect(currentObjective() === T().objective.afterCatfish, "the summer goes on");
+    expect(currentObjective() === T().objective.grandmaNews, "the summer goes on: grandma has news");
     log.push("the catfish with grandpa");
     return log;
   }`);
@@ -822,7 +823,7 @@ test("the catfish at night: the driver's battery, the flash, Valya's hundred, a 
     kitUse("driver");
     out.rant = closeup.picture === "batteryRant";
     kitFinishDialogs();
-    out.after = quest.deeds.batteryReturned && carState() === "closed" && currentObjective() === T().objective.afterCatfish;
+    out.after = quest.deeds.batteryReturned && carState() === "closed" && currentObjective() === T().objective.grandmaNews;
     saveGame();
     quest.deeds = {};
     continueGame();
@@ -836,9 +837,98 @@ test("the catfish at night: the driver's battery, the flash, Valya's hundred, a 
   game.inGame("() => clearSave()");
 });
 
+test("stage 3: piglet money from the player, grandpa's tool box from Mykola, kung fu over beer", () => {
+  const result = game.inGame(`() => {
+    const out = {};
+    kitCheckpoint("Поросята: баба просить гроші");
+    quest.money = 3;
+    kitTalk("grandma");
+    out.asked = quest.deeds.pigletAsked === 4 && currentObjective() === T().objective.sellPlayer;
+    // Vovchik offers fifty; not now. Valya offers fifty; sold, the Skriabin tape stays.
+    kitGo("club");
+    kitUse("lads");
+    kitFinishDialogs();
+    kitChoose(1);
+    kitFinishDialogs();
+    out.kept = quest.hasPlayer && !quest.deeds.playerSoldTo;
+    kitGo("shop");
+    kitUse("valya");
+    kitFinishDialogs();
+    kitChoose(0);
+    kitFinishDialogs();
+    out.sold = !quest.hasPlayer && quest.deeds.playerSoldTo === "valya" && quest.money === 3 + PLAYER_PRICE;
+    kitGo("yard");
+    kitTalk("grandma");
+    out.paid = quest.deeds.pigletMoney && quest.money === 3 + PLAYER_PRICE - PIGLET_SHARE && currentObjective() === T().objective.askTool;
+    // Grandpa: the tool box is at Mykola's; his gate opens.
+    kitGo("street");
+    const gateShut = Boolean(closedExitAhead(0, -1)) || isClosedExit(here().exits.find((e) => e.id === "toMykola"));
+    kitGo("pond");
+    kitTalk("grandpa");
+    out.toMykola = quest.unlocked.mykola && currentObjective() === T().objective.toMykola && gateShut;
+    kitGo("mykola");
+    out.asleep = !npcsHere().some((n) => n.id === "mykola");
+    kitUse("mykolaDoor");
+    kitFinishDialogs();
+    kitChoose(0); // wait for the evening
+    kitFinishDialogs();
+    out.evening = quest.time === "evening" && quest.day === 4 && npcsHere().some((n) => n.id === "mykola");
+    kitTalk("mykola");
+    out.tool = quest.hasTool && quest.deeds.mykolaMet && currentObjective() === T().objective.toolHome;
+    kitTalk("mykola");
+    out.dry = !quest.deeds.kungfu;
+    kitGo("yard");
+    kitTalk("grandma");
+    out.home = quest.deeds.toolHome && !quest.hasTool && currentObjective() === T().objective.beerForMykola;
+    // Beer for Mykola goes into the bag, not into the hero.
+    quest.money = 10;
+    kitGo("shop");
+    out.beerOffered = goodsOnOffer().some((g) => g.id === "beer");
+    const drunk = quest.beersDrunk;
+    for (let i = 0; i < MYKOLA_BEERS; i++) buyGood("beer");
+    out.bag = quest.bag.beer === MYKOLA_BEERS && quest.beersDrunk === drunk && !goodsOnOffer().some((g) => g.id === "beer");
+    kitGo("mykola");
+    kitUse("mykola");
+    out.lesson = closeup.picture === "mykolaKungfu";
+    kitFinishDialogs();
+    out.after = quest.deeds.kungfu && !quest.bag.beer && currentObjective() === T().objective.afterMykola;
+    saveGame();
+    quest.deeds = {};
+    continueGame();
+    out.saved = quest.deeds.kungfu && quest.deeds.playerSoldTo === "valya";
+    return out;
+  }`);
+  assert.deepStrictEqual(result, {
+    asked: true, kept: true, sold: true, paid: true, toMykola: true, asleep: true, evening: true,
+    tool: true, dry: true, home: true, beerOffered: true, bag: true, lesson: true, after: true, saved: true,
+  });
+  game.inGame("() => clearSave()");
+});
+
+test("the player sold to Vovchik plays at the club", () => {
+  const result = game.inGame(`() => {
+    kitCheckpoint("Плеєр: продати Вовчикові");
+    kitUse("lads");
+    kitFinishDialogs();
+    kitChoose(0);
+    kitFinishDialogs();
+    const sold = quest.deeds.playerSoldTo === "vovchik" && !quest.hasPlayer;
+    const heard = new Set();
+    for (let i = 0; i < 40; i++) {
+      kitUse("lads");
+      heard.add(dialog.text);
+      kitFinishDialogs();
+    }
+    const plays = T().lads.playerPlays.some((l) => heard.has(l.replace(/^[^:]+: /, "")));
+    return [sold, plays];
+  }`);
+  assert.deepStrictEqual(result, [true, true]);
+  game.inGame("() => clearSave()");
+});
+
 test("a new battery costs exactly the hundred: without it Valya will not sell, and the shop still opens", () => {
   const result = game.inGame(`() => {
-    kitCheckpoint("Сом струмом: новий акумулятор Гриші");
+    kitCheckpoint("Сом струмом: новий акумулятор водієві");
     quest.money = 60;
     kitUse("valya");
     const refused = dialog.text === T().valya.batteryNoMoney;

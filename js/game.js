@@ -207,7 +207,40 @@ function afterTalk(next) {
   else if (next === "rodCatch") goRodCatch();
   else if (next === "carWait") offerNight(() => showAction(useCar()));
   else if (next === "boardwalkWait") offerNight(() => showAction(useBoardwalk()));
+  else if (next === "sellPlayer") offerPlayerSale();
+  else if (next === "mykolaWait") offerMykolaEvening();
   else finishCloseup();
+}
+
+// ---------- The player and Mykola ----------
+
+// Valya or Vovchik offers fifty for the cassette player; the talk picture shows who asks.
+function offerPlayerSale() {
+  const text = T().player;
+  const buyer = closeup.picture === "talkSeller" ? "valya" : "vovchik";
+  openChoice(text.title, [
+    { label: text.sell[buyer], pick: () => showPicture(closeup.picture, sellPlayer(buyer), finishCloseup) },
+    {
+      label: text.keep,
+      pick: () => (buyer === "valya" ? openShopMenu() : showPicture(closeup.picture, [text.kept], finishCloseup)),
+    },
+  ]);
+}
+
+// Mykola sleeps all day: the hero may wait for the evening at his door. The day stays the same.
+function offerMykolaEvening() {
+  const text = T().mykola;
+  openChoice(text.waitTitle, [
+    {
+      label: text.waitHere,
+      pick: () => {
+        advancePhase("evening");
+        saveGame();
+        openDialog(text.evening, finishCloseup);
+      },
+    },
+    { label: T().ui.notYet, pick: finishCloseup },
+  ]);
 }
 
 // ---------- The catfish ----------
@@ -270,6 +303,8 @@ const TALK_ACTIONS = {
   car: useCar,
   boardwalk: useBoardwalk,
   driver: talkToDriver,
+  mykola: talkToMykola,
+  mykolaDoor: useMykolaDoor,
 };
 
 function useTarget(target) {

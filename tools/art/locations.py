@@ -34,6 +34,8 @@ LOCATION_PICTURES = {
     "club": ("incoming/loc_club_v2.png", 0.40),
     "stop": ("incoming/loc_stop.png", 0.27),
     "pond": ("incoming/loc_pond.png", 0.30),
+    # Stage 3: Mykola's yard, from the approved concept (summer_locations_concepts.png, top left).
+    "mykola": ("incoming/loc_mykola.png", 0.32),
 }
 
 # Parts of a picture drawn again over characters behind them: name -> (box in game pixels, shapes).

@@ -32,6 +32,8 @@ const npcs = [
   { id: "lads", location: "club", sprite: "vovchik", x: 420, y: 190, talk: talkToLads },
   // By the far table of the beer garden, from the day after the first disco.
   { id: "svetka", location: "shop", sprite: "svetka", x: 262, y: 200, talk: talkToSvetka, when: isSvetkaAround },
+  // Mykola: asleep all day, out on his porch in the evening and at night.
+  { id: "mykola", location: "mykola", sprite: "mykola", x: 262, y: 174, talk: talkToMykola, when: isMykolaUp },
   // The driver who is to take grandma to the district market for piglets, by his car on the road.
   { id: "driver", location: "street", sprite: "driver", x: 1262, y: 238, talk: talkToDriver, dayOnly: true },
 ];
@@ -58,6 +60,8 @@ const places = {
   worms: { id: "worms", location: "yard", x: 402, y: 184 },
   car: { id: "car", location: "street", x: 1211, y: 249 },
   boardwalk: { id: "boardwalk", location: "pond", x: 277, y: 168 },
+  // Mykola's door: shut by day, with snoring behind it.
+  mykolaDoor: { id: "mykolaDoor", location: "mykola", x: 294, y: 140 },
 };
 
 let chickens = [];
@@ -644,6 +648,7 @@ function isPlaceAvailable(place) {
     case "varenyky": return !quest.ateVarenyky;
     case "beerBottle": return canFindBeer();
     case "worms": return needsWorms();
+    case "mykolaDoor": return !isMykolaUp();
     default: return true;
   }
 }
@@ -911,7 +916,8 @@ function drawWorld(ctx, view, time, target) {
 
   drawables.sort((a, b) => a.y - b.y).forEach((d) => d.draw());
 
-  if (!isNight()) butterflies.forEach((b) => {
+  // Butterflies fly by day only: in the evening they read as stray yellow specks (designer review).
+  if (!isNight() && quest.time !== "evening") butterflies.forEach((b) => {
     const t = time / 1000 + b.phase;
     const x = b.x + Math.sin(t * 0.7) * 24 + Math.sin(t * 2.3) * 4;
     const y = b.y + Math.sin(t * 1.1) * 12 - Math.abs(Math.sin(t * 3)) * 4;

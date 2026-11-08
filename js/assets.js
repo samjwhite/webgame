@@ -9,6 +9,7 @@ const ART_FILES = {
   locStop: "world/loc_stop.png",
   locPond: "world/loc_pond.png",
   locStreet: "world/loc_street.png",
+  locMykola: "world/loc_mykola.png",
   occludeYardWell: "world/occlude_yard_well.png",
   occludeClubStatue: "world/occlude_club_statue.png",
   occludeStopSign: "world/occlude_stop_sign.png",
@@ -32,6 +33,7 @@ const ART_FILES = {
   tolik: "world/tolik.png",
   vovchik: "world/vovchik.png",
   driver: "world/driver.png",
+  mykola: "world/mykola.png",
   car: "world/car.png",
   carEmpty: "world/car_empty.png",
   sanya: "world/sanya.png",
@@ -93,12 +95,13 @@ const ART_FILES = {
   catfishNight: "scenes/catfish_night.png",
   catfishSale: "scenes/catfish_sale.png",
   batteryRant: "scenes/battery_rant.png",
+  mykolaKungfu: "scenes/mykola_kungfu.png",
 };
 
 // Bust portraits over the dialog text, by speaker id (tools/art/reference.py, PORTRAITS). They load with
 // the rest of the art, so a portrait is there the first time someone speaks.
 const PORTRAIT_FILES = {};
-["hero", "grandma", "grandpa", "valya", "tolik", "vovchik", "sanya", "svetka", "driver"].forEach((id) => {
+["hero", "grandma", "grandpa", "valya", "tolik", "vovchik", "sanya", "svetka", "driver", "mykola"].forEach((id) => {
   PORTRAIT_FILES[id] = `portraits/${id}.png`;
   ART_FILES[`portrait_${id}`] = PORTRAIT_FILES[id];
 });

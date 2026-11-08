@@ -37,6 +37,9 @@ SCENES = {
     "catfish_night": ("incoming/pond_catfish_night_v2.png", None),
     "catfish_sale": ("incoming/catfish_sale_v2.png", None),
     "battery_rant": ("incoming/battery_rant_v2.png", None),
+    # Mykola's kung fu in front of the TV: the approved ChatGPT concept, the hero redrawn by Codex to his
+    # 2003 haircut and tracksuit.
+    "mykola_kungfu": ("incoming/mykola_kungfu_v2.png", None),
     "disco": ("disco.png", None),
     "shed": ("shed.png", None),
     "title": ("club_square.png", None),
@@ -56,7 +59,9 @@ SPRITES = {
     "seller": ("incoming/valya_character_v2.png", (136, 13, 533, 1009), 40, 25),
     # Svetka, approved concept by ChatGPT (summer_characters_concepts.png, top left).
     "svetka": ("incoming/summer_characters_concepts.png", (108, 20, 272, 574), 40, 25),
-    # The driver, uncle Hrysha, approved by ChatGPT (summer_characters_concepts.png, third figure).
+    # Mykola, approved by ChatGPT (summer_characters_concepts.png, second figure).
+    "mykola": ("incoming/summer_characters_concepts.png", (441, 15, 636, 577), 40, 25),
+    # The driver, approved by ChatGPT (summer_characters_concepts.png, third figure).
     "driver": ("incoming/summer_characters_concepts.png", (785, 15, 1014, 573), 40, 25),
     # His car, drawn by Codex (driver_car.png): the bonnet shut, and open with the battery gone. Both
     # cells are the same size, so the car stands in the same place in both.
@@ -71,7 +76,7 @@ SPRITES = {
 # The lads' sheet and Svetka's concept are painted dark, muted and warm: at 40 px the denim, the olive
 # jacket and her red blouse turned brown next to the brighter hero. Their sprites lose the warm cast first (red, green, blue factors), then get
 # more light, contrast and a little colour (checked by the designer review, summer_round3).
-SPRITE_LIFT = {name: ((0.92, 1.0, 1.15), 1.3, 1.15, 1.1) for name in ("tolik", "vovchik", "sanya", "svetka", "driver")}
+SPRITE_LIFT = {name: ((0.92, 1.0, 1.15), 1.3, 1.15, 1.1) for name in ("tolik", "vovchik", "sanya", "svetka", "driver", "mykola")}
 
 
 def lifted(cut, factors):
@@ -99,6 +104,7 @@ PORTRAITS = {
     "sanya": ("incoming/village_lads_everyday_v4.png", (697, 961, 1008, 1272)),
     "svetka": ("incoming/summer_characters_concepts.png", (17, 614, 332, 929)),
     "driver": ("incoming/summer_characters_concepts.png", (736, 616, 1065, 945)),
+    "mykola": ("incoming/summer_characters_concepts.png", (375, 608, 692, 925)),
 }
 PORTRAIT_SIZE = 64  # CSS pixels in the dialog (style.css); the file is RES times larger
 

@@ -196,6 +196,31 @@ const LOCATIONS = {
     lights: [{ x: 432, y: 30, radius: 30 }],
   },
 
+  // Mykola's yard, drawn by Codex in the approved style of the yard (incoming/loc_mykola.png), scale 0.32.
+  // He sleeps all day; in the evening he comes out on the porch, and the TV inside plays Bruce Lee.
+  mykola: {
+    art: "locMykola",
+    backdrop: "#24452a",
+    mapSpot: { x: 79, y: 188 },
+    solids: [
+      [0, 0, 492, 60], // trees behind the house
+      [0, 60, 170, 150], // the woodshed and the trees on the left
+      [170, 60, 258, 130], [258, 60, 283, 132], [305, 60, 400, 132], // the house, the door in between
+      [185, 128, 245, 146], // the bench under the window
+      [100, 145, 120, 165], // the chopping block
+      [312, 118, 360, 165], [300, 150, 314, 166], // the pump, its basin and the bucket
+      [400, 60, 492, 150], // the apple tree
+      [335, 166, 492, 215], // the overgrown patch
+      [0, 150, 40, 215], // hollyhocks
+      [0, 215, 212, 290], [275, 215, 492, 290], // the fence, the gate open in the middle
+      [0, 290, 228, 328], [268, 290, 492, 328], // grass beyond the fence, the path in between
+    ],
+    exits: [{ id: "toStreet", area: [228, 320, 268, 328], to: "street", spawn: { x: 128, y: 170 }, dir: "down" }],
+    props: [],
+    occluders: [],
+    lights: [{ x: 294, y: 92, radius: 40 }, { x: 222, y: 104, radius: 26 }],
+  },
+
   // The road through the village: three approved pictures joined by tools/art/locations.py.
   // Every way starts here, and the gates of locked places are here.
   street: {
@@ -204,7 +229,7 @@ const LOCATIONS = {
     mapLine: { scale: 0.523, y: 285 },
     solids: [
       // North side: fences, with gaps at the gateways.
-      [0, 0, 685, 160], [685, 0, 780, 153], [780, 0, 1039, 160], [1039, 0, 1171, 151],
+      [0, 0, 113, 160], [113, 0, 143, 155], [143, 0, 685, 160], [685, 0, 780, 153], [780, 0, 1039, 160], [1039, 0, 1171, 151],
       [1171, 0, 1304, 160], [1304, 0, 1327, 151], [1327, 0, 1463, 160],
       // South side: grass, the bench, and gaps for the paths.
       [0, 250, 404, 379], [404, 281, 426, 379], [426, 250, 1031, 379], [1031, 253, 1053, 379],
@@ -226,7 +251,8 @@ const LOCATIONS = {
       { id: "toPond", area: [404, 274, 426, 281], to: "pond", spawn: { x: 160, y: 14 }, dir: "down" },
       { id: "toStop", area: [1360, 250, 1378, 255], to: "stop", spawn: { x: 154, y: 14 }, dir: "down" },
       // Locked places: they open as the story goes on (see isPlaceUnlocked).
-      { id: "lockedMykola", area: [113, 155, 143, 160], closed: () => lockedLines("mykola") },
+      // Mykola's gate opens once grandpa has sent the hero for his tool box (summer story, stage 3).
+      { id: "toMykola", area: [113, 155, 143, 160], to: "mykola", spawn: { x: 248, y: 312 }, dir: "up", closed: () => lockedLines("mykola") },
       { id: "lockedLyuba", area: [317, 155, 346, 160], closed: () => lockedLines("lyuba") },
       { id: "lockedSvitka", area: [1031, 250, 1053, 256], closed: () => lockedLines("svitka") },
     ],

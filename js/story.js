@@ -12,6 +12,11 @@ const SPRAY_REWARD = 5;
 // The catfish on the night way: Valya pays exactly this, and a new battery for the driver costs the same.
 const CATFISH_PRICE = 100;
 const BATTERY_PRICE = 100;
+// Stage 3: the hero's share for grandma's piglets, the price of his cassette player, and the beer
+// Mykola wants before he teaches anything (two bottles each). See docs/ECONOMY.md.
+const PIGLET_SHARE = 40;
+const PLAYER_PRICE = 50;
+const MYKOLA_BEERS = 4;
 // Grandma stops the hand-picking after this many beetles and sends the hero for grandpa's sprayer.
 const BEETLES_BEFORE_SPRAYER = 3;
 
@@ -55,6 +60,8 @@ function newQuest() {
     hasBattery: false,
     hasCatfish: false,
     hasNewBattery: false,
+    // Stage 3: grandpa's tool box, fetched from Mykola for grandma's fence.
+    hasTool: false,
     carrying: false,
     metLads: false,
     beatings: 0,
@@ -83,6 +90,9 @@ function newQuest() {
     // catfishWay: how it was really caught; rodDay: the night it was caught with grandpa; batteryStolen: the day he took the driver's battery;
     // catfishSold: Valya bought it; batteryReturned: he gave the driver a new one and kept quiet.
     // catfishHookTold, rodNewsTold, theftNewsTold: grandma has said her piece about each.
+    // Stage 3: pigletAsked: the day grandma asked for the piglet money; pigletMoney: he gave it;
+    // playerSoldTo: "valya" or "vovchik"; toolAsked: grandpa sent him to Mykola; mykolaMet;
+    // toolHome: the tool box is at grandma's; kungfu: Mykola's lesson, over beer.
     deeds: {},
   };
 }
@@ -189,8 +199,31 @@ function talkToGrandma() {
       return say(text.moped);
 
     default:
-      return say([grandmaChatter()]);
+      return say(grandmaSummer());
   }
+}
+
+// After the first evening, grandma's errands follow the summer story.
+function grandmaSummer() {
+  const text = T().grandma;
+  const deeds = quest.deeds;
+  if (catfishDone() && !deeds.pigletAsked) {
+    deeds.pigletAsked = quest.day;
+    return [...text.pigletAsk, line(null, text.pigletThought)];
+  }
+  if (deeds.pigletAsked && !deeds.pigletMoney) {
+    if (quest.money < PIGLET_SHARE) return [text.pigletWait];
+    quest.money -= PIGLET_SHARE;
+    deeds.pigletMoney = true;
+    addTrust("grandma", 1);
+    return [text.pigletThanks, line(null, text.pigletHidden)];
+  }
+  if (quest.hasTool) {
+    quest.hasTool = false;
+    deeds.toolHome = true;
+    return text.toolThanks;
+  }
+  return [grandmaChatter()];
 }
 
 // What grandma has to tell first thing in the morning: the village's news about the hero's doings.
@@ -267,6 +300,7 @@ function talkToValya() {
 
   // A catfish is not sold over the counter in broad daylight.
   if (quest.hasCatfish) return say([text.catfishDay]);
+  if (canSellPlayer()) return say(text.playerOffer, "sellPlayer");
   if (needsNewBattery()) {
     if (quest.money < BATTERY_PRICE) return say([text.batteryNoMoney], "shop");
     quest.money -= BATTERY_PRICE;
@@ -301,7 +335,8 @@ const SHOP_GOODS = [
 
 // Beer is on offer only once the lads have asked for it, and until the hero has had enough.
 function goodsOnOffer() {
-  return SHOP_GOODS.filter((good) => good.id !== "beer" || (quest.metLads && quest.beersDrunk < BEERS_NEEDED));
+  const forDisco = quest.metLads && quest.beersDrunk < BEERS_NEEDED;
+  return SHOP_GOODS.filter((good) => good.id !== "beer" || forDisco || needsBeerForMykola());
 }
 
 function buyGood(id) {
@@ -313,6 +348,10 @@ function buyGood(id) {
   }
   quest.money -= good.price;
   sellerCounter = id;
+  if (id === "beer" && needsBeerForMykola()) {
+    quest.bag.beer = (quest.bag.beer || 0) + 1;
+    return [text.beerForMykola];
+  }
   if (id === "beer") {
     quest.beersDrunk += 1;
     return [quest.beersDrunk === 1 ? text.firstBeer : text.nextBeer, line(null, text.drink(quest.beersDrunk, BEERS_NEEDED))];
@@ -339,6 +378,12 @@ function talkToGrandpa() {
     quest.hasSprayer = true;
     deeds.heardCatfish = true;
     return say([metBefore ? text.sprayerKnown : text.sprayerStranger, ...text.sprayer]);
+  }
+  // Grandma needs the fence mended: grandpa's tool box is at Mykola's.
+  if (deeds.pigletAsked && !deeds.toolAsked) {
+    deeds.toolAsked = true;
+    quest.unlocked.mykola = true;
+    return say(text.toolAtMykola);
   }
   // After the date: grandpa tells how to take the catfish, and lets slip the other way.
   if (catfishHookReady() && !deeds.catfishPlan) return say(text.catfishTalk, "catfishChoice");
@@ -497,7 +542,11 @@ function whatLadsNotice() {
 function talkToLads() {
   const text = T().lads;
   // After the disco the lads treat you as one of their own and just chat.
-  if (quest.discoDone) return say([pickRandom("lads", text.friends)]);
+  if (quest.discoDone) {
+    if (canSellPlayer()) return say(text.playerOffer, "sellPlayer");
+    const friends = quest.deeds.playerSoldTo === "vovchik" ? [...text.friends, ...text.playerPlays] : text.friends;
+    return say([pickRandom("lads", friends)]);
+  }
 
   const missing = missingForDisco();
   const firstTime = !quest.metLads;
@@ -711,7 +760,75 @@ function catfishObjective() {
   if (deeds.batteryStolen && quest.day > deeds.batteryStolen && !deeds.batteryReturned) {
     return quest.hasNewBattery ? text.giveBattery : text.buyBattery;
   }
-  return text.afterCatfish;
+  return catfishDone() ? stage3Objective() : text.afterCatfish;
+}
+
+// ---------- The player, grandma's piglets and Mykola (summer story, stage 3) ----------
+
+// The catfish story is over: caught with grandpa, or caught at night and the battery made good.
+function catfishDone() {
+  const deeds = quest.deeds;
+  return deeds.catfishWay === "rod" || (deeds.catfishWay === "electro" && Boolean(deeds.batteryReturned));
+}
+
+function canSellPlayer() {
+  return quest.hasPlayer && Boolean(quest.deeds.pigletAsked) && !quest.deeds.playerSoldTo;
+}
+
+// He sells his cassette player with the Okean Elzy tape; the Skriabin tape from the river stays his.
+function sellPlayer(buyer) {
+  quest.hasPlayer = false;
+  quest.money += PLAYER_PRICE;
+  quest.deeds.playerSoldTo = buyer;
+  return T().player[buyer];
+}
+
+function needsBeerForMykola() {
+  const deeds = quest.deeds;
+  return Boolean(deeds.mykolaMet) && !deeds.kungfu && (quest.bag.beer || 0) < MYKOLA_BEERS;
+}
+
+// Mykola sleeps all day; the door of his house tells so, and the hero may wait for the evening.
+function isMykolaUp() {
+  return phaseIndex() >= phaseIndex("evening");
+}
+
+function useMykolaDoor() {
+  return say(T().mykola.asleep, "mykolaWait");
+}
+
+function talkToMykola() {
+  const text = T().mykola;
+  const deeds = quest.deeds;
+  if (!deeds.mykolaMet) {
+    deeds.mykolaMet = true;
+    quest.hasTool = true;
+    return say(text.firstMeet);
+  }
+  if (!deeds.kungfu) {
+    if ((quest.bag.beer || 0) < MYKOLA_BEERS) return say([text.noBeer]);
+    quest.bag.beer -= MYKOLA_BEERS;
+    if (!quest.bag.beer) delete quest.bag.beer;
+    deeds.kungfu = true;
+    addTrust("mykola", 2);
+    return shown("mykolaKungfu", text.lesson);
+  }
+  return say([pickRandom("mykola", text.later)]);
+}
+
+function stage3Objective() {
+  const text = T().objective;
+  const deeds = quest.deeds;
+  if (!deeds.pigletAsked) return text.grandmaNews;
+  if (!deeds.pigletMoney) {
+    if (quest.money >= PIGLET_SHARE) return text.giveMoney;
+    return canSellPlayer() ? text.sellPlayer : text.earnMoney;
+  }
+  if (!deeds.toolAsked) return text.askTool;
+  if (!deeds.mykolaMet) return text.toMykola;
+  if (quest.hasTool) return text.toolHome;
+  if (!deeds.kungfu) return (quest.bag.beer || 0) < MYKOLA_BEERS ? text.beerForMykola : text.kungfu;
+  return text.afterMykola;
 }
 
 // ---------- Objective text ----------

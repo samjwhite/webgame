@@ -128,6 +128,8 @@ This is the joining location, which the owner did not list: the paths to all loc
 
 ### 8. Locked houses (C for interiors, B for the outside)
 
+**Mykola's yard is open since stage 3:** `incoming/loc_mykola.png`, drawn by Codex from the approved concept, in the game at scale 0.32 behind the gate `toMykola` on the road. Granny Lyuba's yard and Svetka's house stay closed.
+
 Three houses not in the story yet, closed for now and shown as closed on the map. They open later in the story:
 
 - Grandpa Mykola's yard (gate on the north side of the road, west)

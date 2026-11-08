@@ -121,6 +121,7 @@ test("people are the yardstick: 38-42 px tall", () => {
   within("Tolik", drawnSize("world/tolik.png").height, 37, 43);
   within("Vovchik", drawnSize("world/vovchik.png").height, 37, 43);
   within("the driver", drawnSize("world/driver.png").height, 37, 43);
+  within("Mykola", drawnSize("world/mykola.png").height, 37, 43);
   // Sanya squats: about three fifths of a standing person.
   within("Sanya squatting", drawnSize("world/sanya.png").height, 22, 28);
 });

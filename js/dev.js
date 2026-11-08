@@ -19,6 +19,12 @@ const DEV_DAY_THREE = { ...DEV_DAY_TWO, day: 3, time: "day", metGrandmaToday: tr
 const DEV_POND = { location: "pond", x: 172, y: 96 };
 const DEV_ROD = { ...DEV_AFTER_DATE, catfishPlan: "rod" };
 const DEV_ELECTRO = { ...DEV_AFTER_DATE, catfishPlan: "electro" };
+// Stage 3: the catfish caught with grandpa, the village has heard.
+const DEV_CATFISH_DONE = { ...DEV_ROD, catfishWay: "rod", rodDay: 3, rodNewsTold: true };
+const DEV_DAY_FOUR = { ...DEV_DAY_THREE, day: 4, deeds: DEV_CATFISH_DONE };
+const DEV_PIGLETS = { ...DEV_CATFISH_DONE, pigletAsked: 4 };
+const DEV_TOOL = { ...DEV_PIGLETS, pigletMoney: true, playerSoldTo: "valya", toolAsked: true };
+const DEV_MYKOLA_YARD = { location: "mykola", x: 270, y: 190 };
 
 const DEV_CHECKPOINTS = [
   { name: "Початок: автобус", quest: {}, at: START },
@@ -47,10 +53,17 @@ const DEV_CHECKPOINTS = [
   { name: "Сом: дід кличе на ставок", quest: DEV_DAY_THREE, at: DEV_POND },
   { name: "Сом з дідом: накопати черв'яків", quest: { ...DEV_DAY_THREE, deeds: DEV_ROD }, at: { location: "yard", x: 392, y: 172 } },
   { name: "Сом з дідом: черв'яки є, до ночі", quest: { ...DEV_DAY_THREE, time: "evening", hasWorms: true, deeds: DEV_ROD }, at: DEV_POND },
-  { name: "Сом струмом: машина Гриші", quest: { ...DEV_DAY_THREE, deeds: DEV_ELECTRO }, at: { location: "street", x: 1215, y: 228 } },
+  { name: "Сом струмом: машина водія", quest: { ...DEV_DAY_THREE, deeds: DEV_ELECTRO }, at: { location: "street", x: 1215, y: 228 } },
   { name: "Сом струмом: на кладку вночі", quest: { ...DEV_DAY_THREE, time: "night", hasBattery: true, deeds: { ...DEV_ELECTRO, batteryStolen: 3 } }, at: { location: "pond", x: 250, y: 150 } },
   { name: "Сом струмом: продати Валі вночі", quest: { ...DEV_DAY_THREE, time: "night", hasCatfish: true, deeds: { ...DEV_ELECTRO, batteryStolen: 3 } }, at: DEV_SHOP },
-  { name: "Сом струмом: новий акумулятор Гриші", quest: { ...DEV_DAY_THREE, day: 4, money: 100, deeds: { ...DEV_ELECTRO, batteryStolen: 3, catfishWay: "electro", catfishSold: true, theftNewsTold: true } }, at: DEV_SHOP },
+  { name: "Поросята: баба просить гроші", quest: DEV_DAY_FOUR, at: DEV_YARD },
+  { name: "Плеєр: продати Валі", quest: { ...DEV_DAY_FOUR, deeds: DEV_PIGLETS }, at: DEV_SHOP },
+  { name: "Плеєр: продати Вовчикові", quest: { ...DEV_DAY_FOUR, deeds: DEV_PIGLETS }, at: DEV_CLUB },
+  { name: "Інструмент: спитати діда", quest: { ...DEV_DAY_FOUR, hasPlayer: false, deeds: { ...DEV_PIGLETS, pigletMoney: true, playerSoldTo: "valya" } }, at: DEV_POND },
+  { name: "Микола: удень спить", quest: { ...DEV_DAY_FOUR, hasPlayer: false, unlocked: { mykola: true }, deeds: DEV_TOOL }, at: DEV_MYKOLA_YARD },
+  { name: "Микола: вечір, інструмент", quest: { ...DEV_DAY_FOUR, time: "evening", hasPlayer: false, unlocked: { mykola: true }, deeds: DEV_TOOL }, at: DEV_MYKOLA_YARD },
+  { name: "Микола: кунфу за пиво", quest: { ...DEV_DAY_FOUR, time: "evening", hasPlayer: false, unlocked: { mykola: true }, bag: { beer: 4 }, deeds: { ...DEV_TOOL, mykolaMet: true, toolHome: true } }, at: DEV_MYKOLA_YARD },
+  { name: "Сом струмом: новий акумулятор водієві", quest: { ...DEV_DAY_THREE, day: 4, money: 100, deeds: { ...DEV_ELECTRO, batteryStolen: 3, catfishWay: "electro", catfishSold: true, theftNewsTold: true } }, at: DEV_SHOP },
 ];
 
 function devJump(index) {
