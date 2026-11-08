@@ -29,7 +29,7 @@ def resample(img, size):
 
 # Locations drawn by Codex in the approved style of loc_yard.png: name -> (source, scale). Each scale
 # makes a person 40 px tall next to the picture's doors, benches and trees (docs/PROPORTIONS.md).
-# Temporary until the human approves them.
+# Approved by the owner.
 LOCATION_PICTURES = {
     "club": ("incoming/loc_club_v2.png", 0.40),
     "stop": ("incoming/loc_stop.png", 0.27),

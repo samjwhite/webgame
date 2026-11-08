@@ -12,7 +12,7 @@
 
 **Approved style:** `tools/art/reference/loc_yard.png`. The owner approved this yard and wants everything else in this style. It is in the game on `dev`.
 
-**Done with Codex and in the game on `dev`:** the club square, the bus stop and the pond in the approved style (`incoming/loc_club_v2.png`, `loc_stop.png`, `loc_pond.png`, November 2026; they replaced the blurry crops of the old village map and wait for the owner's approval), the house room and furniture, the TV close-up with news pictures, the night picture of the club, the monument and roadside trees. Still wanted: **night versions of every location**. Night is still a blue tint with lamps by code; the owner asked for a drawn night village or a good filter.
+**Done with Codex and in the game on `dev`:** the club square, the bus stop and the pond in the approved style (`incoming/loc_club_v2.png`, `loc_stop.png`, `loc_pond.png`, November 2026; they replaced the blurry crops of the old village map; approved by the owner), the house room and furniture, the TV close-up with news pictures, the night picture of the club, the monument and roadside trees. Still wanted: **night versions of every location**. Night is still a blue tint with lamps by code; the owner asked for a drawn night village or a good filter.
 
 **Sizes:** the full table and the scaling rule are in [PROPORTIONS.md](PROPORTIONS.md). Sprites placed on a painted picture need its warm light; ask for no black outline.
 

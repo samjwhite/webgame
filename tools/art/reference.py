@@ -21,14 +21,14 @@ SCENES = {
     "talk_grandpa": ("grandpa_pond.png", None),
     "talk_seller": ("seller.png", None),
     # The club porch with the approved trio (village_lads_everyday_v4.png), drawn by Codex over the
-    # composition of lads.png. Temporary until the human approves it.
+    # composition of lads.png. Approved by the owner.
     "talk_lads": ("incoming/lads_porch_v2.png", None),
     # The date at the river, drawn by Codex from the approved designs (Svetka, the river, the player).
-    # Temporary until the human approves it.
+    # Approved by the owner.
     "river_date": ("incoming/river_date_v4.png", None),
     # He goes over to Svetka at the disco while Tolik watches from the door: the first of the four
     # approved key moments by ChatGPT (summer_key_moments_v2.png, top left), redrawn by Codex only to
-    # give the hero the 2003 haircut the owner asked for. Temporary until the human approves it.
+    # give the hero the 2003 haircut the owner asked for. Approved by the owner.
     "disco_svetka": ("incoming/disco_svetka_v2.png", None),
     "disco": ("disco.png", None),
     "shed": ("shed.png", None),
@@ -109,7 +109,7 @@ ICON_HEIGHT = 32
 # Hero walk sheets drawn by the designer (summer story, version 5: a 2003 school haircut, no backpack, the same proportions
 # as everyone else, a full walk cycle). Flat #26222f background. Source rows: walking toward the viewer,
 # away, sideways (8 frames and one standing frame each), then 4 idle frames. The sideways row faces
-# the given way and is mirrored for the other. Temporary until the human approves them.
+# the given way and is mirrored for the other. Approved by the owner.
 HERO_SHEETS = {
     "hero_city": ("incoming/hero_city_v5.png", "left"),
     "hero_sport": ("incoming/hero_sport_v5.png", "left"),
