@@ -9,6 +9,9 @@ const JAR_REWARD = 2;
 const JARS_PER_DAY = 2; // beetles crawl back from Mykola's plot every day, grandma pays for two jars
 const UNLOAD_REWARD = 4; // the shop's truck comes every morning
 const SPRAY_REWARD = 5;
+// The catfish on the night way: Valya pays exactly this, and a new battery for the driver costs the same.
+const CATFISH_PRICE = 100;
+const BATTERY_PRICE = 100;
 // Grandma stops the hand-picking after this many beetles and sends the hero for grandpa's sprayer.
 const BEETLES_BEFORE_SPRAYER = 3;
 
@@ -47,6 +50,11 @@ function newQuest() {
     jarsToday: 0,
     // The cassette player with his tapes stays in the backpack until he takes it for the date.
     hasPlayer: false,
+    // The catfish: worms for grandpa's rod; the driver's battery, the catfish itself, and the new battery.
+    hasWorms: false,
+    hasBattery: false,
+    hasCatfish: false,
+    hasNewBattery: false,
     carrying: false,
     metLads: false,
     beatings: 0,
@@ -69,7 +77,12 @@ function newQuest() {
     // svetkaSeen: "disco" once he noticed her; svetkaNamed: he knows her name;
     // svetkaMet: "disco" or "shop", where they first talked; dancedWithSvetka; svetkaDisco: "stayed",
     // "warned" or "left" (after the dance) or "lads" (stayed with the lads); wantsDate;
-    // dateInvited: the day he asked her to the river; riverDate: "spoke" or "silent", how it went.
+    // dateInvited: the day he asked her to the river; riverDate: "spoke" or "silent", how it went;
+    // dateDay: the day of the date.
+    // The catfish: catfishPlan "rod" (with grandpa) or "electro" (alone, with the driver's battery);
+    // catfishWay: how it was really caught; rodDay: the night it was caught with grandpa; batteryStolen: the day he took the driver's battery;
+    // catfishSold: Valya bought it; batteryReturned: he gave the driver a new one and kept quiet.
+    // catfishHookTold, rodNewsTold, theftNewsTold: grandma has said her piece about each.
     deeds: {},
   };
 }
@@ -119,13 +132,18 @@ function say(lines, next) {
   return { lines, next: next || null };
 }
 
+// The same, shown over a close-up picture.
+function shown(picture, lines, next) {
+  return { lines, next: next || null, picture };
+}
+
 // ---------- Grandma ----------
 
 function talkToGrandma() {
   const text = T().grandma;
   if (quest.day > 1 && !quest.metGrandmaToday) {
     quest.metGrandmaToday = true;
-    return say(text.morning);
+    return say(morningNews());
   }
   switch (quest.stage) {
     case "arrive":
@@ -173,6 +191,25 @@ function talkToGrandma() {
     default:
       return say([grandmaChatter()]);
   }
+}
+
+// What grandma has to tell first thing in the morning: the village's news about the hero's doings.
+function morningNews() {
+  const text = T().grandma;
+  const deeds = quest.deeds;
+  if (deeds.catfishWay === "rod" && !deeds.rodNewsTold) {
+    deeds.rodNewsTold = true;
+    return text.morningRod;
+  }
+  if (deeds.batteryStolen && !deeds.theftNewsTold) {
+    deeds.theftNewsTold = true;
+    return text.morningTheft;
+  }
+  if (catfishHookReady() && !deeds.catfishHookTold) {
+    deeds.catfishHookTold = true;
+    return text.morningCatfish;
+  }
+  return text.morning;
 }
 
 // Grandma sees the hero picking beetles by hand and sends him to grandpa for the sprayer.
@@ -226,6 +263,15 @@ function talkToValya() {
     quest.deliveries += 1;
     quest.money += UNLOAD_REWARD;
     return say([text.unloadDone]);
+  }
+
+  // A catfish is not sold over the counter in broad daylight.
+  if (quest.hasCatfish) return say([text.catfishDay]);
+  if (needsNewBattery()) {
+    if (quest.money < BATTERY_PRICE) return say([text.batteryNoMoney], "shop");
+    quest.money -= BATTERY_PRICE;
+    quest.hasNewBattery = true;
+    return say(text.batterySell);
   }
 
   if (quest.unload === "none" && stageReached("water")) {
@@ -286,15 +332,31 @@ function bagLine() {
 // boardwalk. Otherwise he shares life wisdom: a greeting once, then random sayings.
 function talkToGrandpa() {
   const text = T().grandpa;
+  const deeds = quest.deeds;
   const metBefore = quest.grandpaLine > 0;
   quest.grandpaLine = Math.max(quest.grandpaLine, 1);
   if (quest.stage === "sprayer" && !quest.hasSprayer) {
     quest.hasSprayer = true;
-    quest.deeds.heardCatfish = true;
+    deeds.heardCatfish = true;
     return say([metBefore ? text.sprayerKnown : text.sprayerStranger, ...text.sprayer]);
   }
+  // After the date: grandpa tells how to take the catfish, and lets slip the other way.
+  if (catfishHookReady() && !deeds.catfishPlan) return say(text.catfishTalk, "catfishChoice");
+  if (deeds.catfishPlan === "rod" && !deeds.catfishWay) {
+    if (!quest.hasWorms) return say([text.wormsWait]);
+    if (!isNight()) return say(text.rodWait, "rodWait");
+    return say(text.rodNight, "rodCatch");
+  }
   if (!metBefore) return say([text.greeting]);
-  return say([pickRandom("grandpa", text.lines)]);
+  const lines = deeds.catfishWay === "rod" ? [...text.lines, ...text.brag] : text.lines;
+  return say([pickRandom("grandpa", lines)]);
+}
+
+// Grandpa sits by the pond by day, and stays out at night only for the catfish: waiting for it, and the
+// rest of the night it was caught.
+function isGrandpaAtPond() {
+  const deeds = quest.deeds;
+  return !isNight() || (deeds.catfishPlan === "rod" && (!deeds.catfishWay || deeds.rodDay === quest.day));
 }
 
 // ---------- Things in the yard ----------
@@ -337,7 +399,9 @@ function useStatue() {
   return say(pickRandom("statue", lines.slice(1)));
 }
 
+// At night the shop is shut, but Valya opens the service door for a catfish.
 function useShopDoor() {
+  if (quest.hasCatfish) return shown("catfishSale", sellCatfish());
   return say(T().yard.shopClosed);
 }
 
@@ -528,8 +592,126 @@ function dateMeeting() {
 // On the bank he either says something or just listens with her ("spoke" or "silent").
 function riverDate(choice) {
   quest.deeds.riverDate = choice;
+  quest.deeds.dateDay = quest.day;
   const text = T().river;
   return [...text[choice], ...text.talk];
+}
+
+// ---------- The catfish (summer story, stage 2) ----------
+
+// From the day after the date, grandpa wants to show the hero how to take the catfish.
+function catfishHookReady() {
+  return Boolean(quest.deeds.riverDate) && quest.day > (quest.deeds.dateDay || 0);
+}
+
+// The hero chooses: "rod" with grandpa, or "electro" alone at night with the driver's battery.
+function chooseCatfish(way) {
+  quest.deeds.catfishPlan = way;
+  return way === "rod" ? T().catfish.rodChosen : T().catfish.electroChosen;
+}
+
+function needsWorms() {
+  return quest.deeds.catfishPlan === "rod" && !quest.deeds.catfishWay && !quest.hasWorms;
+}
+
+function useWorms() {
+  quest.hasWorms = true;
+  return say(T().catfish.worms);
+}
+
+// Grandpa's way: a night on the boardwalk; he dozes off and misses the catfish again. No money, but
+// grandpa tells the whole village, and people think better of the hero.
+function catchWithRod() {
+  advancePhase("night");
+  quest.hasWorms = false;
+  Object.assign(quest.deeds, { catfishWay: "rod", rodDay: quest.day });
+  ["grandpa", "grandma", "valya", "lads", "driver"].forEach((who) => addTrust(who, who === "grandpa" ? 2 : 1));
+  return T().catfish.rodCatch;
+}
+
+// The driver's car on the road: "closed", or "empty" (bonnet up, no battery) from the morning after
+// the theft until the hero brings a new battery.
+function carState() {
+  const deeds = quest.deeds;
+  return deeds.batteryStolen && quest.day > deeds.batteryStolen && !deeds.batteryReturned ? "empty" : "closed";
+}
+
+function useCar() {
+  const text = T().catfish;
+  const deeds = quest.deeds;
+  if (carState() === "empty") return say(text.carEmpty);
+  if (deeds.catfishPlan === "electro" && !deeds.catfishWay && !quest.hasBattery && !quest.hasCatfish) {
+    if (!isNight()) return say(text.carNotNow, "carWait");
+    quest.hasBattery = true;
+    deeds.batteryStolen = quest.day;
+    return say(text.carTake);
+  }
+  return say(text.carLook);
+}
+
+// The night way: the battery on the boardwalk, a flash, the catfish; the battery goes into the pond.
+function useBoardwalk() {
+  const text = T().catfish;
+  if (quest.deeds.catfishPlan === "electro" && quest.hasBattery && !quest.deeds.catfishWay) {
+    if (!isNight()) return say(text.boardwalkDay, "boardwalkWait");
+    quest.hasBattery = false;
+    quest.hasCatfish = true;
+    return shown("catfishNight", text.electroCatch);
+  }
+  return say(text.boardwalk);
+}
+
+function sellCatfish() {
+  quest.hasCatfish = false;
+  quest.money += CATFISH_PRICE;
+  Object.assign(quest.deeds, { catfishWay: "electro", catfishSold: true });
+  return T().catfish.sale;
+}
+
+function needsNewBattery() {
+  const deeds = quest.deeds;
+  return Boolean(deeds.batteryStolen) && quest.day > deeds.batteryStolen && !deeds.batteryReturned && !quest.hasNewBattery;
+}
+
+// The driver by his car. He gets the new battery, never learns who took the old one, and says
+// at length what he would do to the thief.
+function talkToDriver() {
+  const text = T().driver;
+  const deeds = quest.deeds;
+  if (quest.hasNewBattery) {
+    quest.hasNewBattery = false;
+    deeds.batteryReturned = true;
+    addTrust("driver", 1);
+    return shown("batteryRant", text.rant);
+  }
+  if (carState() === "empty") return say(text.robbed);
+  if (deeds.batteryReturned) return say([pickRandom("driver", text.after)]);
+  return say([pickRandom("driver", text.idle)]);
+}
+
+// The catfish task that can be done right now, at night; null when there is none.
+function catfishNightTask() {
+  const deeds = quest.deeds;
+  if (quest.hasCatfish) return T().objective.sellCatfish;
+  if (!catfishHookReady() || !deeds.catfishPlan || deeds.catfishWay) return null;
+  if (deeds.catfishPlan === "rod") return quest.hasWorms ? T().objective.rodNight : null;
+  return catfishObjective();
+}
+
+function catfishObjective() {
+  const text = T().objective;
+  const deeds = quest.deeds;
+  if (!catfishHookReady()) return text.afterDate;
+  if (!deeds.catfishPlan) return text.catfishGrandpa;
+  if (quest.hasCatfish) return text.sellCatfish;
+  if (!deeds.catfishWay) {
+    if (deeds.catfishPlan === "rod") return quest.hasWorms ? text.rodNight : text.worms;
+    return quest.hasBattery ? text.electroNight : text.battery;
+  }
+  if (deeds.batteryStolen && quest.day > deeds.batteryStolen && !deeds.batteryReturned) {
+    return quest.hasNewBattery ? text.giveBattery : text.buyBattery;
+  }
+  return text.afterCatfish;
 }
 
 // ---------- Objective text ----------
@@ -578,12 +760,16 @@ function sprayPotatoes() {
 
 function currentObjective() {
   const text = T().objective;
-  if (isNight() && quest.discoDone) return currentLocation === "house" ? text.goToBed : text.goHome;
+  if (isNight() && quest.discoDone) {
+    const task = catfishNightTask();
+    if (task) return task;
+    return currentLocation === "house" ? text.goToBed : text.goHome;
+  }
   if (quest.day > 1) {
     const deeds = quest.deeds;
     if (!quest.metGrandmaToday) return text.morning;
     if (!deeds.svetkaShopTalk) return deeds.svetkaMet === "disco" ? text.findSvetka : text.meetSvetka;
-    if (deeds.riverDate) return text.afterDate;
+    if (deeds.riverDate) return catfishObjective();
     if (!deeds.dateInvited) return text.dateNext;
     if (!quest.hasPlayer) return text.datePlayer;
     return phaseIndex() < phaseIndex("evening") ? text.dateEvening : text.dateGo;

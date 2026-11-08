@@ -120,6 +120,7 @@ test("people are the yardstick: 38-42 px tall", () => {
   within("seller", drawnSize("world/seller.png").height, 37, 43);
   within("Tolik", drawnSize("world/tolik.png").height, 37, 43);
   within("Vovchik", drawnSize("world/vovchik.png").height, 37, 43);
+  within("the driver", drawnSize("world/driver.png").height, 37, 43);
   // Sanya squats: about three fifths of a standing person.
   within("Sanya squatting", drawnSize("world/sanya.png").height, 22, 28);
 });
@@ -149,6 +150,12 @@ test("animals stay small next to people", () => {
 test("vehicles are bigger than a person, as they should be", () => {
   within("parked moped, long", drawnSize("world/moped.png").width, 36, 46);
   within("truck, tall", drawnSize("world/truck.png").height, 46, 58);
+  // The driver's car, seen three-quarter from above: lower than the truck and only a little taller than a
+  // person, the same in both states (the designer found it bulky at 45 px).
+  for (const file of ["world/car.png", "world/car_empty.png"]) {
+    within(`${file}, long`, drawnSize(file).width, 58, 76);
+    within(`${file}, tall`, drawnSize(file).height, 34, 42);
+  }
 });
 
 test("furniture fits a person", () => {

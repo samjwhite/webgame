@@ -202,7 +202,54 @@ function afterTalk(next) {
   else if (next === "invite") offerDateInvite();
   else if (next === "dateWait") offerDateEvening();
   else if (next === "riverDate") goToRiver();
+  else if (next === "catfishChoice") chooseCatfishWay();
+  else if (next === "rodWait") offerNight(goRodCatch);
+  else if (next === "rodCatch") goRodCatch();
+  else if (next === "carWait") offerNight(() => showAction(useCar()));
+  else if (next === "boardwalkWait") offerNight(() => showAction(useBoardwalk()));
   else finishCloseup();
+}
+
+// ---------- The catfish ----------
+
+// Grandpa has told both ways: the hero chooses one.
+function chooseCatfishWay() {
+  const text = T().catfish;
+  openChoice(text.choiceTitle, ["rod", "electro"].map((way) => ({
+    label: text[way],
+    pick: () => showPicture("talkGrandpa", chooseCatfish(way), finishCloseup),
+  })));
+}
+
+// The catfish comes out at night: the hero may wait for it where he is. The day stays the same.
+function offerNight(onWait) {
+  const text = T().catfish;
+  openChoice(text.nightTitle, [
+    {
+      label: text.waitNight,
+      pick: () => {
+        advancePhase("night");
+        saveGame();
+        onWait();
+      },
+    },
+    { label: T().ui.notYet, pick: finishCloseup },
+  ]);
+}
+
+function goRodCatch() {
+  showPicture("catfishRod", catchWithRod(), finishCloseup);
+}
+
+// Shows what using a thing gave: over its close-up picture, or as a dialog over the world.
+function showAction(result) {
+  if (result.picture) {
+    showPicture(result.picture, result.lines, () => afterTalk(result.next));
+  } else if (result.next) {
+    openDialog(result.lines, () => afterTalk(result.next));
+  } else {
+    openDialog(result.lines, finishCloseup);
+  }
 }
 
 const TALK_ACTIONS = {
@@ -219,6 +266,10 @@ const TALK_ACTIONS = {
   fridge: useFridge,
   beerBottle: useBeerBottle,
   svetka: talkToSvetka,
+  worms: useWorms,
+  car: useCar,
+  boardwalk: useBoardwalk,
+  driver: talkToDriver,
 };
 
 function useTarget(target) {
@@ -247,7 +298,9 @@ function useTarget(target) {
 
   if (TALK_ACTIONS[target.id]) {
     const result = TALK_ACTIONS[target.id]();
-    if (result.next === "ride") {
+    if (result.picture) {
+      showAction(result);
+    } else if (result.next === "ride") {
       showPicture("road", result.lines);
     } else if (result.next === "speak") {
       heroInterrupt(result.lines);

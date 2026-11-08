@@ -13,6 +13,12 @@ const DEV_DANCE_BRANCH = { svetkaSeen: "disco", svetkaNamed: true, svetkaMet: "d
 const DEV_DAY_TWO = { ...DEV_READY_FOR_CLUB, discoDone: true, day: 2, time: "morning", heroSaid: { shop: true } };
 // He has talked with Svetka by the shop and asked her to the river tonight.
 const DEV_INVITED = { ...DEV_DANCE_BRANCH, svetkaShopTalk: true, dateInvited: 2 };
+// The morning after the date: grandma has sent him to grandpa about the catfish.
+const DEV_AFTER_DATE = { ...DEV_INVITED, riverDate: "silent", dateDay: 2, catfishHookTold: true };
+const DEV_DAY_THREE = { ...DEV_DAY_TWO, day: 3, time: "day", metGrandmaToday: true, hasPlayer: true, deeds: DEV_AFTER_DATE };
+const DEV_POND = { location: "pond", x: 172, y: 96 };
+const DEV_ROD = { ...DEV_AFTER_DATE, catfishPlan: "rod" };
+const DEV_ELECTRO = { ...DEV_AFTER_DATE, catfishPlan: "electro" };
 
 const DEV_CHECKPOINTS = [
   { name: "Початок: автобус", quest: {}, at: START },
@@ -38,6 +44,13 @@ const DEV_CHECKPOINTS = [
   { name: "Побачення: плеєр у рюкзаку", quest: { ...DEV_DAY_TWO, metGrandmaToday: true, time: "day", deeds: DEV_INVITED }, at: { location: "yard", x: 365, y: 132 } },
   { name: "Побачення: вдень, на мопеді", quest: { ...DEV_DAY_TWO, metGrandmaToday: true, time: "day", hasPlayer: true, riding: true, deeds: DEV_INVITED }, at: DEV_BY_SVETKA },
   { name: "Побачення: увечері, на мопеді", quest: { ...DEV_DAY_TWO, metGrandmaToday: true, time: "evening", hasPlayer: true, riding: true, deeds: DEV_INVITED }, at: DEV_BY_SVETKA },
+  { name: "Сом: дід кличе на ставок", quest: DEV_DAY_THREE, at: DEV_POND },
+  { name: "Сом з дідом: накопати черв'яків", quest: { ...DEV_DAY_THREE, deeds: DEV_ROD }, at: { location: "yard", x: 392, y: 172 } },
+  { name: "Сом з дідом: черв'яки є, до ночі", quest: { ...DEV_DAY_THREE, time: "evening", hasWorms: true, deeds: DEV_ROD }, at: DEV_POND },
+  { name: "Сом струмом: машина Гриші", quest: { ...DEV_DAY_THREE, deeds: DEV_ELECTRO }, at: { location: "street", x: 1215, y: 228 } },
+  { name: "Сом струмом: на кладку вночі", quest: { ...DEV_DAY_THREE, time: "night", hasBattery: true, deeds: { ...DEV_ELECTRO, batteryStolen: 3 } }, at: { location: "pond", x: 250, y: 150 } },
+  { name: "Сом струмом: продати Валі вночі", quest: { ...DEV_DAY_THREE, time: "night", hasCatfish: true, deeds: { ...DEV_ELECTRO, batteryStolen: 3 } }, at: DEV_SHOP },
+  { name: "Сом струмом: новий акумулятор Гриші", quest: { ...DEV_DAY_THREE, day: 4, money: 100, deeds: { ...DEV_ELECTRO, batteryStolen: 3, catfishWay: "electro", catfishSold: true, theftNewsTold: true } }, at: DEV_SHOP },
 ];
 
 function devJump(index) {

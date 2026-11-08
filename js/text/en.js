@@ -40,6 +40,7 @@ TEXTS.en = {
     sanya: "Sanya",
     svetka: "Svetka",
     stranger: "Unknown girl",
+    driver: "Hrysha",
   },
 
   intro: [
@@ -94,6 +95,21 @@ TEXTS.en = {
       "Up at last, party boy? I heard you trip over the doorstep last night.",
       "Sit down and eat, then I'll tell you what needs doing. There's enough work here for the whole summer, child.",
     ],
+    // The morning after the date: grandpa wants the hero, and the driver will take her for piglets.
+    morningCatfish: [
+      "Up, are you? Petro's been at the gate twice already: \"Where's that grandson of yours? I'm going to show him the catfish.\" Go down to the pond and see him, or he'll never leave off.",
+      "And another thing: on Saturday Hrysha promised to drive me to the district town for piglets. His old Kopiyka sleeps out on the road, by the club. If you see him, say thank you to the man.",
+    ],
+    // The morning after grandpa's way.
+    morningRod: [
+      "Have you heard? Petro's been going round the village since first light telling everyone how \"me and the grandson landed the catfish\". He told Valya, he told Hrysha, he even told Granny Lyuba's cow.",
+      "He says the catfish was half the size of the pond. Yesterday it was half the size of the footbridge. Well, let him. I'll fry it for lunch, only you do the scaling yourself.",
+    ],
+    // The morning after the battery went missing.
+    morningTheft: [
+      "Oh, what a to-do! Somebody stole the battery out of Hrysha's car last night! Right outside the club!",
+      "He says he's going nowhere till he gets hold of a new one. And Saturday's the piglets... Who'd do a thing like that, eh? Not our lot, surely. Ours wouldn't.",
+    ],
     chatter: [
       "The beetles are back again. Fill a jar and I'll give you two hryvnias.",
       "Where are you off to, all dressed up? Oh, dancing... Well, off you go.",
@@ -129,6 +145,13 @@ TEXTS.en = {
     noMoney: "You're short, sunshine. Only cheese in a mousetrap comes free. Go pick beetles for Granny Hanya.",
     noMoneyJob: " Or carry my crates.",
     noCredit: "And I don't put it on the slate, don't ask. I know you city folk: here today, gone tomorrow — and there go my ten hryvnias.",
+    catfishDay: "Have you gone daft? Walking round the village in broad daylight with a catfish like that? Come at night, to the back door. And make sure nobody sees you.",
+    batterySell: [
+      "A battery? I've got one, an Ista, brand new — I was keeping it for my son's godfather. A hundred hryvnias.",
+      "You hand her a hundred hryvnias. The very same ones she gave you for the catfish.",
+      "A hundred exactly. See how it goes, sunshine: money just goes round in circles.",
+    ],
+    batteryNoMoney: "The battery's a hundred hryvnias, sunshine. Not a kopeck less, cry all you like.",
     firstBeer: "Beer? Are you eighteen? Oh, I see, I see — there's a moustache coming in already. Two hryvnias.",
     nextBeer: "Another one? Oh, that boy's going to the dogs... Two hryvnias.",
     drink: (n, total) => `You open the bottle right there on the porch and drink it. Cold, a bit bitter. (${n}/${total})`,
@@ -167,6 +190,21 @@ TEXTS.en = {
       "Hanya's Dnipro fridge has stood there since seventy-nine. Hums like a tractor, but it freezes! New ones last a year and off to the tip.",
       "Time to spray for the beetles soon, or they'll eat the potatoes. I used to spray Decis — and they only got fatter.",
       "A Colorado beetle is like the tax office: poison it all you like, it still comes back.",
+    ],
+    // After the date: how to take the catfish, and the other way, mentioned "just so".
+    catfishTalk: [
+      "Ah, you came! Sit down. Told you: the catfish lives under the footbridge. Big as a boar.",
+      "You take him on a worm, at night, when the water cools. Dig some worms at Hanya's, at the far end of the vegetable patch by the summer kitchen — they're fat as sausages there. And come when it gets dark: we'll sit on the footbridge.",
+      "Mykola wanted to get him with electricity once. A car battery, two wires — and that's the end of the fish. I told him: that's not fishing, that's thieving.",
+      "Mind you, Valya would probably give a hundred for a catfish like that. I'm not saying you should. I'm just saying.",
+    ],
+    wormsWait: "Don't come back without worms. A catfish isn't a cow, he doesn't eat grass. Dig at Hanya's, at the far end of the patch.",
+    rodWait: ["Got the worms? Now we're talking. Only the catfish is asleep right now, like Mykola after payday. We'll go when it gets dark."],
+    rodNight: ["Quiet. Sit down on the footbridge and cast in by the post. And don't breathe."],
+    // Added to his sayings after grandpa's way.
+    brag: [
+      "Remember how we got that catfish... Well, you did the pulling, and I was in charge.",
+      "The catfish was this big. No, this big! Well, you saw it yourself. And I nearly did.",
     ],
   },
 
@@ -372,6 +410,90 @@ TEXTS.en = {
     ],
   },
 
+  // The catfish under the boardwalk (summer story, stage 2): with grandpa on a rod, or alone at night with
+  // the driver's battery.
+  catfish: {
+    choiceTitle: "How will you catch the catfish?",
+    rod: "With Did Petro, on a rod and a worm",
+    electro: "Alone, at night, with electricity — and sell it to Valya",
+    rodChosen: [
+      "You: I'll be there, Did Petro. With worms.",
+      "Did Petro: That's the way. Leave the electricity to Mykola. He's let his whole life slip by as it is.",
+    ],
+    electroChosen: [
+      "You: Oh, I was only asking.",
+      "You nod at Did Petro, but you're thinking about a hundred hryvnias. And about Uncle Hrysha's Kopiyka, sleeping out on the road by the club.",
+    ],
+    worms: [
+      "You dig at the far end of the vegetable patch, by the summer kitchen. The worms are fat as sausages: Did Petro wasn't lying.",
+      "You fill a whole pickle jar and shut it with a lid with holes punched in it.",
+    ],
+    nightTitle: "The catfish comes out at night. Wait?",
+    waitNight: "Wait here till it gets dark",
+    rodCatch: [
+      "Night. Mist over the pond, the moon on the water. Did Petro sits on the bench and says he isn't sleeping.",
+      "Did Petro: I'm not sleeping. I'm thinking.",
+      "You cast in under the footbridge. The float stands still as a post. Did Petro thinks louder and louder: hrrr... hrrr...",
+      "And then the rod bends double! You pull, the line sings, the water by the post boils...",
+      "Out of the dark water comes the catfish's head, with a moustache like the statue's on the square.",
+      "You haul him up onto the footbridge. The catfish is big as a boar. Did Petro is snoring.",
+      "Did Petro: Eh? What? Pull! Pull, I said! ...Oh. Got him out already. Well, I told you: under the footbridge.",
+      "Did Petro: Slept through him again. Second time. Never mind: the main thing is we got him. We got him together, didn't we?",
+    ],
+    carLook: ["Uncle Hrysha's old sky-blue Kopiyka, the very first Zhiguli. Rust, a roof rack, a fly on the windscreen. A beast of a car."],
+    carNotNow: ["In the daytime there are people round the car: Hrysha tinkering with it, the old women walking to the shop. At night it's a different story."],
+    carTake: [
+      "Night. The village is asleep, only a dog barking somewhere.",
+      "You quietly lift the bonnet. A ten-millimetre spanner, two terminals... The battery's heavy as a sack of potatoes.",
+      "You lower the bonnet and walk away without looking back. Your heart's thumping like the speakers in the club.",
+    ],
+    carEmpty: ["The bonnet's up, and where the battery was there's nothing but empty space and two loose wire ends. You look away."],
+    boardwalk: ["The old footbridge, its boards creaking. Somewhere under it lives the catfish."],
+    boardwalkDay: ["In the daytime there are people and cows round the pond. Onto the footbridge with a battery — only at night."],
+    electroCatch: [
+      "Night. You wind the wires from the shed round a stick, hook them up to the battery and climb out onto the footbridge.",
+      "Your fingers are shaking. You lower the wires into the water by the post...",
+      "A flash! The water under the footbridge glows blue, and the whole pond shudders.",
+      "Up from the depths floats the catfish: big as a boar, stunned, whiskers spread wide.",
+      "You grab him by the gills and drag him to the bank. And just then the battery slides off the footbridge — plop! — and sinks to the bottom, to visit the catfish's relatives.",
+      "Well, that's that. Now there's a catfish, and no battery.",
+    ],
+    sale: [
+      "You knock on the shop's back door. Nothing for a long while. Then footsteps, and the bolt clicks.",
+      "Valya: Who's that in the middle of the night? ...Oh, good grief. Where did you get a thing like that?",
+      "You: On a rod.",
+      "Valya: Uh-huh. On a rod. And I'm a ballerina. Well, come in, before anybody sees.",
+      "Valya weighs the catfish on her hand scales, shakes her head for a long time and counts out the money.",
+      "Valya: A hundred hryvnias, exactly. And you never saw me, and I never saw you.",
+    ],
+  },
+
+  // Uncle Hrysha, the driver, by his car on the road.
+  driver: {
+    idle: [
+      "Hrysha: Oh, Hanya's grandson! Tell your gran: Saturday we're off for the piglets, like we agreed. The car's a beast!",
+      "Hrysha: A Zhiguli Kopiyka, nineteen seventy-eight. She'll outlive me yet.",
+      "Hrysha: Petrol keeps going up, and the pension doesn't. Well, never mind, we'll make the trip on Saturday.",
+    ],
+    robbed: [
+      "Hrysha: Did you see? Did you see?! The battery! In the night! Right outside the club!",
+      "Hrysha: If I got my hands on that thief... I'd... Tfoo! Till I get a new one, I'm going nowhere. And where are you meant to find one in a village?",
+    ],
+    rant: [
+      "Without a word, you set the new battery down by the car.",
+      "Hrysha: A new one?! An Ista? Where did you... From Valya's? Well, aren't you something, lad!",
+      "Hrysha: And I'll tell you what I'd do to that thief if I caught him. I'd...",
+      "What follows is several minutes of the kind of thing they don't print in books. You learn a great deal that's new about the thief.",
+      "Hrysha: ...and then into the pond with him. To the catfish!",
+      "You nod and look away. Good thing you kept quiet. Bad thing there was anything to keep quiet about.",
+      "Hrysha screws the terminals back on. The Kopiyka sneezes and starts. Hrysha: Saturday we're off for the piglets! Tell your gran.",
+    ],
+    after: [
+      "Hrysha: The car's a beast! And now with a brand-new heart, too.",
+      "Hrysha: They never did find the thief. But I remember. I remember everything.",
+    ],
+  },
+
   // The date at the river: the song is Skriabin and Iryna Bilyk, "Movchaty" (a 2003 single).
   // Its words are never quoted, only named.
   river: {
@@ -532,7 +654,16 @@ TEXTS.en = {
     datePlayer: "Get the cassette player from the backpack by Grandma's shed.",
     dateEvening: "In the evening, ride the moped to the shop to pick up Svetka.",
     dateGo: "It's evening. Ride the moped to the shop to pick up Svetka.",
-    afterDate: "The summer goes on. To be continued.",
+    afterDate: "The summer goes on. Go to bed, tomorrow's a new day.",
+    catfishGrandpa: "Did Petro called you to the pond: he promised to show you how to catch the catfish.",
+    worms: "Dig worms in Grandma's yard, at the far end of the vegetable patch by the summer kitchen.",
+    rodNight: "At night, to the pond to see Did Petro: the catfish comes out after dark.",
+    battery: "You need a battery. Uncle Hrysha's Kopiyka sleeps out on the road by the club.",
+    electroNight: "You've got the battery. At night — onto the footbridge at the pond.",
+    sellCatfish: "Valya takes fish at night, through the shop's back door.",
+    buyBattery: "Hrysha's got no battery, so there'll be no trip for the piglets. Valya has a new one, for a hundred hryvnias.",
+    giveBattery: "Take the new battery to Uncle Hrysha, at his car.",
+    afterCatfish: "The summer goes on. To be continued.",
     carryCrate: "Carry the crate to Valya's shop.",
     arrive: "Find Grandma's cottage — by the well, at the north end of the village.",
     water: "Fetch water from the well.",

@@ -30,6 +30,13 @@ SCENES = {
     # approved key moments by ChatGPT (summer_key_moments_v2.png, top left), redrawn by Codex only to
     # give the hero the 2003 haircut the owner asked for. Approved by the owner.
     "disco_svetka": ("incoming/disco_svetka_v2.png", None),
+    # The catfish (summer story, stage 2): the two catches and the night sale are the approved ChatGPT
+    # concepts redrawn by Codex only for the hero's 2003 haircut; the battery scene is drawn by Codex
+    # from the approved driver and hero.
+    "catfish_rod": ("incoming/pond_catfish_rod_v4.png", None),
+    "catfish_night": ("incoming/pond_catfish_night_v2.png", None),
+    "catfish_sale": ("incoming/catfish_sale_v2.png", None),
+    "battery_rant": ("incoming/battery_rant_v2.png", None),
     "disco": ("disco.png", None),
     "shed": ("shed.png", None),
     "title": ("club_square.png", None),
@@ -49,6 +56,12 @@ SPRITES = {
     "seller": ("incoming/valya_character_v2.png", (136, 13, 533, 1009), 40, 25),
     # Svetka, approved concept by ChatGPT (summer_characters_concepts.png, top left).
     "svetka": ("incoming/summer_characters_concepts.png", (108, 20, 272, 574), 40, 25),
+    # The driver, uncle Hrysha, approved by ChatGPT (summer_characters_concepts.png, third figure).
+    "driver": ("incoming/summer_characters_concepts.png", (785, 15, 1014, 573), 40, 25),
+    # His car, drawn by Codex (driver_car.png): the bonnet shut, and open with the battery gone. Both
+    # cells are the same size, so the car stands in the same place in both.
+    "car": ("incoming/driver_car.png", (14, 380, 524, 700), 42, 25),
+    "car_empty": ("incoming/driver_car.png", (1008, 380, 1518, 700), 42, 25),
     "backpack": ("sheet_club.png", (928, 452, 1108, 624), 14, 45),
     "moped": ("sheet_club.png", (1140, 396, 1488, 640), 28, 60),
     "truck": ("sheet_club.png", (24, 684, 432, 916), 52, 45),
@@ -58,7 +71,7 @@ SPRITES = {
 # The lads' sheet and Svetka's concept are painted dark, muted and warm: at 40 px the denim, the olive
 # jacket and her red blouse turned brown next to the brighter hero. Their sprites lose the warm cast first (red, green, blue factors), then get
 # more light, contrast and a little colour (checked by the designer review, summer_round3).
-SPRITE_LIFT = {name: ((0.92, 1.0, 1.15), 1.3, 1.15, 1.1) for name in ("tolik", "vovchik", "sanya", "svetka")}
+SPRITE_LIFT = {name: ((0.92, 1.0, 1.15), 1.3, 1.15, 1.1) for name in ("tolik", "vovchik", "sanya", "svetka", "driver")}
 
 
 def lifted(cut, factors):
@@ -85,6 +98,7 @@ PORTRAITS = {
     "vovchik": ("incoming/village_lads_everyday_v4.png", (354, 953, 668, 1267)),
     "sanya": ("incoming/village_lads_everyday_v4.png", (697, 961, 1008, 1272)),
     "svetka": ("incoming/summer_characters_concepts.png", (17, 614, 332, 929)),
+    "driver": ("incoming/summer_characters_concepts.png", (736, 616, 1065, 945)),
 }
 PORTRAIT_SIZE = 64  # CSS pixels in the dialog (style.css); the file is RES times larger
 

@@ -40,6 +40,7 @@ TEXTS.it = {
     sanya: "Sanja",
     svetka: "Svetka",
     stranger: "Ragazza sconosciuta",
+    driver: "Hrysha",
   },
 
   intro: [
@@ -94,6 +95,21 @@ TEXTS.it = {
       "Ti sei svegliato, festaiolo? Ti ho sentito inciampare sulla soglia, stanotte.",
       "Siediti e mangia, poi ti dico cosa c'è da fare. Di lavoro qui, figliolo, ce n'è per tutta l'estate.",
     ],
+    // The morning after the date: grandpa wants the hero, and the driver will take her for piglets.
+    morningCatfish: [
+      "Ti sei svegliato? Petro è già passato due volte al cancello: \"Dov'è tuo nipote? Gli faccio vedere il pesce gatto\". Vai da lui allo stagno, sennò non ti molla più.",
+      "E un'altra cosa: sabato Hrysha mi ha promesso di portarmi al capoluogo, a prendere i maialini. La sua vecchia Kopijka dorme sulla strada, vicino al circolo. Se lo vedi, ringrazialo, quel brav'uomo.",
+    ],
+    // The morning after grandpa's way.
+    morningRod: [
+      "Hai sentito? Petro gira per il villaggio da stamattina presto e racconta a tutti come \"io e il nipote abbiamo preso il pesce gatto\". L'ha raccontato a Valja, l'ha raccontato a Hrysha, perfino alla mucca di nonna Ljuba l'ha raccontato.",
+      "Dice che il pesce gatto era grande come mezzo stagno. Ieri era grande come mezza passerella. Va be', lasciamolo dire. Lo friggo per pranzo, ma le squame te le togli tu.",
+    ],
+    // The morning after the battery went missing.
+    morningTheft: [
+      "Oddio, che disgrazia! Stanotte hanno rubato la batteria dalla macchina di Hrysha! Proprio davanti al circolo!",
+      "Dice che finché non ne trova una nuova non va da nessuna parte. E sabato ci sono i maialini... Ma chi è stato, eh? Non dei nostri, di sicuro. I nostri non l'avrebbero fatto.",
+    ],
     chatter: [
       "Le dorifore sono tornate. Riempi un barattolo e ti do due grivnie.",
       "Dove vai così elegante? Ah, a ballare... Va bene, vai.",
@@ -129,6 +145,13 @@ TEXTS.it = {
     noMoney: "Non ti bastano, tesoro. Gratis c'è solo il formaggio nella trappola. Vai a raccogliere dorifore dalla nonna Hanja.",
     noMoneyJob: " Oppure portami le casse.",
     noCredit: "E non segno sul quaderno, non chiedere. Vi conosco, voi di città: oggi qui, domani chissà — e addio dieci grivnie.",
+    catfishDay: "Ma sei scemo? Girare per il villaggio in pieno giorno con un pesce gatto così? Vieni di notte, alla porta di servizio. E che nessuno ti veda.",
+    batterySell: [
+      "Una batteria? Ne ho una, una Ista, nuova di zecca, la tenevo per il mio compare. Cento grivnie.",
+      "Le dai cento grivnie. Proprio quelle che lei ti ha dato per il pesce gatto.",
+      "Cento giuste giuste. Vedi come va il mondo, tesoro: i soldi girano in tondo.",
+    ],
+    batteryNoMoney: "La batteria costa cento grivnie, tesoro. Senza cento non te la do, piangi pure quanto vuoi.",
     firstBeer: "Birra? Hai diciott'anni? Eh, vedo, vedo — già spuntano i baffi. Due grivnie.",
     nextBeer: "Un'altra? Ah, questo ragazzo si perde... Due grivnie.",
     drink: (n, total) => `Apri la bottiglia lì sulla veranda e la bevi. Fresca, un po' amara. (${n}/${total})`,
@@ -167,6 +190,21 @@ TEXTS.it = {
       "Il frigorifero Dnipro di Hanja sta lì dal settantanove. Ronza come un trattore, ma ghiaccia! Quelli nuovi durano un anno e poi in discarica.",
       "Tra poco bisogna spruzzare le dorifore, sennò si mangiano le patate. Io una volta usavo il Decis — e quelle ingrassavano pure.",
       "La dorifora è come il fisco: avvelenala quanto vuoi, torna sempre.",
+    ],
+    // After the date: how to take the catfish, and the other way, mentioned "just so".
+    catfishTalk: [
+      "Oh, sei venuto! Siediti. Te l'avevo detto: il pesce gatto vive sotto la passerella. Grosso come un cinghiale.",
+      "Si prende col verme, di notte, quando l'acqua si rinfresca. Scava un po' di vermi da Hanja, in fondo all'orto, vicino alla cucina estiva — lì sono grassi come salsicce. E vieni quando fa buio: ci sediamo sulla passerella.",
+      "Mykola una volta voleva prenderlo con la corrente. Una batteria, due fili — e addio pesce. Gli ho detto: questa non è pesca, è roba da ladri.",
+      "Anche se Valja, per un pesce gatto così, cento grivnie forse le darebbe. Non dico che bisogna farlo. Dico così, per dire.",
+    ],
+    wormsWait: "Senza vermi non venire neanche. Il pesce gatto non è una mucca, l'erba non la mangia. Scava da Hanja, in fondo all'orto.",
+    rodWait: ["Hai i vermi? Così si fa. Solo che adesso il pesce gatto dorme, come Mykola dopo la paga. Andiamo quando fa buio."],
+    rodNight: ["Zitto. Siediti sulla passerella e lancia sotto il palo. E non respirare."],
+    // Added to his sayings after grandpa's way.
+    brag: [
+      "Te lo ricordi, quel pesce gatto che abbiamo preso... Cioè, tu tiravi e io dirigevo.",
+      "Il pesce gatto era grande così. No, così! Be', l'hai visto anche tu. E io — quasi.",
     ],
   },
 
@@ -372,6 +410,90 @@ TEXTS.it = {
     ],
   },
 
+  // The catfish under the boardwalk (summer story, stage 2): with grandpa on a rod, or alone at night with
+  // the driver's battery.
+  catfish: {
+    choiceTitle: "Come prenderai il pesce gatto?",
+    rod: "Con nonno Petro, con la canna e il verme",
+    electro: "Da solo, di notte, con la corrente — e venderlo a Valja",
+    rodChosen: [
+      "Tu: Nonno Petro, vengo. Con i vermi.",
+      "Nonno Petro: Ecco, bravo. E la corrente lasciala a Mykola. Tanto nella vita si è già lasciato scappare tutto.",
+    ],
+    electroChosen: [
+      "Tu: Ma no, chiedevo così.",
+      "Fai di sì col capo al nonno, ma intanto pensi alle cento grivnie. E alla Kopijka di zio Hrysha, che passa la notte sulla strada vicino al circolo.",
+    ],
+    worms: [
+      "Scavi in fondo all'orto, vicino alla cucina estiva. I vermi sono grassi come salsicce: il nonno non ha detto bugie.",
+      "Ne riempi un intero barattolo dei cetrioli e lo chiudi con un coperchio bucherellato.",
+    ],
+    nightTitle: "Il pesce gatto esce di notte. Aspetti?",
+    waitNight: "Aspettare qui che faccia buio",
+    rodCatch: [
+      "Notte. Sullo stagno la nebbia, sull'acqua la luna. Nonno Petro è seduto sulla panchina e dice che non dorme.",
+      "Nonno Petro: Non dormo. Penso.",
+      "Lanci sotto la passerella. Il galleggiante sta fermo come piantato. Il nonno pensa sempre più forte: ronf... ronf...",
+      "E all'improvviso la canna si piega ad arco! Tiri, il filo vibra, l'acqua vicino al palo ribolle...",
+      "Dall'acqua scura spunta la testa del pesce gatto, con dei baffi come quelli della statua in piazza.",
+      "Lo tiri su sulla passerella. Il pesce gatto è grosso come un cinghiale. Nonno Petro russa.",
+      "Nonno Petro: Eh? Che c'è? Tira! Tira, ti dico! ...Oh. L'hai già tirato su. Be', te l'avevo detto: sotto la passerella.",
+      "Nonno Petro: Me lo sono perso di nuovo, dormendo. Per la seconda volta. Ma pazienza: l'importante è che l'abbiamo preso. L'abbiamo preso insieme, vero?",
+    ],
+    carLook: ["La vecchia Kopijka azzurra di zio Hrysha, la prima Zhiguli. Ruggine, portapacchi sul tetto, una mosca sul vetro. Una belva di macchina."],
+    carNotNow: ["Di giorno intorno alla macchina c'è gente: Hrysha ci armeggia, le donne vanno al negozio. Di notte è un'altra storia."],
+    carTake: [
+      "Notte. Il villaggio dorme, solo da qualche parte abbaia un cane.",
+      "Sollevi piano il cofano. Chiave del dieci, due morsetti... La batteria pesa come un sacco di patate.",
+      "Abbassi il cofano e te ne vai senza voltarti. Il cuore ti batte come le casse del circolo.",
+    ],
+    carEmpty: ["Il cofano è alzato, e al posto della batteria c'è solo il vuoto e due capi di filo. Distogli lo sguardo."],
+    boardwalk: ["La vecchia passerella, con le assi che scricchiolano. Da qualche parte lì sotto vive il pesce gatto."],
+    boardwalkDay: ["Di giorno intorno allo stagno ci sono persone e mucche. Sulla passerella con una batteria — solo di notte."],
+    electroCatch: [
+      "Notte. Avvolgi i fili presi nella rimessa intorno a un bastone, li attacchi alla batteria e sali sulla passerella.",
+      "Ti tremano le dita. Cali i fili in acqua, sotto il palo...",
+      "Un lampo! L'acqua sotto la passerella si illumina di blu, tutto lo stagno sussulta.",
+      "Dal fondo viene a galla il pesce gatto: grosso come un cinghiale, stordito, coi baffi allargati.",
+      "Lo afferri per le branchie e lo trascini a riva. E proprio allora la batteria scivola giù dalla passerella — plof! — e va a fondo, a trovare i parenti del pesce gatto.",
+      "Ecco fatto. Adesso il pesce gatto c'è, e la batteria no.",
+    ],
+    sale: [
+      "Bussi alla porta di servizio del negozio. Per un bel po' niente. Poi dei passi, e il chiavistello scatta.",
+      "Valja: Chi è a quest'ora di notte? ...Oh, mamma mia. E questo dove l'hai preso?",
+      "Tu: Con la canna.",
+      "Valja: Sì, sì. Con la canna. E io sono una ballerina. Dai, entra, prima che ti veda qualcuno.",
+      "Valja pesa il pesce gatto sulla stadera, scuote a lungo la testa e conta i soldi.",
+      "Valja: Cento grivnie, giuste giuste. E tu non mi hai vista, e io non ti ho visto.",
+    ],
+  },
+
+  // Uncle Hrysha, the driver, by his car on the road.
+  driver: {
+    idle: [
+      "Hrysha: Oh, il nipote di Hanja! Di' alla nonna: sabato andiamo a prendere i maialini, come d'accordo. La macchina è una belva!",
+      "Hrysha: Una Kopijka, la Zhiguli del settantotto. Mi sopravvivrà, vedrai.",
+      "Hrysha: La benzina aumenta, la pensione no. Ma pazienza, sabato ci andiamo lo stesso.",
+    ],
+    robbed: [
+      "Hrysha: Hai visto? Hai visto?! La batteria! Di notte! Proprio davanti al circolo!",
+      "Hrysha: Se lo prendo, quel ladro... Io lo... Puah! Finché non ne trovo una nuova, non vado da nessuna parte. E in un villaggio dove la trovi?",
+    ],
+    rant: [
+      "Senza dire niente, metti la batteria nuova accanto alla macchina.",
+      "Hrysha: Nuova?! Una Ista? Ma dove l'hai... Da Valja? Però, ragazzo, sei proprio un fenomeno!",
+      "Hrysha: E ti dico io cosa gli farei, a quel ladro, se lo prendessi. Io gli...",
+      "Seguono alcuni minuti di roba che nei libri non si stampa. Sul ladro scopri un sacco di cose nuove.",
+      "Hrysha: ...e poi dritto nello stagno. Dal pesce gatto!",
+      "Annuisci e guardi da un'altra parte. Meno male che sei stato zitto. E peccato che ci fosse qualcosa da tacere.",
+      "Hrysha stringe i morsetti. La Kopijka starnutisce e si accende. Hrysha: Sabato si va a prendere i maialini! Dillo alla nonna.",
+    ],
+    after: [
+      "Hrysha: La macchina è una belva! E adesso pure con un cuore nuovo.",
+      "Hrysha: Il ladro non l'hanno mai trovato. Ma io me lo ricordo. Io mi ricordo tutto.",
+    ],
+  },
+
   // The date at the river: the song is Skriabin and Iryna Bilyk, "Movchaty" (a 2003 single).
   // Its words are never quoted, only named.
   river: {
@@ -532,7 +654,16 @@ TEXTS.it = {
     datePlayer: "Prendi il walkman dallo zaino vicino alla rimessa della nonna.",
     dateEvening: "Stasera passa col motorino a prendere Svetka al negozio.",
     dateGo: "È sera. Passa col motorino a prendere Svetka al negozio.",
-    afterDate: "L'estate va avanti. Continua...",
+    afterDate: "L'estate va avanti. Vai a dormire, domani è un altro giorno.",
+    catfishGrandpa: "Nonno Petro ti ha chiamato allo stagno: ha promesso di farti vedere come si prende il pesce gatto.",
+    worms: "Scava i vermi nel cortile della nonna, in fondo all'orto vicino alla cucina estiva.",
+    rodNight: "Di notte allo stagno, da nonno Petro: il pesce gatto esce quando fa buio.",
+    battery: "Serve una batteria. La Kopijka di zio Hrysha passa la notte sulla strada vicino al circolo.",
+    electroNight: "La batteria ce l'hai. Di notte — sulla passerella, allo stagno.",
+    sellCatfish: "Valja prende il pesce di notte, dalla porta di servizio del negozio.",
+    buyBattery: "Hrysha è senza batteria, e niente viaggio per i maialini. Valja ne ha una nuova, per cento grivnie.",
+    giveBattery: "Porta la batteria nuova a zio Hrysha, alla sua macchina.",
+    afterCatfish: "L'estate va avanti. Continua...",
     carryCrate: "Porta la cassa al negozio di Valja.",
     arrive: "Trova la casa della nonna — vicino al pozzo, a nord del villaggio.",
     water: "Prendi l'acqua dal pozzo.",

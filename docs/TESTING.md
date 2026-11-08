@@ -17,6 +17,8 @@ They run the real game code without a browser (`tests/harness.js`) and play it t
 | Day parts: shown as "День 1 / 92 · Ранок", only forward, waiting only at a ready scene, a new day only after sleep | `game.test.js` | Free rewinding, or an evening scene that spends a day |
 | Saves from before the summer story load and go on | `game.test.js` | Old players stuck after an update |
 | The date at the river: the task always says what to do and where; the player from the backpack, the moped, waiting for the evening, both endings, saved and continued | `game.test.js` | An invitation that leads nowhere |
+| The catfish with grandpa: worms, waiting for the night, grandpa asleep, the village's news | `game.test.js` | A night scene that cannot be reached |
+| The catfish at night: the driver's battery, the flash, Valya's hundred, the theft as news, a new battery for exactly a hundred, the driver's rant; saved and continued | `game.test.js` | A branch that strands the player without money or a battery |
 | Daily work: two jars and one truck a day pay for the evening's beer with some left, and come back the next day | `game.test.js` | A player with no way to earn, or endless money in one day |
 | The hero's walk follows the ground covered and he stands still when he stops | `game.test.js` | Feet sliding, walking on the spot |
 | Dialogs name who speaks and show their portrait | `game.test.js` | Lines given to the wrong person |

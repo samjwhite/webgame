@@ -26,12 +26,14 @@ function here() {
 const npcs = [
   { id: "grandma", location: "yard", sprite: "grandma", x: 228, y: 194, talk: talkToGrandma, dayOnly: true, passable: true, walker: true, dir: "down", walking: false },
   { id: "valya", location: "shop", sprite: "seller", x: 112, y: 150, area: SHOP_STEPS, inWindow: true, passable: true, talk: talkToValya, dayOnly: true },
-  { id: "grandpa", location: "pond", sprite: "grandpa", x: 150, y: 100, talk: talkToGrandpa, dayOnly: true },
+  { id: "grandpa", location: "pond", sprite: "grandpa", x: 150, y: 100, talk: talkToGrandpa, when: isGrandpaAtPond },
   { id: "lads", location: "club", sprite: "tolik", x: 215, y: 190, talk: talkToLads },
   { id: "lads", location: "club", sprite: "sanya", x: 282, y: 184, talk: talkToLads },
   { id: "lads", location: "club", sprite: "vovchik", x: 420, y: 190, talk: talkToLads },
   // By the far table of the beer garden, from the day after the first disco.
   { id: "svetka", location: "shop", sprite: "svetka", x: 262, y: 200, talk: talkToSvetka, when: isSvetkaAround },
+  // The driver who is to take grandma to the district market for piglets, by his car on the road.
+  { id: "driver", location: "street", sprite: "driver", x: 1262, y: 238, talk: talkToDriver, dayOnly: true },
 ];
 
 // when: a test that says whether the person is here now (dayOnly people also go home for the night).
@@ -52,6 +54,10 @@ const places = {
   fridge: { id: "fridge", location: "house", x: 300, y: 172 },
   varenyky: { id: "varenyky", location: "house", x: 250, y: 216 },
   beerBottle: { id: "beerBottle", location: "shop", x: 268, y: 186 },
+  // The catfish: worms at the edge of grandma's beds, the driver's car, the boardwalk at the pond.
+  worms: { id: "worms", location: "yard", x: 402, y: 184 },
+  car: { id: "car", location: "street", x: 1211, y: 249 },
+  boardwalk: { id: "boardwalk", location: "pond", x: 277, y: 168 },
 };
 
 let chickens = [];
@@ -637,6 +643,7 @@ function isPlaceAvailable(place) {
     case "shopDoor": return isNight();
     case "varenyky": return !quest.ateVarenyky;
     case "beerBottle": return canFindBeer();
+    case "worms": return needsWorms();
     default: return true;
   }
 }
@@ -770,7 +777,8 @@ function drawPlayer(ctx, time) {
 function drawNight(ctx, worldView, camX, camY) {
   const indoor = here().indoor;
   ctx.globalCompositeOperation = "multiply";
-  ctx.fillStyle = indoor ? "#6f6a86" : "#3a4a86";
+  // A little lighter than a true night, so faces and planks stay readable (designer reviews).
+  ctx.fillStyle = indoor ? "#6f6a86" : "#4a5a94";
   ctx.fillRect(camX, camY, worldView.width, worldView.height);
   ctx.globalCompositeOperation = "lighter";
   here().lights.forEach(({ x, y, radius }) => {
@@ -868,6 +876,7 @@ function drawWorld(ctx, view, time, target) {
   add(player.y, () => drawPlayer(ctx, time));
   addPlace(places.backpack, ART.backpack);
   addPlace(places.truck, ART.truck);
+  addPlace(places.car, carState() === "empty" ? ART.carEmpty : ART.car);
   if (isMopedHere()) add(quest.moped.y, () => drawStanding(ctx, ART.moped, quest.moped.x, quest.moped.y));
   animals.forEach((animal) => {
     if (animal.location === currentLocation) add(animal.y, () => drawAnimal(ctx, animal));

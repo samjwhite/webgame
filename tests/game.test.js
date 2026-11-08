@@ -633,9 +633,40 @@ test("the whole story can be played, from the bus to the second morning", () => 
     kitUse("bed");
     kitFinishDialogs();
     kitGo("yard");
-    kitTalk("grandma");
-    expect(quest.day === 3 && currentObjective() === T().objective.afterDate, "the third morning");
+    kitUse("grandma");
+    expect(dialog.text === T().grandma.morningCatfish[0], "the third morning: grandpa wants to show the catfish");
+    kitFinishDialogs();
+    expect(quest.day === 3 && currentObjective() === T().objective.catfishGrandpa, "the task: grandpa at the pond");
     log.push("the date at the river");
+
+    // The catfish with grandpa: the choice, worms, waiting for the night, the catch, the village's news.
+    kitGo("pond");
+    kitTalk("grandpa");
+    kitChoose(0);
+    kitFinishDialogs();
+    expect(quest.deeds.catfishPlan === "rod" && currentObjective() === T().objective.worms, "with grandpa: dig worms first");
+    kitTalk("grandpa");
+    expect(!quest.hasWorms && quest.time !== "night", "no night without worms");
+    kitGo("yard");
+    kitTalk("worms");
+    expect(quest.hasWorms && currentObjective() === T().objective.rodNight, "worms in a jar");
+    kitGo("pond");
+    const moneyBefore = quest.money;
+    kitTalk("grandpa");
+    kitChoose(0); // wait here for the night
+    expect(closeup.picture === "catfishRod" && isNight() && quest.day === 3, "the catch, the same night");
+    kitFinishDialogs();
+    expect(quest.deeds.catfishWay === "rod" && quest.money === moneyBefore, "caught on the rod, no money");
+    expect(npcsHere().some((n) => n.id === "grandpa"), "grandpa is still on his bench at night");
+    kitGo("house");
+    kitUse("bed");
+    kitFinishDialogs();
+    kitGo("yard");
+    kitUse("grandma");
+    expect(dialog.text === T().grandma.morningRod[0] && quest.trust.grandpa === 2 && quest.trust.valya === 1, "the village has heard");
+    kitFinishDialogs();
+    expect(currentObjective() === T().objective.afterCatfish, "the summer goes on");
+    log.push("the catfish with grandpa");
     return log;
   }`);
   assert.ok(log.length > 20, `played ${log.length} steps`);
@@ -739,6 +770,85 @@ test("the day and its parts: shown on screen, only forward, and a new day only a
     return [shown, noBack, noOfferWhenNotReady, offered, sameDay, nightSameDay, quest.day, quest.time];
   }`);
   assert.deepStrictEqual(result, ["День 1 / 92 · Ранок", true, true, true, true, true, 2, "morning"]);
+  game.inGame("() => clearSave()");
+});
+
+test("the catfish at night: the driver's battery, the flash, Valya's hundred, a new battery and silence", () => {
+  const result = game.inGame(`() => {
+    const out = {};
+    kitCheckpoint("Сом: дід кличе на ставок");
+    kitTalk("grandpa");
+    kitChoose(1); // alone, at night, with a battery
+    kitFinishDialogs();
+    out.plan = quest.deeds.catfishPlan === "electro" && currentObjective() === T().objective.battery;
+    // By day the car is watched: he waits for the night by it.
+    kitGo("street");
+    kitUse("car");
+    kitFinishDialogs();
+    out.notByDay = choice.open && !quest.hasBattery;
+    kitChoose(0);
+    kitFinishDialogs();
+    out.took = quest.hasBattery && isNight() && quest.deeds.batteryStolen === 3 && currentObjective() === T().objective.electroNight;
+    kitGo("pond");
+    out.alone = !npcsHere().some((n) => n.id === "grandpa");
+    kitUse("boardwalk");
+    out.flash = closeup.picture === "catfishNight";
+    kitFinishDialogs();
+    out.fish = quest.hasCatfish && !quest.hasBattery && currentObjective() === T().objective.sellCatfish;
+    const money = quest.money;
+    kitGo("shop");
+    kitUse("shopDoor");
+    out.sale = closeup.picture === "catfishSale";
+    kitFinishDialogs();
+    out.paid = quest.money - money === CATFISH_PRICE && quest.deeds.catfishWay === "electro";
+    kitGo("house");
+    kitUse("bed");
+    kitFinishDialogs();
+    // The morning after: the theft is news, the car stands open and empty, the trip is off.
+    kitGo("yard");
+    kitUse("grandma");
+    out.news = dialog.text === T().grandma.morningTheft[0];
+    kitFinishDialogs();
+    out.task = currentObjective() === T().objective.buyBattery && carState() === "empty";
+    kitGo("street");
+    kitUse("driver");
+    out.robbed = dialog.text === T().driver.robbed[0].replace(T().speakers.driver + ": ", "");
+    kitFinishDialogs();
+    kitGo("shop");
+    kitUse("valya");
+    kitFinishDialogs();
+    out.bought = quest.hasNewBattery && quest.money === money && currentObjective() === T().objective.giveBattery;
+    kitGo("street");
+    kitUse("driver");
+    out.rant = closeup.picture === "batteryRant";
+    kitFinishDialogs();
+    out.after = quest.deeds.batteryReturned && carState() === "closed" && currentObjective() === T().objective.afterCatfish;
+    saveGame();
+    quest.deeds = {};
+    continueGame();
+    out.kept = quest.deeds.batteryReturned && quest.deeds.catfishWay === "electro";
+    return out;
+  }`);
+  assert.deepStrictEqual(result, {
+    plan: true, notByDay: true, took: true, alone: true, flash: true, fish: true, sale: true, paid: true,
+    news: true, task: true, robbed: true, bought: true, rant: true, after: true, kept: true,
+  });
+  game.inGame("() => clearSave()");
+});
+
+test("a new battery costs exactly the hundred: without it Valya will not sell, and the shop still opens", () => {
+  const result = game.inGame(`() => {
+    kitCheckpoint("Сом струмом: новий акумулятор Гриші");
+    quest.money = 60;
+    kitUse("valya");
+    const refused = dialog.text === T().valya.batteryNoMoney;
+    kitFinishDialogs();
+    const shop = shopMenu.open;
+    closeShopMenu();
+    finishCloseup();
+    return [refused, shop, quest.hasNewBattery, quest.money];
+  }`);
+  assert.deepStrictEqual(result, [true, true, false, 60]);
   game.inGame("() => clearSave()");
 });
 
