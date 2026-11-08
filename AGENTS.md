@@ -12,7 +12,25 @@ These instructions apply to every AI agent working on this repository. Read this
 
 Ownership means who should perform the primary task, not who is prohibited from advising. Both agents should flag dependencies and hand work to the other owner instead of independently recreating their work.
 
+## Where objects come from
+
+**Every object the human asks for is drawn by the designer or taken from the existing library in `tools/art/reference/`.** First check whether it already exists; if it does not, order it (ChatGPT, or Codex through the `/art` skill). Agents do not draw objects themselves in code.
+
+The one exception: the human explicitly asks for a quick proof of concept and a fast result. Then simple sketches are allowed, and they stay marked as temporary until replaced.
+
+## Branches
+
+- **`main` is the stable version** that players get (GitHub Pages publishes from it). Nothing goes there directly, art included. It changes only when the human asks for `dev` to be merged.
+- **`dev` is where all new work goes**: code, docs and art, from every agent. Upload new art to `tools/art/reference/incoming/` on `dev`.
+
+## Tests
+
+Run `npm test` before every commit. A bug fix comes with a test. See [docs/TESTING.md](docs/TESTING.md). Open the game with `?dev` to jump to any point of the story.
+
 ## Design memory
+
+[docs/PROPORTIONS.md](docs/PROPORTIONS.md) records the size rules: a person is 40 px and everything is judged against that. Read it before drawing, scaling or placing anything.
+
 
 [docs/ART_BIBLE.md](docs/ART_BIBLE.md) records the approved style, characters, places, design decisions, reference files and sprite specs. Read it before drawing or integrating any art. Local image generation through Codex CLI (option A) is described in [docs/CODEX_SETUP.md](docs/CODEX_SETUP.md).
 
@@ -47,10 +65,14 @@ Never invent dimensions, crop boxes, asset availability, or repository changes. 
 - The game currently loads PNG assets under `art/`, built from code and reference images in `tools/art/reference/` by `python3 tools/art/build.py`.
 - The extraction pipeline in `tools/art/reference.py` uses hardcoded crop regions; an attractive image is not necessarily an import-ready spritesheet.
 - Before replacing art, verify frame sizes, directions, consistent alignment, transparency, palette, and that existing crop regions still work.
-- `js/assets.js` lists loaded art; `js/map.js` defines map collisions. Visual map changes may require corresponding collision changes.
+- `js/assets.js` lists loaded art; `js/map.js` defines each location's walls, exits and sprites. Visual map changes may require corresponding collision changes.
 - Treat repository files as the source of truth for current implementation. This chat's visual history is reference context, not automatically present in the repository.
 - Never overwrite approved artwork or alter quest logic without explicit authorization. No agent should silently substitute a generated image for an approved asset.
 
 ## Completion and status
 
 At the end of work, state: **Completed by**, **Files changed** (or none), **Verification performed**, **Next owner/task** (if any). If an image exists only in chat, explicitly state that it has not been committed to GitHub.
+
+## Owner's decisions
+
+Everything the owner has already decided is in [docs/DECISIONS.md](docs/DECISIONS.md). Read it before any work and add new decisions there at once.

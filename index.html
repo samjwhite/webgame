@@ -23,8 +23,10 @@
       <span data-text="ui.tasks"></span><span id="objective-arrow">▲</span>
     </button>
     <div id="objective-body">
+      <div id="day-text"></div>
       <div id="objective-text"></div>
       <div id="money"></div>
+      <div id="bag-text"></div>
       <div id="checklist" hidden>
         <div class="checklist-title" data-text="ui.checklistTitle"></div>
         <div class="check-item" id="check-beer"><span class="check"></span><img src="art/ui/beer.png?v=dev" alt=""><span class="label"></span></div>
@@ -34,17 +36,32 @@
     </div>
   </div>
 
+  <div id="location-name" hidden></div>
+
+  <div id="shop-menu" hidden>
+    <div id="shop-head"><span data-text="shop.title"></span><span id="shop-money"></span></div>
+    <div id="shop-list"></div>
+  </div>
+
   <button id="map-button" data-text="ui.map" hidden></button>
 
   <div id="map-view" hidden>
     <div id="map-frame">
       <img src="art/ui/village_map.png?v=dev" id="map-image" alt="">
+      <div id="map-labels"></div>
       <div id="map-marker"></div>
     </div>
     <p data-text="ui.mapClose"></p>
   </div>
 
+  <div id="choice-menu" hidden>
+    <div id="choice-title"></div>
+    <div id="choice-list"></div>
+  </div>
+
   <div id="dialog" hidden>
+    <img id="dialog-portrait" alt="" hidden>
+    <div id="dialog-name" hidden></div>
     <p id="dialog-text"></p>
     <span id="dialog-next">▼</span>
   </div>
@@ -82,5 +99,6 @@
   <script src="js/world.js?v=dev"></script>
   <script src="js/closeup.js?v=dev"></script>
   <script src="js/game.js?v=dev"></script>
+  <script src="js/dev.js?v=dev"></script>
 </body>
 </html>

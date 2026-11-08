@@ -4,6 +4,18 @@ import math
 import random
 from PIL import Image
 
+# Art files are RES times finer than the game's pixels: a person 40 game pixels tall is 120 pixels in
+# the file. Positions, walls and sizes in the game stay in game pixels; js/assets.js (ART_RES) draws
+# every file at 1/RES of its size. Pictures made from large sources keep RES times more of their detail.
+RES = 3
+# Dark outlines around sprites, in file pixels: finer than one game pixel, still clear on a phone.
+OUTLINE = 2
+
+
+def upscale(img):
+    """Pixel art drawn at game size, made RES times larger with hard pixel edges."""
+    return img.resize((img.width * RES, img.height * RES), Image.Resampling.NEAREST)
+
 PAL = {
     "outline": "#2a1d17",
     "sky_top": "#6fb3e0", "sky_mid": "#a9d4ea", "sky_haze": "#f4e4c1",

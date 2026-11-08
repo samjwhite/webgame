@@ -10,15 +10,18 @@ const TALK_PICTURES = {
   lads: "talkLads",
 };
 
-// Same bush list as GARDEN_BUSHES in tools/art/scenes.py: [x, y, size].
+// The potato bushes of the garden picture (tools/art/reference.py, GARDEN_PICTURE): [x, y, size].
 const GARDEN_BUSHES = [
-  [30, 52, 16], [80, 50, 16], [130, 52, 16], [176, 50, 16],
-  [8, 84, 24], [60, 86, 24], [114, 84, 24], [166, 86, 24],
-  [34, 122, 30], [100, 124, 30], [160, 122, 30],
+  [35, 45, 20], [81, 45, 20], [128, 45, 20], [174, 45, 20],
+  [15, 74, 34], [67, 74, 34], [119, 74, 34], [172, 74, 34],
+  [51, 114, 44], [103, 114, 44], [162, 114, 44],
 ];
-const HAND_REST = { x: 172, y: 150 };
-const JAR_POSITION = { x: 4, y: 104 };
-const JAR_MOUTH = { x: 17, y: 108 };
+// The jar moves by itself to a beetle and scoops it up (the owner found a drawn hand creepy).
+// Positions are the jar's mouth; the jar picture hangs below it.
+const JAR_REST = { x: 17, y: 112 };
+const JAR_MOUTH_OFFSET = { x: 13, y: 4 }; // from the jar picture's corner to its mouth
+// A soft light under each beetle, so it stands out on the soil and the leaves.
+const BEETLE_GLOW = { radius: 12, low: 0.5, high: 0.85, period: 900 };
 
 const closeup = {
   type: null,
@@ -29,10 +32,11 @@ const closeup = {
   done: false,
   beetles: [],
   caught: 0,
-  hand: null,
+  jar: null,
 };
 
-// effect: null, "disco" (moving lights) or "hit" (red flashes).
+// effect: null, "disco" (moving lights), "hit" (red flashes),
+// "tv" (the news on the screen), "sleep" or "dawn" (the bedroom at night or at sunrise).
 function startPictureScene(picture, effect) {
   closeup.type = "picture";
   closeup.picture = picture;
@@ -46,9 +50,11 @@ function startTalkScene(npcId) {
 // The well: each tap turns the crank a quarter, WELL_TURN_FRAMES crank frames move the bucket all the way.
 const WELL_TURN_FRAMES = 16;
 const WELL_CRANK_SPEED = 10; // crank frames per second
-const WELL_CRANK = { frameWidth: 39, x: 129, y: 35 };
-const WELL_BUCKET = { frameWidth: 17, x: 87, topY: 61, deepY: 98 };
-const WELL_ROPE = { x: 95, y: 54 };
+// The concrete-ring well (tools/art/reference.py, WELL_*): the crank on the axle of the right post, the
+// bucket on its chain under the drum, sinking behind the front of the ring.
+const WELL_CRANK = { frameWidth: 38, x: 118, y: 29 };
+const WELL_BUCKET = { frameWidth: 22, x: 88, topY: 56, deepY: 84 };
+const WELL_ROPE = { x: 98, y: 54 };
 const BUCKET_FRAMES = { empty: 0, water: 1, splash: 3 };
 
 // direction "raise" pulls a full bucket up; "lower" lets an empty bucket down (for grandpa's future quest).
@@ -72,11 +78,23 @@ function showWellAtRest(lines) {
   openDialog(lines, finishCloseup);
 }
 
+// The beds after spraying: no beetles, no jar, no hand. The sprayer itself still needs the
+// designer's art (docs/ART_HANDOFF_SUMMER.md), so the dialog tells the spraying.
+function startSprayScene() {
+  closeup.type = "garden";
+  closeup.sprayed = true;
+  closeup.caught = 0;
+  closeup.done = true;
+  closeup.beetles = [];
+  closeup.jar = { state: "idle", t: 0, from: JAR_REST, to: JAR_REST, beetle: null };
+}
+
 function startGardenScene() {
   closeup.type = "garden";
+  closeup.sprayed = false;
   closeup.caught = 0;
   closeup.done = false;
-  closeup.hand = { state: "idle", t: 0, from: HAND_REST, to: HAND_REST, beetle: null };
+  closeup.jar = { state: "idle", t: 0, from: JAR_REST, to: JAR_REST, beetle: null };
   const spots = [];
   GARDEN_BUSHES.forEach(([x, y, size]) => {
     spots.push({ x: x - size * 0.3, y: y - size * 0.1 });
@@ -87,10 +105,10 @@ function startGardenScene() {
 }
 
 function stageSize() {
-  if (closeup.type === "well") return { w: ART.sceneWell.width, h: ART.sceneWell.height };
+  if (closeup.type === "well") return { w: ART.sceneWell.w, h: ART.sceneWell.h };
   if (closeup.type === "picture") {
     const picture = ART[closeup.picture];
-    return { w: picture.width, h: picture.height };
+    return { w: picture.w, h: picture.h };
   }
   return { w: STAGE_W, h: STAGE_H };
 }
@@ -124,96 +142,276 @@ function lerp(a, b, t) {
 
 function pickBeetle(tap) {
   const free = closeup.beetles.filter((b) => !b.held);
-  if (!tap) return free[0];
+  if (!tap) {
+    // With the A button the jar goes to the nearest beetle.
+    const at = jarPosition();
+    return free.sort((a, b) => Math.hypot(a.x - at.x, a.y - at.y) - Math.hypot(b.x - at.x, b.y - at.y))[0];
+  }
   return free.find((b) => Math.hypot(b.x - tap.x, b.y - tap.y) < 14);
 }
 
-function moveHand(state, to) {
-  const hand = closeup.hand;
-  hand.from = handPosition();
-  hand.to = to;
-  hand.state = state;
-  hand.t = 0;
+function moveJar(state, to) {
+  const jar = closeup.jar;
+  jar.from = jarPosition();
+  jar.to = to;
+  jar.state = state;
+  jar.t = 0;
 }
 
-function handPosition() {
-  const hand = closeup.hand;
-  return lerp(hand.from, hand.to, Math.min(1, hand.t));
+function jarPosition() {
+  const jar = closeup.jar;
+  return lerp(jar.from, jar.to, Math.min(1, jar.t));
 }
 
 function updateGarden(dt, action, tap) {
-  const hand = closeup.hand;
+  const jar = closeup.jar;
   if (closeup.done) return;
   showHint(T().ui.garden(closeup.caught, BEETLE_COUNT));
 
-  if (hand.state === "idle" || hand.state === "back") {
+  // The jar goes to the beetle tapped (or the nearest one), scoops it in, and stays there.
+  if (jar.state === "idle") {
     const beetle = (tap || action) && pickBeetle(tap);
     if (beetle) {
-      hand.beetle = beetle;
-      moveHand("reach", beetle);
-      return;
+      jar.beetle = beetle;
+      moveJar("reach", { x: beetle.x, y: beetle.y + 2 });
     }
+    return;
   }
-  if (hand.state === "idle") return;
 
-  const durations = { reach: 0.22, grab: 0.12, carry: 0.25, back: 0.2 };
-  hand.t += dt / durations[hand.state];
-  if (hand.t < 1) return;
+  const durations = { reach: 0.25, scoop: 0.18 };
+  jar.t += dt / durations[jar.state];
+  if (jar.t < 1) return;
 
-  if (hand.state === "reach") {
-    hand.beetle.held = true;
-    hand.from = hand.to;
-    hand.state = "grab";
-    hand.t = 0;
-  } else if (hand.state === "grab") {
-    moveHand("carry", JAR_MOUTH);
-  } else if (hand.state === "carry") {
-    closeup.beetles = closeup.beetles.filter((b) => b !== hand.beetle);
-    hand.beetle = null;
-    closeup.caught += 1;
-    moveHand("back", HAND_REST);
-  } else {
-    hand.state = "idle";
-    if (closeup.caught >= BEETLE_COUNT) {
-      closeup.done = true;
-      openDialog([finishBeetleJar()], finishCloseup);
-    }
+  if (jar.state === "reach") {
+    jar.beetle.held = true;
+    jar.from = jar.to;
+    jar.state = "scoop";
+    jar.t = 0;
+    return;
+  }
+  closeup.beetles = closeup.beetles.filter((b) => b !== jar.beetle);
+  jar.beetle = null;
+  jar.state = "idle";
+  closeup.caught += 1;
+  if (grandmaStopsPicking(closeup.caught)) {
+    closeup.done = true;
+    grandmaStopsHandPicking();
+    return;
+  }
+  if (closeup.caught >= BEETLE_COUNT) {
+    closeup.done = true;
+    openDialog(finishBeetleJar(), finishCloseup);
   }
 }
 
 // ---------- drawing ----------
 
-function drawSky(ctx, skyName, time) {
-  ctx.drawImage(ART[skyName], 0, 0);
-  const offset = (time * 0.004) % ART.clouds.width;
-  ctx.drawImage(ART.clouds, Math.round(-offset), 2);
-  ctx.drawImage(ART.clouds, Math.round(ART.clouds.width - offset), 2);
-}
-
 function drawPictureScene(ctx, time) {
   const picture = ART[closeup.picture];
-  ctx.drawImage(picture, 0, 0);
-  if (closeup.picture === "talkSeller" && quest.hasGroceries) ctx.drawImage(ART.groceries, 98, 132);
+  if (closeup.effect === "tv") drawNewsScreen(ctx, time);
+  drawArt(ctx, picture, 0, 0);
+  if (closeup.picture === "talkSeller") drawCounterGoods(ctx);
 
   if (closeup.effect === "disco") {
     const colors = ["255, 60, 200", "60, 200, 255", "255, 220, 60"];
     ctx.globalCompositeOperation = "lighter";
     colors.forEach((color, i) => {
-      const x = picture.width / 2 + Math.sin(time / 500 + i * 2.1) * picture.width * 0.4;
-      const y = picture.height * 0.6 + Math.cos(time / 700 + i) * picture.height * 0.25;
+      const x = picture.w / 2 + Math.sin(time / 500 + i * 2.1) * picture.w * 0.4;
+      const y = picture.h * 0.6 + Math.cos(time / 700 + i) * picture.h * 0.25;
       const light = ctx.createRadialGradient(x, y, 0, x, y, 30);
       light.addColorStop(0, `rgba(${color}, 0.35)`);
       light.addColorStop(1, `rgba(${color}, 0)`);
       ctx.fillStyle = light;
-      ctx.fillRect(0, 0, picture.width, picture.height);
+      ctx.fillRect(0, 0, picture.w, picture.h);
     });
     ctx.globalCompositeOperation = "source-over";
   }
 
+  if (closeup.effect === "fridge") drawFridgeShelves(ctx);
+  if (closeup.effect === "sleep") drawSleeping(ctx, picture, time);
+  if (closeup.effect === "dawn") drawDawn(ctx, picture);
+
   if (closeup.effect === "hit" && Math.floor(time / 120) % 3 === 0) {
     ctx.fillStyle = "rgba(200, 20, 20, 0.45)";
-    ctx.fillRect(0, 0, picture.width, picture.height);
+    ctx.fillRect(0, 0, picture.w, picture.h);
   }
+}
+
+// The news shows through the see-through screen of tsn.png. news_frames.png is a strip of pictures:
+// 0 newsreader, 1 poor harvest, 2 flour queue, 3 peacekeepers, 4 penalty, 5 song contest, 6 summit, 7 weather.
+// One picture for each line of each bulletin in the text files.
+const NEWS_SCREEN = { x: 39, y: 30, w: 96, h: 72 };
+const NEWS_PLAN = [
+  [0, 1, 2, 2, 3, 3],
+  [0, 4, 5, 5, 6, 7],
+];
+
+function drawNewsScreen(ctx, time) {
+  const { x, y, w, h } = NEWS_SCREEN;
+  const plan = NEWS_PLAN[Math.max(0, quest.newsWatched - 1)] || NEWS_PLAN[0];
+  const line = Math.max(0, Math.min(plan.length - 1, plan.length - 1 - dialog.lines.length));
+  drawArtPart(ctx, ART.newsFrames, plan[line] * w, 0, w, h, x, y);
+  ctx.fillStyle = "#c8323c";
+  ctx.fillRect(x + 8, y + h - 16, 22, 9);
+  ctx.fillStyle = "#fff8e8";
+  ctx.font = "bold 8px monospace";
+  ctx.textBaseline = "top";
+  ctx.fillText("ТСН", x + 10, y + h - 16);
+  ctx.fillText("1+1", x + w - 28, y + 6);
+  // Old set: a dark band rolls down the screen and the picture has lines across it.
+  ctx.fillStyle = "rgba(0, 0, 0, 0.16)";
+  ctx.fillRect(x, y + Math.floor(time / 40) % h, w, 6);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+  for (let row = 0; row < h; row += 2) ctx.fillRect(x, y + row, w, 1);
+}
+
+// What is in the fridge: fridge_items.png is a strip of 40x40 pictures, captions come from the text files.
+const FRIDGE_ITEM = 40;
+const FRIDGE_COLUMNS = [24, 76, 128];
+const FRIDGE_ROWS = [21, 73];
+
+function drawFridgeShelves(ctx) {
+  ctx.font = "bold 8px monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  T().house.fridgeItems.forEach((caption, i) => {
+    const x = FRIDGE_COLUMNS[i % 3];
+    const y = FRIDGE_ROWS[Math.floor(i / 3)];
+    drawFrame(ctx, ART.fridgeItems, i, FRIDGE_ITEM, x, y);
+    ctx.fillStyle = "#2a1d17";
+    ctx.fillRect(x - 5, y + 42, FRIDGE_ITEM + 10, 10);
+    ctx.fillStyle = "#fff8e8";
+    ctx.fillText(caption, x + FRIDGE_ITEM / 2, y + 43);
+  });
+  ctx.textAlign = "left";
+}
+
+// Goods on the seller's counter: art and centre x. They stand on the counter's front edge,
+// between her abacus and the scales.
+const COUNTER_FRONT = 148;
+const COUNTER_GOODS = {
+  beer: [["goodsBeer", 124]],
+  bread: [["goodsBread", 120]],
+  loaf: [["goodsLoaf", 120]],
+  noodles: [["goodsNoodles", 124]],
+  seeds: [["goodsSeeds", 124]],
+  matches: [["goodsMatches", 124]],
+  cigarettes: [["goodsCigarettes", 124]],
+  sugar: [["goodsSugar", 124]],
+  fish: [["goodsFish", 124]],
+  oil: [["goodsOil", 124]],
+  chocolate: [["goodsChocolate", 122]],
+  sausage: [["goodsSausage", 120]],
+  groceries: [["goodsBread", 106], ["goodsNoodles", 134]],
+  stock: [["goodsLoaf", 106], ["goodsSugar", 132], ["goodsMatches", 146]],
+};
+
+// The shop's list: a row for each thing on offer and a last one to leave.
+const SHOP_COLUMNS = 2;
+const shopMenu = { open: false, index: 0, rows: [], moved: false };
+const shopMenuBox = document.getElementById("shop-menu");
+const shopMenuMoney = document.getElementById("shop-money");
+const shopMenuList = document.getElementById("shop-list");
+
+function fillShopMenu() {
+  shopMenu.rows = goodsOnOffer();
+  shopMenu.index = Math.min(shopMenu.index, shopMenu.rows.length);
+  shopMenuMoney.textContent = T().ui.money(quest.money);
+  shopMenuList.textContent = "";
+  shopMenu.rows.forEach((good, index) => {
+    const row = document.createElement("button");
+    row.className = "shop-row";
+    const picture = document.createElement("img");
+    picture.src = `art/${ART_FILES[good.art]}?v=${ART_VERSION}`;
+    picture.alt = "";
+    const name = document.createElement("span");
+    name.textContent = T().shop.goods[good.id];
+    const price = document.createElement("b");
+    price.textContent = T().shop.price(good.price);
+    row.append(picture, name, price);
+    if (quest.money < good.price) row.classList.add("too-dear");
+    row.addEventListener("click", () => shopChoose(index));
+    shopMenuList.append(row);
+  });
+  const leave = document.createElement("button");
+  leave.className = "shop-row shop-leave";
+  leave.textContent = T().shop.leave;
+  leave.addEventListener("click", () => shopChoose(shopMenu.rows.length));
+  shopMenuList.append(leave);
+  markShopRow();
+}
+
+function markShopRow() {
+  Array.from(shopMenuList.children || []).forEach((row, index) => row.classList.toggle("selected", index === shopMenu.index));
+}
+
+function openShopMenu() {
+  sellerCounter = null;
+  shopMenu.open = true;
+  shopMenu.index = 0;
+  fillShopMenu();
+}
+
+function closeShopMenu() {
+  shopMenu.open = false;
+  sellerCounter = null;
+  finishCloseup();
+}
+
+function shopChoose(index) {
+  if (!shopMenu.open || dialog.open) return;
+  const good = shopMenu.rows[index];
+  if (!good) {
+    closeShopMenu();
+    return;
+  }
+  shopMenu.index = index;
+  openDialog(buyGood(good.id), () => {
+    saveGame();
+    fillShopMenu();
+  });
+}
+
+// Arrow keys or the joystick move the selection; A buys what is selected.
+function updateShopMenu(action) {
+  const count = shopMenu.rows.length + 1;
+  const stepX = Math.abs(input.moveX) > 0.5 ? Math.sign(input.moveX) : 0;
+  const stepY = Math.abs(input.moveY) > 0.5 ? Math.sign(input.moveY) : 0;
+  if (!stepX && !stepY) {
+    shopMenu.moved = false;
+  } else if (!shopMenu.moved) {
+    shopMenu.moved = true;
+    const next = shopMenu.index + stepX + stepY * SHOP_COLUMNS;
+    if (next >= 0 && next < count) {
+      shopMenu.index = next;
+      markShopRow();
+    }
+  }
+  if (action) shopChoose(shopMenu.index);
+}
+
+function drawCounterGoods(ctx) {
+  (COUNTER_GOODS[sellerCounter] || []).forEach(([art, x]) => {
+    const image = ART[art];
+    drawArt(ctx, image, Math.round(x - image.w / 2), COUNTER_FRONT - image.h);
+  });
+}
+
+function drawSleeping(ctx, picture, time) {
+  ctx.fillStyle = "#c8d6ff";
+  ctx.font = "bold 10px monospace";
+  ctx.textBaseline = "top";
+  ["z", "Z", "z"].forEach((letter, i) => {
+    const rise = (time / 60 + i * 14) % 42;
+    ctx.fillText(letter, 48 + i * 9 + Math.sin(rise / 6) * 2, 60 - rise);
+  });
+}
+
+function drawDawn(ctx, picture) {
+  ctx.globalCompositeOperation = "lighter";
+  ctx.fillStyle = "rgba(255, 170, 90, 0.42)";
+  ctx.fillRect(0, 0, picture.w, picture.h);
+  ctx.globalCompositeOperation = "source-over";
 }
 
 function drawWellScene(ctx) {
@@ -229,37 +427,47 @@ function drawWellScene(ctx) {
   const step = Math.floor(closeup.crank) % 8;
   const crankFrame = raising ? step : (8 - step) % 8;
 
-  ctx.drawImage(ART.sceneWell, 0, 0);
-  ctx.fillStyle = "#a9823a";
+  drawArt(ctx, ART.sceneWell, 0, 0);
+  ctx.fillStyle = "#4a3a2c"; // the chain
   ctx.fillRect(WELL_ROPE.x, WELL_ROPE.y, 1, bucketY + 1 - WELL_ROPE.y);
   drawFrame(ctx, ART.bucket, bucketFrame, WELL_BUCKET.frameWidth, WELL_BUCKET.x, bucketY);
-  ctx.drawImage(ART.wellFront, 0, 0);
+  drawArt(ctx, ART.wellFront, 0, 0);
   drawFrame(ctx, ART.crank, crankFrame, WELL_CRANK.frameWidth, WELL_CRANK.x, WELL_CRANK.y);
 }
 
 function drawGardenScene(ctx, time) {
-  drawSky(ctx, "skyDay", time);
-  ctx.drawImage(ART.sceneGarden, 0, 0);
+  drawArt(ctx, ART.sceneGarden, 0, 0);
+  // A soft, slow light under each beetle, so it can be seen on the soil and the leaves.
+  const glow = BEETLE_GLOW.low + (BEETLE_GLOW.high - BEETLE_GLOW.low) * (0.5 + 0.5 * Math.sin(time / BEETLE_GLOW.period));
   closeup.beetles.forEach((b, i) => {
     if (b.held) return;
+    const light = ctx.createRadialGradient(b.x, b.y, 1, b.x, b.y, BEETLE_GLOW.radius);
+    light.addColorStop(0, `rgba(255, 244, 190, ${glow})`);
+    light.addColorStop(0.55, `rgba(255, 236, 160, ${glow * 0.5})`);
+    light.addColorStop(1, "rgba(255, 236, 160, 0)");
+    ctx.fillStyle = light;
+    ctx.fillRect(b.x - BEETLE_GLOW.radius, b.y - BEETLE_GLOW.radius, BEETLE_GLOW.radius * 2, BEETLE_GLOW.radius * 2);
     const wiggle = Math.round(Math.sin(time / 150 + i * 2));
-    ctx.drawImage(ART.beetleBig, Math.round(b.x - 6 + wiggle), Math.round(b.y - 6));
+    drawArt(ctx, ART.beetleBig, Math.round(b.x - 6 + wiggle), Math.round(b.y - 6));
   });
+  if (closeup.sprayed) return;
 
-  ctx.drawImage(ART.jar, JAR_POSITION.x, JAR_POSITION.y);
+  // The jar with what it has caught; while scooping it tips toward the beetle.
+  const jar = closeup.jar;
+  const pos = jarPosition();
+  const left = Math.round(pos.x - JAR_MOUTH_OFFSET.x);
+  const top = Math.round(pos.y - JAR_MOUTH_OFFSET.y);
+  ctx.save();
+  if (jar.state === "scoop") {
+    ctx.translate(pos.x, pos.y + 16);
+    ctx.rotate(-0.35 * Math.sin(Math.PI * Math.min(1, jar.t)));
+    ctx.translate(-pos.x, -(pos.y + 16));
+  }
+  drawArt(ctx, ART.jar, left, top);
   for (let i = 0; i < closeup.caught; i++) {
-    ctx.drawImage(ART.beetleSmall, JAR_POSITION.x + 6 + (i % 2) * 8, JAR_POSITION.y + 24 - Math.floor(i / 2) * 5);
+    drawArt(ctx, ART.beetleSmall, left + 6 + (i % 2) * 8, top + 24 - Math.floor(i / 2) * 5);
   }
-
-  const hand = closeup.hand;
-  const pos = handPosition();
-  const closed = hand.state === "grab" || hand.state === "carry";
-  ctx.fillStyle = "#3d6fb6";
-  ctx.fillRect(Math.round(pos.x - 5), Math.round(pos.y + 26), 11, STAGE_H);
-  drawFrame(ctx, ART.hand, closed ? 1 : 0, 22, pos.x - 11, pos.y - 3);
-  if (closed && hand.beetle) {
-    ctx.drawImage(ART.beetleSmall, Math.round(pos.x - 3), Math.round(pos.y - 2));
-  }
+  ctx.restore();
 }
 
 function drawStage(ctx, stage, time) {
