@@ -42,7 +42,9 @@ A close-up is nearer to the viewer, so the same object is larger. Measure agains
 
 ## Scaling source pictures into the game
 
-Pictures are generated large and scaled down. Measure a known object, then pick the scale:
+Pictures are generated large and scaled down. Since November 2026 every file is built **3 times finer than game pixels** (`RES` in `tools/art/lib.py`, `ART_RES` in `js/assets.js`): a person 40 game px tall is 120 px in the file, and the game draws each file at a third of its size. All sizes and scales in this document stay in game pixels; only the files are larger, so they keep three times more of the source's detail. `tests/proportions.test.js` measures in game pixels and checks that both constants agree.
+
+Measure a known object, then pick the scale:
 
 `scale = wanted game pixels / pixels in the source picture`
 

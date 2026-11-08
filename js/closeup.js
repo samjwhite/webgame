@@ -100,10 +100,10 @@ function startGardenScene() {
 }
 
 function stageSize() {
-  if (closeup.type === "well") return { w: ART.sceneWell.width, h: ART.sceneWell.height };
+  if (closeup.type === "well") return { w: ART.sceneWell.w, h: ART.sceneWell.h };
   if (closeup.type === "picture") {
     const picture = ART[closeup.picture];
-    return { w: picture.width, h: picture.height };
+    return { w: picture.w, h: picture.h };
   }
   return { w: STAGE_W, h: STAGE_H };
 }
@@ -202,29 +202,29 @@ function updateGarden(dt, action, tap) {
 // ---------- drawing ----------
 
 function drawSky(ctx, skyName, time) {
-  ctx.drawImage(ART[skyName], 0, 0);
-  const offset = (time * 0.004) % ART.clouds.width;
-  ctx.drawImage(ART.clouds, Math.round(-offset), 2);
-  ctx.drawImage(ART.clouds, Math.round(ART.clouds.width - offset), 2);
+  drawArt(ctx, ART[skyName], 0, 0);
+  const offset = (time * 0.004) % ART.clouds.w;
+  drawArt(ctx, ART.clouds, Math.round(-offset), 2);
+  drawArt(ctx, ART.clouds, Math.round(ART.clouds.w - offset), 2);
 }
 
 function drawPictureScene(ctx, time) {
   const picture = ART[closeup.picture];
   if (closeup.effect === "tv") drawNewsScreen(ctx, time);
-  ctx.drawImage(picture, 0, 0);
+  drawArt(ctx, picture, 0, 0);
   if (closeup.picture === "talkSeller") drawCounterGoods(ctx);
 
   if (closeup.effect === "disco") {
     const colors = ["255, 60, 200", "60, 200, 255", "255, 220, 60"];
     ctx.globalCompositeOperation = "lighter";
     colors.forEach((color, i) => {
-      const x = picture.width / 2 + Math.sin(time / 500 + i * 2.1) * picture.width * 0.4;
-      const y = picture.height * 0.6 + Math.cos(time / 700 + i) * picture.height * 0.25;
+      const x = picture.w / 2 + Math.sin(time / 500 + i * 2.1) * picture.w * 0.4;
+      const y = picture.h * 0.6 + Math.cos(time / 700 + i) * picture.h * 0.25;
       const light = ctx.createRadialGradient(x, y, 0, x, y, 30);
       light.addColorStop(0, `rgba(${color}, 0.35)`);
       light.addColorStop(1, `rgba(${color}, 0)`);
       ctx.fillStyle = light;
-      ctx.fillRect(0, 0, picture.width, picture.height);
+      ctx.fillRect(0, 0, picture.w, picture.h);
     });
     ctx.globalCompositeOperation = "source-over";
   }
@@ -235,7 +235,7 @@ function drawPictureScene(ctx, time) {
 
   if (closeup.effect === "hit" && Math.floor(time / 120) % 3 === 0) {
     ctx.fillStyle = "rgba(200, 20, 20, 0.45)";
-    ctx.fillRect(0, 0, picture.width, picture.height);
+    ctx.fillRect(0, 0, picture.w, picture.h);
   }
 }
 
@@ -252,7 +252,7 @@ function drawNewsScreen(ctx, time) {
   const { x, y, w, h } = NEWS_SCREEN;
   const plan = NEWS_PLAN[Math.max(0, quest.newsWatched - 1)] || NEWS_PLAN[0];
   const line = Math.max(0, Math.min(plan.length - 1, plan.length - 1 - dialog.lines.length));
-  ctx.drawImage(ART.newsFrames, plan[line] * w, 0, w, h, x, y, w, h);
+  drawArtPart(ctx, ART.newsFrames, plan[line] * w, 0, w, h, x, y);
   ctx.fillStyle = "#c8323c";
   ctx.fillRect(x + 8, y + h - 16, 22, 9);
   ctx.fillStyle = "#fff8e8";
@@ -395,7 +395,7 @@ function updateShopMenu(action) {
 function drawCounterGoods(ctx) {
   (COUNTER_GOODS[sellerCounter] || []).forEach(([art, x]) => {
     const image = ART[art];
-    ctx.drawImage(image, Math.round(x - image.width / 2), COUNTER_FRONT - image.height);
+    drawArt(ctx, image, Math.round(x - image.w / 2), COUNTER_FRONT - image.h);
   });
 }
 
@@ -412,7 +412,7 @@ function drawSleeping(ctx, picture, time) {
 function drawDawn(ctx, picture) {
   ctx.globalCompositeOperation = "lighter";
   ctx.fillStyle = "rgba(255, 170, 90, 0.42)";
-  ctx.fillRect(0, 0, picture.width, picture.height);
+  ctx.fillRect(0, 0, picture.w, picture.h);
   ctx.globalCompositeOperation = "source-over";
 }
 
@@ -429,27 +429,27 @@ function drawWellScene(ctx) {
   const step = Math.floor(closeup.crank) % 8;
   const crankFrame = raising ? step : (8 - step) % 8;
 
-  ctx.drawImage(ART.sceneWell, 0, 0);
+  drawArt(ctx, ART.sceneWell, 0, 0);
   ctx.fillStyle = "#a9823a";
   ctx.fillRect(WELL_ROPE.x, WELL_ROPE.y, 1, bucketY + 1 - WELL_ROPE.y);
   drawFrame(ctx, ART.bucket, bucketFrame, WELL_BUCKET.frameWidth, WELL_BUCKET.x, bucketY);
-  ctx.drawImage(ART.wellFront, 0, 0);
+  drawArt(ctx, ART.wellFront, 0, 0);
   drawFrame(ctx, ART.crank, crankFrame, WELL_CRANK.frameWidth, WELL_CRANK.x, WELL_CRANK.y);
 }
 
 function drawGardenScene(ctx, time) {
   drawSky(ctx, "skyDay", time);
-  ctx.drawImage(ART.sceneGarden, 0, 0);
+  drawArt(ctx, ART.sceneGarden, 0, 0);
   closeup.beetles.forEach((b, i) => {
     if (b.held) return;
     const wiggle = Math.round(Math.sin(time / 150 + i * 2));
-    ctx.drawImage(ART.beetleBig, Math.round(b.x - 6 + wiggle), Math.round(b.y - 6));
+    drawArt(ctx, ART.beetleBig, Math.round(b.x - 6 + wiggle), Math.round(b.y - 6));
   });
   if (closeup.sprayed) return;
 
-  ctx.drawImage(ART.jar, JAR_POSITION.x, JAR_POSITION.y);
+  drawArt(ctx, ART.jar, JAR_POSITION.x, JAR_POSITION.y);
   for (let i = 0; i < closeup.caught; i++) {
-    ctx.drawImage(ART.beetleSmall, JAR_POSITION.x + 6 + (i % 2) * 8, JAR_POSITION.y + 24 - Math.floor(i / 2) * 5);
+    drawArt(ctx, ART.beetleSmall, JAR_POSITION.x + 6 + (i % 2) * 8, JAR_POSITION.y + 24 - Math.floor(i / 2) * 5);
   }
 
   const hand = closeup.hand;
@@ -459,7 +459,7 @@ function drawGardenScene(ctx, time) {
   ctx.fillRect(Math.round(pos.x - 5), Math.round(pos.y + 26), 11, STAGE_H);
   drawFrame(ctx, ART.hand, closed ? 1 : 0, 22, pos.x - 11, pos.y - 3);
   if (closed && hand.beetle) {
-    ctx.drawImage(ART.beetleSmall, Math.round(pos.x - 3), Math.round(pos.y - 2));
+    drawArt(ctx, ART.beetleSmall, Math.round(pos.x - 3), Math.round(pos.y - 2));
   }
 }
 

@@ -6,7 +6,12 @@ const path = require("path");
 const zlib = require("zlib");
 const { ROOT } = require("./harness");
 
-// A small PNG reader: enough to find how big a sprite really is.
+// Art files are RES times finer than game pixels (js/assets.js ART_RES, tools/art/lib.py RES). Every size
+// below is in game pixels, as docs/PROPORTIONS.md decides them.
+const ASSETS = fs.readFileSync(path.join(ROOT, "js", "assets.js"), "utf8");
+const RES = Number(ASSETS.match(/const ART_RES = (\d+);/)[1]);
+
+// A small PNG reader: enough to find how big a sprite really is. Sizes come back in game pixels.
 function readPng(file) {
   const data = fs.readFileSync(path.join(ROOT, "art", file));
   const width = data.readUInt32BE(16);
@@ -53,13 +58,13 @@ function readPng(file) {
     if (colorType === 3 && transparent) return pixels[at] >= transparent.length || transparent[pixels[at]] > 0;
     return true;
   };
-  return { width, height, isOpaque };
+  return { width: width / RES, height: height / RES, fileWidth: width, fileHeight: height, isOpaque };
 }
 
-// Width and height of what is drawn inside a cell of a sheet.
+// Width and height, in game pixels, of what is drawn inside a cell of a sheet (the cell in game pixels).
 function drawnSize(file, cell) {
   const png = readPng(file);
-  const [left, top, cellWidth, cellHeight] = cell || [0, 0, png.width, png.height];
+  const [left, top, cellWidth, cellHeight] = (cell || [0, 0, png.width, png.height]).map((v) => Math.round(v * RES));
   let minX = Infinity;
   let maxX = -1;
   let minY = Infinity;
@@ -74,12 +79,26 @@ function drawnSize(file, cell) {
       }
     }
   }
-  return { width: maxX - minX + 1, height: maxY - minY + 1 };
+  return { width: (maxX - minX + 1) / RES, height: (maxY - minY + 1) / RES };
 }
 
 function within(name, value, low, high) {
-  assert.ok(value >= low && value <= high, `${name} is ${value} px, the rule says ${low}-${high}`);
+  assert.ok(value >= low && value <= high, `${name} is ${value.toFixed(1)} px, the rule says ${low}-${high}`);
 }
+
+test("art is built RES times finer than game pixels, the same in the art build and the game", () => {
+  const lib = fs.readFileSync(path.join(ROOT, "tools", "art", "lib.py"), "utf8");
+  assert.strictEqual(Number(lib.match(/^RES = (\d+)/m)[1]), RES, "tools/art/lib.py RES and js/assets.js ART_RES");
+  const files = [...ASSETS.matchAll(/"((?:world|scenes)\/[^"]+\.png)"/g)].map((m) => m[1]);
+  assert.ok(files.length > 40, `found ${files.length} art files`);
+  for (const file of files) {
+    const png = readPng(file);
+    assert.ok(png.fileWidth % RES === 0 && png.fileHeight % RES === 0, `${file} is ${png.fileWidth}x${png.fileHeight}, not a multiple of ${RES}`);
+  }
+  // The hero's sheet: 8 cells of 32x48 game pixels across, 6 rows.
+  const hero = readPng("world/hero_city.png");
+  assert.deepStrictEqual([hero.width, hero.height], [8 * 32, 6 * 48]);
+});
 
 test("people are the yardstick: 38-42 px tall", () => {
   for (const sheet of ["hero_city", "hero_sport"]) {

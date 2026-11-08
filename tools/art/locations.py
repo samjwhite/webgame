@@ -2,17 +2,36 @@
 
 Outdoor locations are crops of reference/village_map.png scaled by LOCATION_SCALE, which makes a
 door a little taller than the 44 px hero. The house interior is drawn here, one sprite per object.
-Coordinates in js/map.js are game pixels of these scaled pictures.
+Coordinates in js/map.js are game pixels of these scaled pictures. Sizes, boxes and shapes here are
+game pixels too, unless they say they are in a source picture; every file is built RES times larger
+(lib.RES), straight from the source picture, so it keeps RES times more of its detail.
 """
 
 import os
 from PIL import Image, ImageDraw, ImageFilter
 
-from lib import Sprite
+from lib import OUTLINE, RES
 from animals import remove_enclosed_background
 from reference import MAP_PATCHES, cut_out, load, limit_palette, scene
 
 LOCATION_SCALE = 0.65
+PICTURE_COLORS = 256  # the most limit_palette can keep: the locations are painted, not pixel art
+
+
+def larger(size):
+    """A size, box or point in game pixels as file pixels."""
+    return tuple(value * RES for value in size)
+
+
+def resample(img, size):
+    """A source picture scaled straight to `size` file pixels: averaged when it shrinks, LANCZOS when it
+    grows a little. A source with much less detail than that (the old map crops, about 2 times) is scaled
+    to game pixels and enlarged with hard edges instead, so it stays crisp pixel art and is not blurred."""
+    if size[0] > img.width * 1.5:
+        game = (size[0] // RES, size[1] // RES)
+        return img.resize(game, Image.Resampling.BOX).resize(size, Image.Resampling.NEAREST)
+    growing = size[0] > img.width or size[1] > img.height
+    return img.resize(size, Image.Resampling.LANCZOS if growing else Image.Resampling.BOX)
 
 # Location name -> crop box in reference/village_map.png. All tall enough to fill a phone screen.
 CROPS = {
@@ -173,7 +192,10 @@ def road_picture():
         canvas.alpha_composite(visible, (centre - small.width // 2, max(0, top)))
     road = canvas.convert("RGB")
     size = (round(road.width * YARD_SCALE), round(road.height * YARD_SCALE))
-    return limit_palette(road.resize(size, Image.Resampling.BOX), 220)
+    return limit_palette(resample(road, larger(size)), PICTURE_COLORS)
+
+
+SHOP_FADE = 10  # game pixels of the scene's bottom edge that fade into the grass
 
 
 def shop_scene():
@@ -181,23 +203,25 @@ def shop_scene():
     size = (round(scene.width * SHOP_SCALE), round(SHOP_SCENE_BOTTOM * SHOP_SCALE))
     # The bottle painted on the near table goes: the only bottle is the one the hero can drink.
     scene.paste(scene.crop(SHOP_TABLE_CLEAN), SHOP_BAKED_BOTTLE[:2])
-    top = scene.crop((0, 0, scene.width, SHOP_SCENE_BOTTOM)).resize(size, Image.Resampling.BOX)
-    picture = Image.new("RGB", SHOP_SIZE)
+    top = resample(scene.crop((0, 0, scene.width, SHOP_SCENE_BOTTOM)), larger(size))
+    picture = Image.new("RGB", larger(SHOP_SIZE))
     ground = load(SHOP_GROUND)
     ground = ground.crop((0, SHOP_GROUND_TOP, ground.width, ground.height))
-    ground = ground.resize((SHOP_SIZE[0], round(ground.height * SHOP_SCALE)), Image.Resampling.BOX)
-    picture.paste(ground, (0, size[1] - 12))
-    # The scene's bottom edge fades into the grass.
-    fade = Image.new("L", size, 255)
+    ground = resample(ground, larger((SHOP_SIZE[0], round(ground.height * SHOP_SCALE))))
+    picture.paste(ground, (0, (size[1] - 12) * RES))
+    fade = Image.new("L", top.size, 255)
     draw_fade = ImageDraw.Draw(fade)
-    for row in range(10):
-        draw_fade.line((0, size[1] - 1 - row, size[0], size[1] - 1 - row), fill=round(255 * row / 10))
+    rows = SHOP_FADE * RES
+    for row in range(rows):
+        draw_fade.line((0, top.height - 1 - row, top.width, top.height - 1 - row), fill=round(255 * row / rows))
     picture.paste(top, (0, 0), fade)
-    return limit_palette(picture, 200)
+    return limit_palette(picture, PICTURE_COLORS)
 
 
 def shop_closed():
-    """Drawn over the shop at night. Lands at the scaled top-left corner of SHOP_CLOSED_BOX."""
+    """Drawn over the shop at night. Lands at the scaled top-left corner of SHOP_CLOSED_BOX.
+    The scene's parts are composed in its own pixels; the padlock and the cardboard are drawn after
+    scaling, so their outlines are OUTLINE file pixels like every other outline."""
     scene = load(SHOP_SCENE)
     left, top, right, bottom = SHOP_CLOSED_BOX
     part = Image.new("RGBA", (right - left, bottom - top))
@@ -215,15 +239,23 @@ def shop_closed():
     for box in ((left, top, SHOP_DOORWAY[2], SHOP_DOORWAY[3]), SHOP_SELLER):
         draw.rectangle((box[0] - left, box[1] - top, box[2] - left - 1, box[3] - top - 1), fill=255)
     part.putalpha(mask)
-    # The padlock and a piece of cardboard.
-    paint = ImageDraw.Draw(part)
-    cx = (SHOP_DOORWAY[0] + SHOP_DOORWAY[2]) // 2 - left
-    paint.rectangle((cx - 44, 48, cx + 44, 100), fill=(196, 172, 128, 255), outline=(70, 50, 34, 255), width=4)
-    for y in (60, 72, 84):
-        paint.rectangle((cx - 32, y, cx + 32, y + 4), fill=(70, 50, 34, 255))
-    paint.rectangle((cx + 26, 118, cx + 52, 146), fill=(120, 120, 116, 255), outline=(30, 26, 26, 255), width=3)
     size = (round(part.width * SHOP_SCALE), round(part.height * SHOP_SCALE))
-    return part.resize(size, Image.Resampling.NEAREST)
+    result = part.resize(larger(size), Image.Resampling.BOX)
+    result.putalpha(result.getchannel("A").point(lambda a: 255 if a > 127 else 0))
+    # The padlock and a piece of cardboard, given in the scene's pixels like the boxes.
+    scale_x, scale_y = result.width / part.width, result.height / part.height
+
+    def at(x, y):
+        return round(x * scale_x), round(y * scale_y)
+
+    paint = ImageDraw.Draw(result)
+    cx = (SHOP_DOORWAY[0] + SHOP_DOORWAY[2]) // 2 - left
+    paint.rectangle((*at(cx - 44, 48), *at(cx + 44, 100)), fill=(196, 172, 128, 255), outline=(70, 50, 34, 255), width=OUTLINE)
+    for y in (60, 72, 84):
+        (x0, y0), (x1, _) = at(cx - 32, y), at(cx + 32, y)
+        paint.rectangle((x0, y0, x1, y0 + OUTLINE - 1), fill=(70, 50, 34, 255))
+    paint.rectangle((*at(cx + 26, 118), *at(cx + 52, 146)), fill=(120, 120, 116, 255), outline=(30, 26, 26, 255), width=OUTLINE)
+    return result
 
 
 def is_object_pixel(color):
@@ -233,29 +265,43 @@ def is_object_pixel(color):
 
 
 def occluder(picture, box, shapes):
-    """The object inside box as a transparent overlay: same size as box, ground pixels removed."""
-    part = picture.crop(box).convert("RGBA")
+    """The object inside box as a transparent overlay: the box's part of the picture (RES times the box),
+    ground pixels removed. The box and the shapes are game pixels."""
+    part = picture.crop(larger(box)).convert("RGBA")
     mask = Image.new("L", part.size, 0)
     if shapes:
         draw = ImageDraw.Draw(mask)
         for kind, shape in shapes:
+            if kind == "poly":
+                draw.polygon([larger(point) for point in shape], fill=255)
+                continue
+            left, top, right, bottom = larger(shape)
             if kind == "rect":
-                draw.rectangle((shape[0], shape[1], shape[2] - 1, shape[3] - 1), fill=255)
-            elif kind == "ellipse":
-                draw.ellipse(shape, fill=255)
+                draw.rectangle((left, top, right - 1, bottom - 1), fill=255)
             else:
-                draw.polygon(shape, fill=255)
+                # An ellipse's box takes in its right and bottom game pixel, as draw.ellipse does.
+                draw.ellipse((left, top, right + RES - 1, bottom + RES - 1), fill=255)
     else:
         source = part.load()
         for y in range(part.height):
             for x in range(part.width):
                 if is_object_pixel(source[x, y]):
                     mask.putpixel((x, y), 255)
-        # Close small holes in the object and drop lone specks.
-        mask = mask.filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3))
-        mask = mask.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3))
+        # Close holes in the object and drop specks, up to a game pixel across.
+        size = 2 * RES + 1
+        mask = mask.filter(ImageFilter.MaxFilter(size)).filter(ImageFilter.MinFilter(size))
+        mask = mask.filter(ImageFilter.MinFilter(size)).filter(ImageFilter.MaxFilter(size))
+        mask = fill_holes(mask)
     part.putalpha(mask)
     return part
+
+
+def fill_holes(mask):
+    """Bright spots shut inside the object (light on bronze or stone) are part of it, not ground."""
+    outside = Image.new("L", (mask.width + 2, mask.height + 2), 0)
+    outside.paste(mask, (1, 1))
+    ImageDraw.floodfill(outside, (0, 0), 128)
+    return outside.crop((1, 1, mask.width + 1, mask.height + 1)).point(lambda v: 0 if v == 128 else 255)
 
 
 # ---------- the inside of grandma's house (approved art) ----------
@@ -281,18 +327,20 @@ def cut_prop(sheet, box):
 
 
 def house_prop(sheet, box, height):
+    """An object `height` game pixels tall (the file is RES times larger), with a hard edge."""
     item = cut_prop(sheet, box)
     size = (max(1, round(item.width * height / item.height)), height)
-    small = item.resize(size, Image.Resampling.BOX)
+    small = resample(item, larger(size))
     alpha = small.getchannel("A").point(lambda a: 255 if a > 110 else 0)
-    color = limit_palette(small.convert("RGB"), 48).convert("RGBA")
+    color = limit_palette(small.convert("RGB"), 96).convert("RGBA")
     color.putalpha(alpha)
     return color
 
 
 def house_room():
     room = load("house_room.png")
-    return limit_palette(room.resize((round(room.width * HOUSE_SCALE), round(room.height * HOUSE_SCALE)), Image.Resampling.BOX), 200)
+    size = (round(room.width * HOUSE_SCALE), round(room.height * HOUSE_SCALE))
+    return limit_palette(resample(room, larger(size)), PICTURE_COLORS)
 
 
 # Shop goods (reference/shop_goods.png): box, and height on the counter in the seller close-up.
@@ -323,9 +371,9 @@ NEWS_HARVEST_FRAME = 1  # replaces the winter picture: the game is set in summer
 
 
 def tv_picture():
-    picture = scene(load("tv_closeup.png")).convert("RGBA")
+    picture = scene(load("tv_closeup.png")).convert("RGBA")  # RES times the game size, like every scene
     pixels = picture.load()
-    left, top, right, bottom = TV_SCREEN_AREA
+    left, top, right, bottom = larger(TV_SCREEN_AREA)
     for y in range(top, bottom):
         for x in range(left, right):
             if sum(pixels[x, y][:3]) < 40:
@@ -335,16 +383,17 @@ def tv_picture():
 
 def news_strip():
     sheet = load("news_frames.png")
-    w, h = NEWS_FRAME
+    size = larger(NEWS_FRAME)
+    w, h = size
     strip = Image.new("RGB", (w * len(NEWS_ROWS) * len(NEWS_COLUMNS), h))
     index = 0
     for top, bottom in NEWS_ROWS:
         for left, right in NEWS_COLUMNS:
-            frame = sheet.crop((left, top, right, bottom)).resize(NEWS_FRAME, Image.Resampling.BOX)
-            strip.paste(limit_palette(frame, 64), (index * w, 0))
+            frame = resample(sheet.crop((left, top, right, bottom)), size)
+            strip.paste(limit_palette(frame, 128), (index * w, 0))
             index += 1
-    harvest = load("news_harvest.png").resize(NEWS_FRAME, Image.Resampling.BOX)
-    strip.paste(limit_palette(harvest, 64), (NEWS_HARVEST_FRAME * w, 0))
+    harvest = resample(load("news_harvest.png"), size)
+    strip.paste(limit_palette(harvest, 128), (NEWS_HARVEST_FRAME * w, 0))
     return strip
 
 
@@ -363,19 +412,20 @@ FRIDGE_BOXES = [
 
 
 def fridge_items():
-    """Six 40x40 pictures side by side, standing on the bottom edge of their cell."""
+    """Six 40x40 pictures side by side, standing on the bottom edge of their cell (RES times larger in the file)."""
     sheet = load("fridge_items.png")
-    strip = Image.new("RGBA", (FRIDGE_ITEM * len(FRIDGE_BOXES), FRIDGE_ITEM))
+    strip = Image.new("RGBA", larger((FRIDGE_ITEM * len(FRIDGE_BOXES), FRIDGE_ITEM)))
     for i, box in enumerate(FRIDGE_BOXES):
         item = cut_out(sheet.crop(box), 30)
         item = item.crop(item.getchannel("A").getbbox())
         ratio = FRIDGE_ITEM / max(item.size)
         size = (max(1, round(item.width * ratio)), max(1, round(item.height * ratio)))
-        small = item.resize(size, Image.Resampling.BOX)
+        small = resample(item, larger(size))
         alpha = small.getchannel("A").point(lambda a: 255 if a > 110 else 0)
-        small = limit_palette(small.convert("RGB"), 32).convert("RGBA")
+        small = limit_palette(small.convert("RGB"), 64).convert("RGBA")
         small.putalpha(alpha)
-        strip.alpha_composite(small, (i * FRIDGE_ITEM + (FRIDGE_ITEM - size[0]) // 2, FRIDGE_ITEM - size[1]))
+        corner = (i * FRIDGE_ITEM + (FRIDGE_ITEM - size[0]) // 2, FRIDGE_ITEM - size[1])
+        strip.alpha_composite(small, larger(corner))
     return strip
 
 
@@ -391,14 +441,16 @@ def build(out_world):
         for source, corner in PATCHES.get(name, []):
             crop.paste(crop.crop(source), corner)
         size = (round(crop.width * LOCATION_SCALE), round(crop.height * LOCATION_SCALE))
-        picture = limit_palette(crop.resize(size, Image.Resampling.BOX), 200)
+        # village_map.png has fewer pixels than RES times this size: it is enlarged from the source itself.
+        picture = limit_palette(resample(crop, larger(size)), PICTURE_COLORS)
         picture.save(f"{out_world}/loc_{name}.png", optimize=True)
         for art, (part, shapes) in OCCLUDERS.get(name, {}).items():
             occluder(picture, part, shapes).save(f"{out_world}/{art}.png", optimize=True)
 
     yard = load("loc_yard.png")
     yard = yard.crop((0, 0, yard.width, YARD_BOTTOM))
-    yard = limit_palette(yard.resize((round(yard.width * YARD_SCALE), round(YARD_BOTTOM * YARD_SCALE)), Image.Resampling.BOX), 200)
+    size = (round(yard.width * YARD_SCALE), round(YARD_BOTTOM * YARD_SCALE))
+    yard = limit_palette(resample(yard, larger(size)), PICTURE_COLORS)
     yard.save(f"{out_world}/loc_yard.png", optimize=True)
     for art, (part, shapes) in OCCLUDERS["yard"].items():
         occluder(yard, part, shapes).save(f"{out_world}/{art}.png", optimize=True)

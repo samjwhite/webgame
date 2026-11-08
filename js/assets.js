@@ -98,6 +98,11 @@ const PORTRAIT_FILES = {};
 // Replaced with the commit id on deploy, so phones load fresh files instead of old cached ones.
 const ART_VERSION = "dev";
 
+// Art files are ART_RES times finer than the world's game pixels (tools/art/lib.py, RES): a person
+// 40 game pixels tall is 120 pixels in the file. Everything in the game (positions, walls, sizes) stays
+// in game pixels; each picture knows its size in game pixels as `w` and `h`, and is drawn at that size.
+const ART_RES = 3;
+
 const ART = {};
 
 function loadArt() {
@@ -105,6 +110,8 @@ function loadArt() {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
+        img.w = img.width / ART_RES;
+        img.h = img.height / ART_RES;
         ART[name] = img;
         resolve();
       };
@@ -124,7 +131,24 @@ function snap(value) {
   return Math.round(value * PIXEL) / PIXEL;
 }
 
+// Hard pixel edges while a file pixel covers at least one screen pixel; smooth when the art is drawn
+// smaller than its file, so details blend instead of flickering.
+function setArtSmoothing(ctx) {
+  ctx.imageSmoothingEnabled = PIXEL < ART_RES;
+  ctx.imageSmoothingQuality = "high";
+}
+
+// Draws a whole picture with its top left corner at (x, y), all in game pixels.
+function drawArt(ctx, img, x, y) {
+  ctx.drawImage(img, x, y, img.w, img.h);
+}
+
+// Draws the part (sx, sy, sw, sh) of a picture at (x, y), all in game pixels.
+function drawArtPart(ctx, img, sx, sy, sw, sh, x, y) {
+  ctx.drawImage(img, sx * ART_RES, sy * ART_RES, sw * ART_RES, sh * ART_RES, x, y, sw, sh);
+}
+
 // Draws frame number `frame` from a horizontal strip of equal-width frames.
 function drawFrame(ctx, img, frame, frameWidth, x, y) {
-  ctx.drawImage(img, frame * frameWidth, 0, frameWidth, img.height, snap(x), snap(y), frameWidth, img.height);
+  drawArtPart(ctx, img, frame * frameWidth, 0, frameWidth, img.h, snap(x), snap(y));
 }

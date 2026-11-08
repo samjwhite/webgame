@@ -1,9 +1,11 @@
-"""Close-up scenes (192x144, side view) shown during dialogs and actions."""
+"""Close-up scenes (192x144, side view) shown during dialogs and actions.
+
+Drawn at game size and saved RES times larger with hard pixel edges (world.save)."""
 
 import math
 import random
 from lib import Sprite, strip
-from world import LEAVES
+from world import LEAVES, save
 
 W, H = 192, 144
 
@@ -171,10 +173,10 @@ def groceries():
 
 
 def build(out):
-    sky(["sky_top", "sky_mid", "sky_haze"]).save(f"{out}/sky_day.png")
-    clouds_layer().save(f"{out}/clouds.png")
-    garden().save(f"{out}/garden.png")
-    beetle_big().save(f"{out}/beetle.png")
-    strip([hand(False), hand(True)]).save(f"{out}/hand.png")
-    jar().save(f"{out}/jar.png")
-    groceries().save(f"{out}/groceries.png")
+    save(sky(["sky_top", "sky_mid", "sky_haze"]), f"{out}/sky_day.png")
+    save(clouds_layer(), f"{out}/clouds.png")
+    save(garden(), f"{out}/garden.png")
+    save(beetle_big(), f"{out}/beetle.png")
+    save(strip([hand(False), hand(True)]), f"{out}/hand.png")
+    save(jar(), f"{out}/jar.png")
+    save(groceries(), f"{out}/groceries.png")

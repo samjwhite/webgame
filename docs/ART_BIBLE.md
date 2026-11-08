@@ -69,7 +69,7 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 
 ## Technical specs (game pixels after processing)
 
-The game draws at 1 game pixel = several screen pixels; sources are drawn large and scaled down by `tools/art/reference.py`.
+The game draws at 1 game pixel = several screen pixels; sources are drawn large and scaled down by `tools/art/reference.py`. The sizes below are game pixels; the built files are 3 times larger (`RES` in `tools/art/lib.py`), so a source should have at least 3 times the game size in detail: a person at least 120 px tall, a close-up at least 576 px wide.
 
 | Asset | Game size | Source layout expected |
 |---|---|---|

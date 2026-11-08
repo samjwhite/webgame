@@ -225,7 +225,7 @@ test("the TV has a picture for every line of every bulletin, in every language",
       });
     }
     NEWS_PLAN.flat().forEach((frame) => {
-      if ((frame + 1) * NEWS_SCREEN.w > ART.newsFrames.width) problems.push("no news picture " + frame);
+      if ((frame + 1) * NEWS_SCREEN.w > ART.newsFrames.w) problems.push("no news picture " + frame);
     });
     return problems;
   }`);
@@ -326,6 +326,25 @@ test("the bottle on the far table: only once the lads asked, once, and it counts
     return [before, asked, spoke === T().hero.foundBeer[0], noDialog, count, after];
   }`);
   assert.deepStrictEqual(result, [false, true, true, true, 1, false]);
+});
+
+test("at night he says it is time to go home only away from home", () => {
+  const result = game.inGame(`() => {
+    kitCheckpoint("Ніч: у хаті, новини, сон");
+    quest.heroSaid = { house: true, yard: true, club: true };
+    heroSpeech.queue = [];
+    nextHeroLine();
+    updateHeroSpeech(0.02);
+    const atHome = heroSpeech.text;
+    kitGo("yard");
+    updateHeroSpeech(0.02);
+    const inYard = heroSpeech.text;
+    kitGo("club");
+    updateHeroSpeech(0.02);
+    return [atHome, inYard, heroSpeech.text === T().hero.night];
+  }`);
+  assert.deepStrictEqual(result, ["", "", true]);
+  game.inGame("() => clearSave()");
 });
 
 test("the hero remarks once on each place, in a bubble that does not stop the game", () => {

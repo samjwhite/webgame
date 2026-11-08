@@ -333,7 +333,7 @@ function update(dt) {
 
 function draw(time) {
   ctx.setTransform(PIXEL, 0, 0, PIXEL, 0, 0);
-  ctx.imageSmoothingEnabled = false;
+  setArtSmoothing(ctx);
   placeStage();
   if (mode === "world") {
     const target = dialog.open || travel.active ? null : nearestTarget();

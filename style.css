@@ -66,7 +66,8 @@ body {
   display: none;
 }
 
-/* The speaker's bust portrait, left of the text. Portrait files are 64x64, shown 1:1 so pixels stay even. */
+/* The speaker's bust portrait, left of the text. Portrait files are 192x192 (3x), so 64 CSS px are
+   1:1 on a phone and smoothly scaled elsewhere. */
 #dialog-portrait {
   float: left;
   width: 64px;
@@ -74,7 +75,7 @@ body {
   margin: 0 10px 4px 0;
   border: 2px solid #8a5d3c;
   background: #26222f;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 #dialog.with-portrait {
@@ -245,7 +246,7 @@ body {
 
 .check-item img {
   height: 18px;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 .check {
@@ -340,7 +341,7 @@ body {
 #map-frame img {
   display: block;
   width: 100%;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 #map-marker {
@@ -543,7 +544,7 @@ body {
   width: 26px;
   height: 30px;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 .shop-row span {

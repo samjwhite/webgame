@@ -136,11 +136,11 @@ const GRANDMA_IDLE_ROW = 4;
 
 function drawGrandma(ctx, grandma, time) {
   const sheet = ART.grandmaWalk;
-  const w = sheet.width / 4;
-  const h = sheet.height / 5;
+  const w = sheet.w / 4;
+  const h = sheet.h / 5;
   const row = grandma.walking ? GRANDMA_ROWS[grandma.dir] : GRANDMA_IDLE_ROW;
   const col = Math.floor(time / (grandma.walking ? 200 : 450)) % 4;
-  ctx.drawImage(sheet, col * w, row * h, w, h, snap(grandma.x - w / 2), snap(grandma.y - h + 2), w, h);
+  drawArtPart(ctx, sheet, col * w, row * h, w, h, snap(grandma.x - w / 2), snap(grandma.y - h + 2));
 }
 
 // The hero's own remarks, in a bubble over his head. They never stop the game.
@@ -188,7 +188,10 @@ function heroRemark(key, line) {
 function updateHeroSpeech(dt) {
   heroRemark(currentLocation, T().hero.places[currentLocation]);
   if (isNearGarden()) heroRemark("garden", T().hero.garden);
-  if (isNight() && quest.discoDone) heroRemark("night", T().hero.night);
+  // "Time to go home": only away from grandma's yard and house.
+  if (isNight() && quest.discoDone && currentLocation !== "yard" && currentLocation !== "house") {
+    heroRemark("night", T().hero.night);
+  }
   if (heroSpeech.text && heroSpeech.visible) {
     heroSpeech.time -= dt;
     if (heroSpeech.time <= 0) nextHeroLine();
@@ -380,7 +383,7 @@ function drawAnimal(ctx, animal) {
   ctx.save();
   ctx.translate(animal.flip ? left + w : left, top);
   if (animal.flip) ctx.scale(-1, 1);
-  ctx.drawImage(sheet, pose * w, animal.coat * h, w, h, 0, 0, w, h);
+  drawArtPart(ctx, sheet, pose * w, animal.coat * h, w, h, 0, 0);
   ctx.restore();
 }
 const travel = { active: false, time: 0, exit: null, switched: false };
@@ -392,7 +395,7 @@ function initWorld() {
 
 // Butterflies and cloud shadows for the location just entered, scattered over its picture.
 function decorateLocation() {
-  const { width, height } = ART[here().art];
+  const { w: width, h: height } = ART[here().art];
   butterflies = here().indoor ? [] : [0, 2, 4].map((phase) => ({
     x: width * (0.2 + Math.random() * 0.6),
     y: height * (0.3 + Math.random() * 0.5),
@@ -444,7 +447,7 @@ function isBlocked(x, y) {
     [x - 4, y],
     [x + 4, y],
   ];
-  const { width, height } = ART[here().art];
+  const { w: width, h: height } = ART[here().art];
   const touches = (area) => corners.some(([cx, cy]) => isInside(cx, cy, area));
   if (x < 4 || x > width - 4 || y < 3 || y > height) return true;
   if (here().solids.some(touches)) return true;
@@ -609,7 +612,7 @@ function updateWorld(dt) {
   updateAnimals(dt, performance.now());
   updateHeroSpeech(dt);
   updateGrandma(dt);
-  const mapWidth = ART[here().art].width;
+  const mapWidth = ART[here().art].w;
   cloudShadows.forEach((cloud) => {
     cloud.x += cloud.speed * dt;
     if (cloud.x - cloud.rx > mapWidth) cloud.x = -cloud.rx;
@@ -700,16 +703,16 @@ function chickenFrame(c, time) {
 
 // Draws a sprite standing with its feet at (x, y).
 function drawStanding(ctx, img, x, y, flip, bob) {
-  const left = snap(x - img.width / 2);
-  const top = snap(y - img.height + 2 - (bob || 0));
+  const left = snap(x - img.w / 2);
+  const top = snap(y - img.h + 2 - (bob || 0));
   if (!flip) {
-    ctx.drawImage(img, left, top);
+    drawArt(ctx, img, left, top);
     return;
   }
   ctx.save();
-  ctx.translate(left + img.width, top);
+  ctx.translate(left + img.w, top);
   ctx.scale(-1, 1);
-  ctx.drawImage(img, 0, 0);
+  drawArt(ctx, img, 0, 0);
   ctx.restore();
 }
 
@@ -749,17 +752,17 @@ function drawPlayer(ctx, time) {
   if (quest.riding) {
     const { row, col } = mopedFrame(time);
     top = snap(player.y - MOPED_FRAME_H + 2);
-    ctx.drawImage(ART.heroMoped, col * MOPED_FRAME_W, row * MOPED_FRAME_H, MOPED_FRAME_W, MOPED_FRAME_H,
-      snap(player.x - MOPED_FRAME_W / 2), top, MOPED_FRAME_W, MOPED_FRAME_H);
+    drawArtPart(ctx, ART.heroMoped, col * MOPED_FRAME_W, row * MOPED_FRAME_H, MOPED_FRAME_W, MOPED_FRAME_H,
+      snap(player.x - MOPED_FRAME_W / 2), top);
   } else {
     const sheet = quest.outfit === "sport" ? ART.heroSport : ART.heroCity;
     const { row, col } = heroFrame(time);
     top = snap(player.y + 1 - HERO_SOLES);
-    ctx.drawImage(sheet, col * HERO_FRAME_W, row * HERO_FRAME_H, HERO_FRAME_W, HERO_FRAME_H,
-      snap(player.x - HERO_FRAME_W / 2), top, HERO_FRAME_W, HERO_FRAME_H);
+    drawArtPart(ctx, sheet, col * HERO_FRAME_W, row * HERO_FRAME_H, HERO_FRAME_W, HERO_FRAME_H,
+      snap(player.x - HERO_FRAME_W / 2), top);
   }
   if (quest.carrying) {
-    ctx.drawImage(ART.crate, snap(player.x - 5), snap(top - 1));
+    drawArt(ctx, ART.crate, snap(player.x - 5), snap(top - 1));
   }
 }
 
@@ -804,7 +807,7 @@ function drawNpc(ctx, npc, time) {
   }
   if (npc.sprite === "grandpa") {
     const beat = PETRO_SMOKING[Math.floor(time / 500) % PETRO_SMOKING.length];
-    drawFrame(ctx, ART.petroBench, beat, PETRO_FRAME_W, npc.x - PETRO_FRAME_W / 2, npc.y - ART.petroBench.height + 2);
+    drawFrame(ctx, ART.petroBench, beat, PETRO_FRAME_W, npc.x - PETRO_FRAME_W / 2, npc.y - ART.petroBench.h + 2);
     return;
   }
   drawStanding(ctx, ART[npc.sprite], npc.x, npc.y, npc.x > player.x + 30);
@@ -815,7 +818,7 @@ function drawNpc(ctx, npc, time) {
 const MIN_WORLD_VIEW = 120;
 
 function worldZoom() {
-  const { width, height } = ART[here().art];
+  const { w: width, h: height } = ART[here().art];
   const dpr = window.devicePixelRatio || 1;
   const cover = Math.ceil(Math.max(window.innerWidth / width, window.innerHeight / height));
   const limit = Math.floor(Math.min(window.innerWidth, window.innerHeight) / MIN_WORLD_VIEW);
@@ -832,16 +835,17 @@ function drawWorld(ctx, view, time, target) {
   // snap() rounds to real screen pixels, and those change with the zoom.
   const basePixel = PIXEL;
   PIXEL = basePixel * zoom;
+  setArtSmoothing(ctx);
 
-  const camX = cameraOffset(player.x, worldView.width, picture.width);
-  const camY = cameraOffset(player.y, worldView.height, picture.height);
+  const camX = cameraOffset(player.x, worldView.width, picture.w);
+  const camY = cameraOffset(player.y, worldView.height, picture.h);
 
   ctx.fillStyle = location.backdrop;
   ctx.fillRect(0, 0, view.width, view.height);
   ctx.save();
   ctx.scale(zoom, zoom);
   ctx.translate(-camX, -camY);
-  ctx.drawImage(picture, 0, 0);
+  drawArt(ctx, picture, 0, 0);
 
   const drawables = [];
   const add = (y, draw) => drawables.push({ y, draw });
@@ -855,7 +859,7 @@ function drawWorld(ctx, view, time, target) {
   if (currentLocation === "house") {
     // Food sits on the furniture, so it sorts just in front of it.
     const plate = quest.ateVarenyky ? ART.housePlate : ART.houseVarenyky;
-    add(205.5, () => ctx.drawImage(plate, snap(250 - plate.width / 2), 182));
+    add(205.5, () => drawArt(ctx, plate, snap(250 - plate.w / 2), 182));
   }
   npcsHere().forEach((npc) => add(npc.y, () => drawNpc(ctx, npc, time)));
   (location.scenery || []).forEach((person) => {
@@ -872,16 +876,16 @@ function drawWorld(ctx, view, time, target) {
     add(BEER_BOTTLE.sortY, () => drawStanding(ctx, ART.beerBottle, BEER_BOTTLE.x, BEER_BOTTLE.y));
   }
   if (isNight() && location.nightProps) {
-    location.nightProps.forEach((prop) => ctx.drawImage(ART[prop.art], prop.x, prop.y));
+    location.nightProps.forEach((prop) => drawArt(ctx, ART[prop.art], prop.x, prop.y));
   }
 
   if (currentLocation === "yard") chickens.forEach((c) => {
     add(c.y, () => {
       const img = ART[c.sprite];
       drawFootShadow(ctx, c.x, c.y + 1, 5);
-      const frameWidth = img.width / CHICKEN_FRAMES;
+      const frameWidth = img.w / CHICKEN_FRAMES;
       ctx.save();
-      ctx.translate(snap(c.x), snap(c.y - img.height + 2));
+      ctx.translate(snap(c.x), snap(c.y - img.h + 2));
       if (c.flip) ctx.scale(-1, 1);
       drawFrame(ctx, img, chickenFrame(c, time), frameWidth, -frameWidth / 2, 0);
       ctx.restore();
@@ -890,11 +894,11 @@ function drawWorld(ctx, view, time, target) {
 
   if (canCollectBeetles() && currentLocation === "yard") {
     [[301, 191], [344, 207], [370, 185], [323, 215]].forEach(([x, y], i) => {
-      add(y, () => ctx.drawImage(ART.beetleSmall, x, y + (Math.floor(time / 500 + i) % 2)));
+      add(y, () => drawArt(ctx, ART.beetleSmall, x, y + (Math.floor(time / 500 + i) % 2)));
     });
   }
 
-  location.occluders.forEach((o) => add(o.baseY, () => ctx.drawImage(ART[o.art], o.x, o.y)));
+  location.occluders.forEach((o) => add(o.baseY, () => drawArt(ctx, ART[o.art], o.x, o.y)));
 
   drawables.sort((a, b) => a.y - b.y).forEach((d) => d.draw());
 
@@ -919,11 +923,12 @@ function drawWorld(ctx, view, time, target) {
 
   drawExitArrows(ctx);
   if (DEBUG) drawSolids(ctx);
-  if (target) drawHint(ctx, target, time);
   if (mode === "world" && !dialog.open && !travel.active) drawHeroSpeech(ctx, worldView, camX, camY, zoom);
   else heroSpeech.visible = false;
+  if (target) drawHint(ctx, target, time);
   ctx.restore();
   PIXEL = basePixel;
+  setArtSmoothing(ctx);
 
   if (!isNight()) drawSunlight(ctx, view);
   if (travel.active) {
@@ -973,6 +978,8 @@ function drawHint(ctx, target, time) {
   const x = snap(target.x) - 3;
   // High enough to clear the hair of a 40 px person.
   const y = snap(target.y) - 55 + (Math.floor(time / 300) % 2);
+  // Never over the hero's remark: it waits until he has finished saying it.
+  if (heroSpeech.visible && boxesMeet([x - 1, y - 1, x + 7, y + 10], heroSpeech.box)) return;
   ctx.fillStyle = "#2a1d17";
   ctx.fillRect(x - 1, y - 1, 8, 11);
   ctx.fillStyle = "#fbf6ea";

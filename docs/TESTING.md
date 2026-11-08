@@ -34,6 +34,7 @@ They run the real game code without a browser (`tests/harness.js`) and play it t
 | Saves load, and old saves land safely | `game.test.js` | Heroes stuck in walls after an update |
 | Developer checkpoints still work | `game.test.js` | The panel going stale |
 | Sizes follow `docs/PROPORTIONS.md`, every frame of the hero too, and he is built like the others | `proportions.test.js` | Art at the wrong scale, a big-headed hero |
+| Art files are 3 times finer than game pixels, the same in the art build and the game | `proportions.test.js` | Art drawn three times too big or blurred |
 
 **Fixing a bug? Add its test first.** The list above is mostly bugs that really happened.
 

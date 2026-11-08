@@ -1,39 +1,25 @@
 """Game art made from the reference pictures in tools/art/reference/.
 
-Pictures are scaled down to the game's pixel size and reduced to a limited
-palette. Sprites are cut out from the dark sprite-sheet backgrounds.
+Pictures are scaled down to RES times the game's pixel size (lib.RES) and reduced to a limited
+palette. Sprites are cut out from the dark sprite-sheet backgrounds. Sizes in the constants below
+are game pixels unless they say they are in the source picture.
 """
 
 import os
-from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter
+from PIL import Image, ImageChops, ImageEnhance, ImageFilter
+
+from lib import OUTLINE, RES
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REFERENCE = os.path.join(HERE, "reference")
 SCENE_WIDTH = 192
-MAP_SCALE = 0.5
+MAP_SCALE = 0.5  # the "Карта" screen: game pixels per pixel of village_map.png
 
-# Areas of reference/village_map.png covered with reference/village_map_old.png in the world map.
+# Areas of reference/village_map.png covered with reference/village_map_old.png where locations are cut from it.
 MAP_PATCHES = [
     (0, 0, 232, 276),  # legend
     (1300, 266, 1360, 312),  # quest marker above the shop
 ]
-
-# Parts of the world map drawn again on top of characters that walk behind them.
-# Coordinates are game pixels on art/world/map.png. Shapes: ("poly", points) or ("rect", box),
-# or ("dark", box) = only the statue's dark and grey pixels inside the box.
-OCCLUDERS = {
-    "occlude_well": [
-        ("poly", [(287, 127), (326, 127), (332, 150), (281, 150)]),
-        ("rect", (288, 149, 296, 188)),
-        ("rect", (321, 149, 329, 188)),
-        ("rect", (295, 151, 323, 162)),
-        ("rect", (295, 163, 326, 190)),
-    ],
-    "occlude_statue": [
-        ("dark", (448, 145, 476, 190)),
-        ("rect", (450, 187, 477, 215)),
-    ],
-}
 
 # Close-up pictures: output name -> (reference file, crop box or None)
 SCENES = {
@@ -75,10 +61,10 @@ SPRITES = {
     "shed_open": ("sheet_club.png", (468, 388, 896, 640), 26, 45),
 }
 
-# The lads' sheet is painted dark, muted and warm: at 40 px the denim and the olive jacket turned brown
-# next to the brighter hero. Their sprites lose the warm cast first (red, green, blue factors), then get
+# The lads' sheet and Svetka's concept are painted dark, muted and warm: at 40 px the denim, the olive
+# jacket and her red blouse turned brown next to the brighter hero. Their sprites lose the warm cast first (red, green, blue factors), then get
 # more light, contrast and a little colour (checked by the designer review, summer_round3).
-SPRITE_LIFT = {name: ((0.92, 1.0, 1.15), 1.3, 1.15, 1.1) for name in ("tolik", "vovchik", "sanya")}
+SPRITE_LIFT = {name: ((0.92, 1.0, 1.15), 1.3, 1.15, 1.1) for name in ("tolik", "vovchik", "sanya", "svetka")}
 
 
 def lifted(cut, factors):
@@ -106,14 +92,15 @@ PORTRAITS = {
     "sanya": ("incoming/village_lads_everyday_v4.png", (697, 961, 1008, 1272)),
     "svetka": ("incoming/summer_characters_concepts.png", (17, 614, 332, 929)),
 }
-PORTRAIT_SIZE = 64
+PORTRAIT_SIZE = 64  # CSS pixels in the dialog (style.css); the file is RES times larger
 
 
 def portraits(out_portraits):
     os.makedirs(out_portraits, exist_ok=True)
+    size = PORTRAIT_SIZE * RES
     for name, (file, box) in PORTRAITS.items():
-        small = load(file).crop(box).resize((PORTRAIT_SIZE, PORTRAIT_SIZE), Image.Resampling.BOX)
-        limit_palette(small, 64).save(f"{out_portraits}/{name}.png")
+        small = load(file).crop(box).resize((size, size), Image.Resampling.BOX)
+        limit_palette(small, 128).save(f"{out_portraits}/{name}.png")
 
 
 # Checklist icons keep their dark background: output name -> (reference file, crop box)
@@ -183,9 +170,10 @@ def limit_palette(img, colors):
 
 
 def scene(img, width=SCENE_WIDTH):
+    """A close-up picture `width` game pixels wide, built RES times larger."""
     height = round(img.height * width / img.width)
-    small = img.resize((width, height), Image.Resampling.BOX)
-    return limit_palette(small, 64)
+    small = img.resize((width * RES, height * RES), Image.Resampling.BOX)
+    return limit_palette(small, 128)
 
 
 def cut_out(img, tolerance):
@@ -236,19 +224,24 @@ def keep_largest_shape(alpha):
     return result
 
 
+def outline_filter():
+    return ImageFilter.MaxFilter(2 * OUTLINE + 1)
+
+
 def sprite(img, height):
-    """Scale a cut-out down, make it fully solid and give it a dark 1px outline."""
+    """Scale a cut-out to `height` game pixels (RES times larger in the file), make it fully solid
+    and give it a dark outline. The result has one game pixel of room for the outline on each side."""
     width = max(1, round(img.width * height / img.height))
-    small = img.resize((width, height), Image.Resampling.BOX)
+    small = img.resize((width * RES, height * RES), Image.Resampling.BOX)
     alpha = keep_largest_shape(small.getchannel("A").point(lambda a: 255 if a > 70 else 0))
-    color = limit_palette(small.convert("RGB"), 32).convert("RGBA")
+    color = limit_palette(small.convert("RGB"), 48).convert("RGBA")
     color.putalpha(alpha)
 
-    outline = Image.new("RGBA", (width, height), (34, 24, 20, 255))
-    outline.putalpha(alpha.filter(ImageFilter.MaxFilter(3)))
-    result = Image.new("RGBA", (width + 2, height + 2), (0, 0, 0, 0))
-    result.alpha_composite(outline, (1, 1))
-    result.alpha_composite(color, (1, 1))
+    outline = Image.new("RGBA", small.size, (34, 24, 20, 255))
+    outline.putalpha(alpha.filter(outline_filter()))
+    result = Image.new("RGBA", ((width + 2) * RES, (height + 2) * RES), (0, 0, 0, 0))
+    result.alpha_composite(outline, (RES, RES))
+    result.alpha_composite(color, (RES, RES))
     return result
 
 
@@ -320,12 +313,12 @@ def figures_in_rows(mask):
 
 
 def outlined_sprite(small, colors):
-    """A scaled-down figure made fully solid, reduced in colours and given the dark 1px outline of sprite()."""
+    """A scaled-down figure made fully solid, reduced in colours and given the dark outline of sprite()."""
     alpha = keep_largest_shape(small.getchannel("A").point(lambda a: 255 if a > 90 else 0))
     color = limit_palette(small.convert("RGB"), colors).convert("RGBA")
     color.putalpha(alpha)
     result = Image.new("RGBA", small.size, (34, 24, 20, 255))
-    result.putalpha(alpha.filter(ImageFilter.MaxFilter(3)))
+    result.putalpha(alpha.filter(outline_filter()))
     result.alpha_composite(color)
     return result
 
@@ -344,8 +337,8 @@ def hero_cell(sheet, mask, box, baseline, scale):
     w, h = HERO_FRAME
     window_top = baseline + 1 - HERO_SOLES / scale
     window = (center - w / 2 / scale, window_top, center + w / 2 / scale, window_top + h / scale)
-    small = figure.resize(HERO_FRAME, Image.Resampling.BOX, box=window)
-    return outlined_sprite(small, 40)
+    small = figure.resize((w * RES, h * RES), Image.Resampling.BOX, box=window)
+    return outlined_sprite(small, 64)
 
 
 def hero_animation(file, side_faces):
@@ -369,7 +362,7 @@ def hero_animation(file, side_faces):
     mirrored = [cell.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for cell in side]
     left, right = (side, mirrored) if side_faces == "left" else (mirrored, side)
     layout = [down[:8], up[:8], left[:8], right[:8], idle, [down[8], up[8], left[8], right[8]]]
-    fw, fh = HERO_FRAME
+    fw, fh = larger(HERO_FRAME)
     result = Image.new("RGBA", (fw * 8, fh * len(layout)))
     for r, frames in enumerate(layout):
         for c, frame in enumerate(frames):
@@ -377,13 +370,18 @@ def hero_animation(file, side_faces):
     return result
 
 
+def larger(size):
+    """A size in game pixels as file pixels."""
+    return (size[0] * RES, size[1] * RES)
+
+
 def glow_frame(sheet, center_x, top, window, size):
-    """Cut one frame from a sheet with a glowing dark background and scale it down."""
+    """Cut one frame from a sheet with a glowing dark background and scale it to `size` game pixels."""
     w, h = window
     cut = cut_out_gradient(sheet.crop((center_x - w // 2, top, center_x + w // 2, top + h)))
-    small = cut.resize(size, Image.Resampling.BOX)
+    small = cut.resize(larger(size), Image.Resampling.BOX)
     alpha = keep_largest_shape(small.getchannel("A").point(lambda a: 255 if a > 90 else 0))
-    color = limit_palette(small.convert("RGB"), 32).convert("RGBA")
+    color = limit_palette(small.convert("RGB"), 48).convert("RGBA")
     color.putalpha(alpha)
     return color
 
@@ -394,43 +392,17 @@ def chicken_strips(out_world):
         window = (CHICKEN_WINDOW_W, bottom - top)
         size = (round(window[0] * CHICKEN_SCALE), round(window[1] * CHICKEN_SCALE))
         frames = [glow_frame(sheet, x, top, window, size) for x in CHICKEN_COLUMNS]
-        cut_strip(frames, size).save(f"{out_world}/{name}.png")
+        cut_strip(frames, larger(size)).save(f"{out_world}/{name}.png")
 
 
 def moped_riding(out_world):
     sheet = load("moped_sheet.png")
-    fw, fh = MOPED_FRAME
+    fw, fh = larger(MOPED_FRAME)
     result = Image.new("RGBA", (fw * 6, fh * len(MOPED_ROWS)))
     for r, (top, columns) in enumerate(MOPED_ROWS):
         for c, x in enumerate(columns):
             result.alpha_composite(glow_frame(sheet, x, top, MOPED_WINDOW, MOPED_FRAME), (c * fw, r * fh))
     result.save(f"{out_world}/hero_moped.png")
-
-
-def is_statue_pixel(color):
-    r, g, b = color[:3]
-    return (r + g + b) / 3 < 140 or r - b < 40
-
-
-def occluder(world_map, shapes):
-    """Cut the given shapes out of the world map as a transparent overlay."""
-    mask = Image.new("L", world_map.size, 0)
-    draw = ImageDraw.Draw(mask)
-    pixels = world_map.load()
-    for kind, shape in shapes:
-        if kind == "poly":
-            draw.polygon(shape, fill=255)
-        elif kind == "rect":
-            draw.rectangle((shape[0], shape[1], shape[2] - 1, shape[3] - 1), fill=255)
-        else:
-            left, top, right, bottom = shape
-            for y in range(top, bottom):
-                for x in range(left, right):
-                    if is_statue_pixel(pixels[x, y]):
-                        mask.putpixel((x, y), 255)
-    layer = world_map.convert("RGBA")
-    layer.putalpha(mask)
-    return layer.crop(mask.getbbox())
 
 
 def app_icons(out_icons):
@@ -480,8 +452,8 @@ def well_pictures():
     box = WELL_SCENE_BOX
     background = scene.crop(box)
     front = front.crop(box)
-    size = (SCENE_WIDTH, round(background.height * SCENE_WIDTH / background.width))
-    background = limit_palette(background.resize(size, Image.Resampling.BOX), 64)
+    size = larger((SCENE_WIDTH, round(background.height * SCENE_WIDTH / background.width)))
+    background = limit_palette(background.resize(size, Image.Resampling.BOX), 128)
     small_front = front.resize(size, Image.Resampling.BOX)
     alpha = small_front.getchannel("A").point(lambda a: 255 if a > 128 else 0)
     small_front = background.convert("RGBA")
@@ -499,7 +471,7 @@ def cut_strip(frames, size):
 def solid_sprite(img, size):
     small = img.resize(size, Image.Resampling.BOX)
     alpha = small.getchannel("A").point(lambda a: 255 if a > 110 else 0)
-    color = limit_palette(small.convert("RGB"), 24).convert("RGBA")
+    color = limit_palette(small.convert("RGB"), 32).convert("RGBA")
     color.putalpha(alpha)
     return color
 
@@ -507,7 +479,7 @@ def solid_sprite(img, size):
 def well_crank_frames():
     sheet = load("well_sheet.png")
     left, up, right, down = CRANK_WINDOW
-    size = (round((left + right) * CRANK_SCALE), round((up + down) * CRANK_SCALE))
+    size = larger((round((left + right) * CRANK_SCALE), round((up + down) * CRANK_SCALE)))
     frames = []
     for hx, hy in CRANK_HUBS:
         window = cut_out(sheet.crop((hx - left, hy - up, hx + right, hy + down)), 40)
@@ -521,13 +493,14 @@ def well_bucket_frames():
     for left, top, right, bottom in BUCKET_BOXES:
         # all buckets share the bottom line, so crop them to the same height
         window = cut_out(sheet.crop((left, 808, right, bottom)), 40)
-        frames.append(solid_sprite(window, BUCKET_SIZE))
-    return cut_strip(frames, BUCKET_SIZE)
+        frames.append(solid_sprite(window, larger(BUCKET_SIZE)))
+    return cut_strip(frames, larger(BUCKET_SIZE))
 
 
 def icon(img):
-    width = round(img.width * ICON_HEIGHT / img.height)
-    return limit_palette(img.resize((width, ICON_HEIGHT), Image.Resampling.BOX), 32)
+    height = ICON_HEIGHT * RES
+    width = round(img.width * height / img.height)
+    return limit_palette(img.resize((width, height), Image.Resampling.BOX), 48)
 
 
 def build(out_scenes, out_world, out_ui, out_icons):
@@ -537,18 +510,11 @@ def build(out_scenes, out_world, out_ui, out_icons):
             img = img.crop(box)
         scene(img).save(f"{out_scenes}/{name}.png")
 
+    # The "Карта" screen shows the whole map with its legend and markers, as sharp as the source allows.
     village = load("village_map.png")
-    size = (round(village.width * MAP_SCALE), round(village.height * MAP_SCALE))
-    # The "Карта" screen shows the map with its legend and markers.
+    scale = min(1, MAP_SCALE * RES)
+    size = (round(village.width * scale), round(village.height * scale))
     village.resize(size, Image.Resampling.BOX).save(f"{out_ui}/village_map.png")
-    # In the world the legend and the "!" above the shop are covered with the same spots of the old map.
-    old = load("village_map_old.png")
-    for box in MAP_PATCHES:
-        village.paste(old.crop(box), box[:2])
-    world_map = village.resize(size, Image.Resampling.BOX)
-    world_map.save(f"{out_world}/map.png")
-    for name, shapes in OCCLUDERS.items():
-        occluder(world_map, shapes).save(f"{out_world}/{name}.png")
 
     for name, (file, box, height, tolerance) in SPRITES.items():
         cut = cut_out(load(file).crop(box), tolerance)

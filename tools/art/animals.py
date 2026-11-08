@@ -1,12 +1,14 @@
 """Village cats and dogs, cut from the designer's sheets in reference/incoming/.
 
 Each output is a grid of equal cells: one row per coat, one column per pose, feet on the bottom of the
-cell, facing right. js/world.js reads the same layout (CAT_* and DOG_* constants).
+cell, facing right. js/world.js reads the same layout (CAT_* and DOG_* constants). Cells and offsets are
+in game pixels; the files are lib.RES times larger.
 """
 
 import os
 from PIL import Image, ImageFilter
 
+from lib import OUTLINE, RES
 from reference import cut_out, keep_largest_shape, limit_palette, load
 
 BACKGROUND_TOLERANCE = 30
@@ -65,17 +67,18 @@ def frame(sheet, box, scale, cell, clean=None):
     if clean:
         cut = clean(cut)
     cut = cut.crop(cut.getchannel("A").getbbox())
-    size = (max(1, round(cut.width * scale)), max(1, round(cut.height * scale)))
+    size = (max(1, round(cut.width * scale * RES)), max(1, round(cut.height * scale * RES)))
     small = cut.resize(size, Image.Resampling.BOX)
     # A low threshold keeps the thin dark outline; the largest shape drops the lines drawn around a bark.
     alpha = keep_largest_shape(small.getchannel("A").point(lambda a: 255 if a > 90 else 0))
-    color = limit_palette(small.convert("RGB"), 32).convert("RGBA")
+    color = limit_palette(small.convert("RGB"), 48).convert("RGBA")
     color.putalpha(alpha)
     color = color.crop(alpha.getbbox())
-    if color.width > cell[0] or color.height > cell[1]:
-        raise ValueError(f"Frame {color.size} from {box} does not fit the cell {cell}")
-    result = Image.new("RGBA", cell)
-    result.alpha_composite(color, ((cell[0] - color.width) // 2, cell[1] - color.height))
+    width, height = cell[0] * RES, cell[1] * RES
+    if color.width > width or color.height > height:
+        raise ValueError(f"Frame {color.size} from {box} does not fit the cell {cell} x {RES}")
+    result = Image.new("RGBA", (width, height))
+    result.alpha_composite(color, ((width - color.width) // 2, height - color.height))
     return result
 
 
@@ -86,12 +89,13 @@ GRANDMA_MARGIN = 2
 
 
 def grandma_frame(figure, body_y, legs_x):
-    """Her figure with the upper body moved by body_y and the skirt and feet moved by legs_x."""
+    """Her figure with the upper body moved by body_y and the skirt and feet moved by legs_x (game pixels)."""
     w, h = figure.size
     split = round(h * GRANDMA_LEGS)
-    cell = Image.new("RGBA", (w + GRANDMA_MARGIN * 2, h + GRANDMA_MARGIN))
-    cell.alpha_composite(figure.crop((0, split, w, h)), (GRANDMA_MARGIN + legs_x, GRANDMA_MARGIN + split))
-    cell.alpha_composite(figure.crop((0, 0, w, split)), (GRANDMA_MARGIN, GRANDMA_MARGIN + body_y))
+    margin = GRANDMA_MARGIN * RES
+    cell = Image.new("RGBA", (w + margin * 2, h + margin))
+    cell.alpha_composite(figure.crop((0, split, w, h)), (margin + legs_x * RES, margin + split))
+    cell.alpha_composite(figure.crop((0, 0, w, split)), (margin, margin + body_y * RES))
     return cell
 
 
@@ -125,14 +129,14 @@ def outlined(cell):
     """A thin soft outline in the picture's own dark brown, half see-through, so an animal is not a sticker."""
     alpha = cell.getchannel("A").point(lambda a: 255 if a else 0)
     edge = Image.new("RGBA", cell.size, SOFT_OUTLINE + (0,))
-    edge.putalpha(alpha.filter(ImageFilter.MaxFilter(3)).point(lambda a: 150 if a else 0))
+    edge.putalpha(alpha.filter(ImageFilter.MaxFilter(2 * OUTLINE + 1)).point(lambda a: 150 if a else 0))
     edge.alpha_composite(cell)
     return edge
 
 
 def animal_grid(file, rows, columns, scale, cell, clean=None, outline=True):
     sheet = load(file)
-    w, h = cell
+    w, h = cell[0] * RES, cell[1] * RES
     result = Image.new("RGBA", (w * len(columns), h * len(rows)))
     for r, (top, bottom) in enumerate(rows):
         for c, (left, right) in enumerate(columns):
@@ -153,7 +157,7 @@ PETRO_CELL = (36, 38)
 def petro_strip():
     sheet = load(PETRO_SHEET)
     top, bottom = PETRO_ROW
-    w, h = PETRO_CELL
+    w, h = PETRO_CELL[0] * RES, PETRO_CELL[1] * RES
     strip = Image.new("RGBA", (w * len(PETRO_COLUMNS), h))
     for c, (left, right) in enumerate(PETRO_COLUMNS):
         strip.alpha_composite(frame(sheet, (left, top, right, bottom), PETRO_SCALE, PETRO_CELL), (c * w, 0))
