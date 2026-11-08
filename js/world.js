@@ -1,10 +1,10 @@
 const WALK_SPEED = 55;
 const MOPED_SPEED = 95;
 const TALK_DISTANCE = 22;
-const START = { location: "stop", x: 163, y: 109 };
+const START = { location: "stop", x: 250, y: 196 };
 const WAKE_UP_SPOT = { location: "yard", x: 245, y: 250 };
 const MORNING_SPOT = { location: "house", x: 110, y: 200 };
-const CLUB_PARKING = { location: "club", x: 172, y: 268 };
+const CLUB_PARKING = { location: "club", x: 250, y: 318 };
 const SHED_DOOR = { x: 420, y: 100 };
 const CHICKEN_YARD = { left: 202, right: 271, top: 185, bottom: 275 };
 const SHOP_STEPS = [78, 124, 147, 161]; // the shop's steps and door, plus a stride in front of them
@@ -13,7 +13,8 @@ const FADE_TIME = 0.18;
 const BEER_BOTTLE = { x: 268, y: 139, sortY: 181 };
 let DEBUG = location.search.includes("debug");
 
-const player = { x: START.x, y: START.y, dir: "down", moving: false, walkTime: 0, toldExit: null };
+// walked: ground covered since the hero started walking, in px (0 while standing).
+const player = { x: START.x, y: START.y, dir: "down", moving: false, walked: 0, toldExit: null };
 
 let currentLocation = START.location;
 
@@ -21,26 +22,39 @@ function here() {
   return LOCATIONS[currentLocation];
 }
 
+// A location's picture now: a place may look different by time of day (artBy: a function giving the art name).
+function locationArt(location) {
+  return location.artBy ? location.artBy() : location.art;
+}
+
 // dayOnly: goes home for the night.
 const npcs = [
   { id: "grandma", location: "yard", sprite: "grandma", x: 228, y: 194, talk: talkToGrandma, dayOnly: true, passable: true, walker: true, dir: "down", walking: false },
   { id: "valya", location: "shop", sprite: "seller", x: 112, y: 150, area: SHOP_STEPS, inWindow: true, passable: true, talk: talkToValya, dayOnly: true },
-  { id: "grandpa", location: "pond", sprite: "grandpa", x: 212, y: 50, talk: talkToGrandpa, dayOnly: true },
-  { id: "lads", location: "club", sprite: "ladRed", x: 120, y: 163, talk: talkToLads },
-  { id: "lads", location: "club", sprite: "ladSquat", x: 192, y: 164, talk: talkToLads },
-  { id: "lads", location: "club", sprite: "ladCap", x: 234, y: 163, talk: talkToLads },
+  { id: "grandpa", location: "pond", sprite: "grandpa", x: 150, y: 100, talk: talkToGrandpa, when: isGrandpaAtPond },
+  // The lads stand together by the club steps, talking among themselves.
+  { id: "lads", location: "club", sprite: "tolik", x: 254, y: 188, talk: talkToLads },
+  { id: "lads", location: "club", sprite: "sanya", x: 276, y: 183, talk: talkToLads },
+  { id: "lads", location: "club", sprite: "vovchik", x: 298, y: 189, talk: talkToLads },
+  // By the far table of the beer garden, from the day after the first disco.
+  { id: "svetka", location: "shop", sprite: "svetka", x: 262, y: 200, talk: talkToSvetka, when: isSvetkaAround },
+  // Mykola: asleep all day, out on his porch in the evening and at night.
+  { id: "mykola", location: "mykola", sprite: "mykola", x: 248, y: 174, talk: talkToMykola, when: isMykolaUp },
+  // The driver who is to take grandma to the district market for piglets, by his car on the road.
+  { id: "driver", location: "street", sprite: "driver", x: 1262, y: 238, talk: talkToDriver, dayOnly: true },
 ];
 
+// when: a test that says whether the person is here now (dayOnly people also go home for the night).
 function npcsHere() {
-  return npcs.filter((npc) => npc.location === currentLocation && !(npc.dayOnly && isNight()));
+  return npcs.filter((npc) => npc.location === currentLocation && !(npc.dayOnly && isNight()) && (!npc.when || npc.when()));
 }
 
 const places = {
-  well: { id: "well", location: "yard", x: 176, y: 256 },
+  well: { id: "well", location: "yard", x: 174, y: 262 },
   shed: { id: "shed", location: "yard", x: SHED_DOOR.x, y: SHED_DOOR.y },
   backpack: { id: "backpack", location: "yard", x: 365, y: 118 },
   truck: { id: "truck", location: "shop", x: 112, y: 208 },
-  statue: { id: "statue", location: "club", x: 157, y: 260 },
+  statue: { id: "statue", location: "club", x: 326, y: 300 },
   shopDoor: { id: "shopDoor", location: "shop", x: 112, y: 150, area: SHOP_STEPS },
   bed: { id: "bed", location: "house", x: 70, y: 202 },
   tv: { id: "tv", location: "house", x: 130, y: 170 },
@@ -48,6 +62,12 @@ const places = {
   fridge: { id: "fridge", location: "house", x: 300, y: 172 },
   varenyky: { id: "varenyky", location: "house", x: 250, y: 216 },
   beerBottle: { id: "beerBottle", location: "shop", x: 268, y: 186 },
+  // The catfish: worms at the edge of grandma's beds, the driver's car, the boardwalk at the pond.
+  worms: { id: "worms", location: "yard", x: 402, y: 184 },
+  car: { id: "car", location: "street", x: 1211, y: 249 },
+  boardwalk: { id: "boardwalk", location: "pond", x: 277, y: 168 },
+  // Mykola's door: shut by day, with snoring behind it.
+  mykolaDoor: { id: "mykolaDoor", location: "mykola", x: 284, y: 166 },
 };
 
 let chickens = [];
@@ -70,14 +90,14 @@ const DOG_BARK_DISTANCE = 34;
 
 // behaviour: none = stays in its pose; "guard" barks at a hero who comes close; "wander" walks along a line.
 const animals = [
-  { kind: "cat", location: "pond", coat: CAT_COAT.calico, pose: CAT_POSE.sit, x: 190, y: 58, behaviour: "cat", friendly: true },
+  { kind: "cat", location: "pond", coat: CAT_COAT.calico, pose: CAT_POSE.sit, x: 240, y: 100, behaviour: "cat", friendly: true },
   { kind: "cat", location: "yard", coat: CAT_COAT.cream, pose: CAT_POSE.sleep, x: 344, y: 129, behaviour: "cat", friendly: true },
-  { kind: "cat", location: "club", coat: CAT_COAT.calico, pose: CAT_POSE.sit, x: 76, y: 262, behaviour: "cat", friendly: true },
+  { kind: "cat", location: "club", coat: CAT_COAT.calico, pose: CAT_POSE.sit, x: 130, y: 300, behaviour: "cat", friendly: true },
   { kind: "cat", location: "street", coat: CAT_COAT.tabby, pose: CAT_POSE.stand, x: 533, y: 168, flip: true, behaviour: "cat" },
   { kind: "dog", location: "yard", coat: DOG_COAT.blackTan, pose: DOG_POSE.sit, x: 146, y: 185, behaviour: "guard" },
-  { kind: "dog", location: "club", coat: DOG_COAT.white, pose: DOG_POSE.sleep, x: 236, y: 250 },
+  { kind: "dog", location: "club", coat: DOG_COAT.white, pose: DOG_POSE.sleep, x: 470, y: 300 },
   { kind: "dog", location: "street", coat: DOG_COAT.grey, pose: DOG_POSE.stand, x: 860, y: 234, behaviour: "wander", from: 826, to: 1007, wait: 1 },
-  { kind: "dog", location: "stop", coat: DOG_COAT.ginger, pose: DOG_POSE.sit, x: 60, y: 125, behaviour: "wander", from: 40, to: 150, wait: 3 },
+  { kind: "dog", location: "stop", coat: DOG_COAT.ginger, pose: DOG_POSE.sit, x: 60, y: 200, behaviour: "wander", from: 20, to: 140, wait: 3 },
 ];
 
 // Grandma goes about her yard. The hero walks through her, she waits while he is close, and her stops
@@ -132,11 +152,12 @@ const GRANDMA_IDLE_ROW = 4;
 
 function drawGrandma(ctx, grandma, time) {
   const sheet = ART.grandmaWalk;
-  const w = sheet.width / 4;
-  const h = sheet.height / 5;
+  const w = sheet.w / 4;
+  const h = sheet.h / 5;
   const row = grandma.walking ? GRANDMA_ROWS[grandma.dir] : GRANDMA_IDLE_ROW;
   const col = Math.floor(time / (grandma.walking ? 200 : 450)) % 4;
-  ctx.drawImage(sheet, col * w, row * h, w, h, snap(grandma.x - w / 2), snap(grandma.y - h + 2), w, h);
+  drawFootShadow(ctx, grandma.x, grandma.y, 12);
+  drawArtPart(ctx, sheet, col * w, row * h, w, h, snap(grandma.x - w / 2), snap(grandma.y - h + 2));
 }
 
 // The hero's own remarks, in a bubble over his head. They never stop the game.
@@ -174,7 +195,8 @@ function nextHeroLine() {
   heroSpeech.visible = false;
 }
 
-// Says something the first time he comes somewhere, once per game.
+// The hero's remarks: each is said once per game. A remark that hints at the task in hand (go home at
+// night) is said again only while that task is open, once per night.
 function heroRemark(key, line) {
   if (quest.heroSaid[key] || !line) return;
   quest.heroSaid[key] = true;
@@ -184,7 +206,11 @@ function heroRemark(key, line) {
 function updateHeroSpeech(dt) {
   heroRemark(currentLocation, T().hero.places[currentLocation]);
   if (isNearGarden()) heroRemark("garden", T().hero.garden);
-  if (isNight() && quest.discoDone) heroRemark("night", T().hero.night);
+  // "Time to go home": a hint, once each night it applies, only away from grandma's yard and house and
+  // only when going home is the task (not on a night out for the catfish).
+  if (isNight() && quest.discoDone && !catfishNightTask() && currentLocation !== "yard" && currentLocation !== "house") {
+    heroRemark(`night${quest.day}`, T().hero.night);
+  }
   if (heroSpeech.text && heroSpeech.visible) {
     heroSpeech.time -= dt;
     if (heroSpeech.time <= 0) nextHeroLine();
@@ -232,7 +258,7 @@ function drawHeroSpeech(ctx, worldView, camX, camY, zoom) {
   const width = Math.max(...lines.map((line) => ctx.measureText(line).width)) + 10;
   const height = lines.length * SPEECH_LINE + 6;
   const left = Math.max(camX + 2, Math.min(camX + worldView.width - width - 2, player.x - width / 2));
-  const headTop = player.y - (quest.riding ? 40 : 44);
+  const headTop = player.y - (quest.riding ? 40 : 44) * depthScale(player.y);
   const view = [camX + 1, camY + 1, camX + worldView.width - 1, camY + worldView.height - 1];
   const blockers = speechBlockers(camX, camY, zoom);
   // Over his head if it all fits there, else under his feet; if neither, it waits.
@@ -359,11 +385,23 @@ function updateAnimals(dt, time) {
 }
 
 // A soft shadow on the ground, so an animal stands in the picture instead of floating over it.
+// A soft shadow on the ground under feet, wheels or an object, so nothing looks pasted on the picture.
+// The pictures are lit from the upper left in late afternoon: shadows fall a little to the right.
+// drop: how far below the feet line the shadow's middle lies, so the feet stand on it, not hide it.
+const SHADOW = { color: "34, 18, 6", strength: 0.78, flat: 0.4, lean: 0.3, drop: 1.5 };
+
 function drawFootShadow(ctx, x, y, width) {
-  ctx.fillStyle = "rgba(30, 18, 8, 0.32)";
-  ctx.beginPath();
-  ctx.ellipse(x, y, width, Math.max(1.5, width * 0.28), 0, 0, Math.PI * 2);
-  ctx.fill();
+  const half = Math.max(2, width);
+  ctx.save();
+  ctx.translate(x + half * SHADOW.lean, y + SHADOW.drop);
+  ctx.scale(1, SHADOW.flat);
+  const shade = ctx.createRadialGradient(0, 0, half * 0.2, 0, 0, half);
+  shade.addColorStop(0, `rgba(${SHADOW.color}, ${SHADOW.strength})`);
+  shade.addColorStop(0.7, `rgba(${SHADOW.color}, ${SHADOW.strength * 0.55})`);
+  shade.addColorStop(1, `rgba(${SHADOW.color}, 0)`);
+  ctx.fillStyle = shade;
+  ctx.fillRect(-half, -half, half * 2, half * 2);
+  ctx.restore();
 }
 
 function drawAnimal(ctx, animal) {
@@ -376,7 +414,7 @@ function drawAnimal(ctx, animal) {
   ctx.save();
   ctx.translate(animal.flip ? left + w : left, top);
   if (animal.flip) ctx.scale(-1, 1);
-  ctx.drawImage(sheet, pose * w, animal.coat * h, w, h, 0, 0, w, h);
+  drawArtPart(ctx, sheet, pose * w, animal.coat * h, w, h, 0, 0);
   ctx.restore();
 }
 const travel = { active: false, time: 0, exit: null, switched: false };
@@ -388,7 +426,7 @@ function initWorld() {
 
 // Butterflies and cloud shadows for the location just entered, scattered over its picture.
 function decorateLocation() {
-  const { width, height } = ART[here().art];
+  const { w: width, h: height } = ART[locationArt(here())];
   butterflies = here().indoor ? [] : [0, 2, 4].map((phase) => ({
     x: width * (0.2 + Math.random() * 0.6),
     y: height * (0.3 + Math.random() * 0.5),
@@ -440,7 +478,7 @@ function isBlocked(x, y) {
     [x - 4, y],
     [x + 4, y],
   ];
-  const { width, height } = ART[here().art];
+  const { w: width, h: height } = ART[locationArt(here())];
   const touches = (area) => corners.some(([cx, cy]) => isInside(cx, cy, area));
   if (x < 4 || x > width - 4 || y < 3 || y > height) return true;
   if (here().solids.some(touches)) return true;
@@ -488,6 +526,7 @@ function startTravel(exit) {
   travel.exit = exit;
   travel.switched = false;
   player.moving = false;
+  player.walked = 0;
 }
 
 // Fades to black, swaps the location, fades back.
@@ -531,25 +570,62 @@ function checkExits(dx, dy) {
   if (exit) startTravel(exit);
 }
 
+const DIRECTION_STICKINESS = 1.4;
+
+// How big someone with feet at y is drawn in a location painted in perspective (`depth` in js/map.js):
+// 1 is the yardstick size, bigger nearer the bottom of the picture, smaller far up a path.
+function depthScale(y, location = here()) {
+  if (!location.depth) return 1;
+  const [[farY, far], [nearY, near]] = location.depth;
+  const t = Math.min(1, Math.max(0, (y - farY) / (nearY - farY)));
+  return far + (near - far) * t;
+}
+
+// Runs draw() scaled for the depth of the feet at (x, y), so a sprite grows from its feet.
+function atDepth(ctx, x, y, draw) {
+  const scale = depthScale(y);
+  if (scale === 1) {
+    draw();
+    return;
+  }
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.translate(-x, -y);
+  // Scaled art is resampled smoothly: nearest-neighbour at an odd scale makes uneven pixels.
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  draw();
+  ctx.restore();
+}
+
 function updatePlayer(dt) {
-  const speed = quest.riding ? MOPED_SPEED : WALK_SPEED;
+  // He walks as fast as he looks: slower far up a path, where he is drawn smaller.
+  const depth = depthScale(player.y);
+  const speed = (quest.riding ? MOPED_SPEED : WALK_SPEED) * depth;
   const dx = input.moveX * speed * dt;
   const dy = input.moveY * speed * dt;
   player.moving = dx !== 0 || dy !== 0;
 
   if (player.moving) {
-    player.walkTime += dt;
-    if (Math.abs(input.moveX) > Math.abs(input.moveY)) {
-      player.dir = input.moveX < 0 ? "left" : "right";
-    } else {
-      player.dir = input.moveY < 0 ? "up" : "down";
-    }
-  } else {
-    player.walkTime = 0;
+    // The facing changes only when the other axis clearly wins, so walking near a diagonal does not
+    // flick between the sideways and the up/down frames.
+    const ax = Math.abs(input.moveX);
+    const ay = Math.abs(input.moveY);
+    const wasSideways = player.dir === "left" || player.dir === "right";
+    const sideways = wasSideways ? ax * DIRECTION_STICKINESS >= ay : ax > ay * DIRECTION_STICKINESS;
+    if (sideways) player.dir = input.moveX < 0 ? "left" : "right";
+    else player.dir = input.moveY < 0 ? "up" : "down";
   }
 
+  const fromX = player.x;
+  const fromY = player.y;
   stepAxis(dx, 0, speed, dt);
   stepAxis(0, dy, speed, dt);
+  // Walking into a wall leaves the hero standing, not walking on the spot. The steps follow the ground
+  // as it is drawn at his size, so a smaller hero far away takes as many steps for his shorter stride.
+  const covered = Math.hypot(player.x - fromX, player.y - fromY);
+  player.walked = player.moving && covered > 0 ? player.walked + covered / depth : 0;
   checkExits(dx, dy);
 }
 
@@ -602,7 +678,7 @@ function updateWorld(dt) {
   updateAnimals(dt, performance.now());
   updateHeroSpeech(dt);
   updateGrandma(dt);
-  const mapWidth = ART[here().art].width;
+  const mapWidth = ART[locationArt(here())].w;
   cloudShadows.forEach((cloud) => {
     cloud.x += cloud.speed * dt;
     if (cloud.x - cloud.rx > mapWidth) cloud.x = -cloud.rx;
@@ -622,11 +698,13 @@ function isMopedNearLads() {
 
 function isPlaceAvailable(place) {
   switch (place.id) {
-    case "backpack": return quest.backpackShown;
+    case "backpack": return quest.backpackShown || quest.outfit === "sport";
     case "truck": return quest.unload === "working" && !isNight();
     case "shopDoor": return isNight();
     case "varenyky": return !quest.ateVarenyky;
     case "beerBottle": return canFindBeer();
+    case "worms": return needsWorms();
+    case "mykolaDoor": return !isMykolaUp();
     default: return true;
   }
 }
@@ -692,35 +770,54 @@ function chickenFrame(c, time) {
 }
 
 // Draws a sprite standing with its feet at (x, y).
-function drawStanding(ctx, img, x, y, flip, bob) {
-  const left = snap(x - img.width / 2);
-  const top = snap(y - img.height + 2 - (bob || 0));
+// shadow: false for things that do not stand on the ground (a bottle on a table).
+function drawStanding(ctx, img, x, y, flip, bob, shadow = true) {
+  if (shadow) drawFootShadow(ctx, x, y, img.w * 0.58);
+  const left = snap(x - img.w / 2);
+  const top = snap(y - img.h + 2 - (bob || 0));
   if (!flip) {
-    ctx.drawImage(img, left, top);
+    drawArt(ctx, img, left, top);
     return;
   }
   ctx.save();
-  ctx.translate(left + img.width, top);
+  ctx.translate(left + img.w, top);
   ctx.scale(-1, 1);
-  ctx.drawImage(img, 0, 0);
+  drawArt(ctx, img, 0, 0);
   ctx.restore();
 }
 
-// Hero sheets: rows down, up, left, right (8 walking frames), last row = 4 idle frames.
-const HERO_FRAME_W = 28;
-const HERO_FRAME_H = 44;
+// Hero sheets (tools/art/reference.py, HERO_SHEETS): rows down, up, left, right (8 walking frames),
+// then 4 idle frames facing the viewer, then standing still facing down, up, left, right.
+const HERO_FRAME_W = 32;
+const HERO_FRAME_H = 48; // room for a full stride, the bob of a step and a foot nearer the viewer
+const HERO_SOLES = 45; // a standing hero's soles end above this row of the cell (HERO_SOLES in reference.py)
 const HERO_ROWS = { down: 0, up: 1, left: 2, right: 3 };
 const HERO_IDLE_ROW = 4;
+const HERO_STAND_ROW = 5;
+// The walk follows the ground covered, so the feet do not slide: a step is as long as the drawn stride
+// (measured on the sideways frames: the planted foot moves back 14.5 px from one contact to the next),
+// two steps make the 8 frames of a cycle.
+const HERO_STEP_PX = 14.5;
+const HERO_FRAME_PX = (HERO_STEP_PX * 2) / 8;
+// Sideways, the drawn in-between frames do not agree with each other (arms and head jump), so only the
+// four key poses are shown, each for two frames' worth of ground: contact, passing, contact, passing.
+const HERO_SIDE_POSES = [0, 0, 2, 2, 4, 4, 6, 6];
+// A walk starts from the passing pose (legs together), not from a wide stride.
+const HERO_WALK_START = 2 * HERO_FRAME_PX;
 
 function heroFrame(time) {
-  if (player.moving) return { row: HERO_ROWS[player.dir], col: Math.floor(player.walkTime * 10) % 8 };
+  if (player.walked > 0) {
+    const frame = Math.floor((player.walked + HERO_WALK_START) / HERO_FRAME_PX) % 8;
+    const sideways = player.dir === "left" || player.dir === "right";
+    return { row: HERO_ROWS[player.dir], col: sideways ? HERO_SIDE_POSES[frame] : frame };
+  }
   if (player.dir === "down") return { row: HERO_IDLE_ROW, col: Math.floor(time / 400) % 4 };
-  return { row: HERO_ROWS[player.dir], col: 0 };
+  return { row: HERO_STAND_ROW, col: HERO_ROWS[player.dir] };
 }
 
-// Moped sheet: rows right and left (6 frames each), then up and down (1 frame each).
-const MOPED_FRAME_W = 45;
-const MOPED_FRAME_H = 38;
+// Moped sheets, one per outfit: rows right and left (6 frames each), then up and down (1 frame each).
+const MOPED_FRAME_W = 48;
+const MOPED_FRAME_H = 46;
 const MOPED_ROWS = { right: 0, left: 1, up: 2, down: 3 };
 
 function mopedFrame(time) {
@@ -732,20 +829,22 @@ function mopedFrame(time) {
 
 function drawPlayer(ctx, time) {
   let top;
+  drawFootShadow(ctx, player.x, player.y + 1, quest.riding && (player.dir === "left" || player.dir === "right") ? 22 : 11);
   if (quest.riding) {
     const { row, col } = mopedFrame(time);
     top = snap(player.y - MOPED_FRAME_H + 2);
-    ctx.drawImage(ART.heroMoped, col * MOPED_FRAME_W, row * MOPED_FRAME_H, MOPED_FRAME_W, MOPED_FRAME_H,
-      snap(player.x - MOPED_FRAME_W / 2), top, MOPED_FRAME_W, MOPED_FRAME_H);
+    const moped = quest.outfit === "sport" ? ART.heroMopedSport : ART.heroMopedCity;
+    drawArtPart(ctx, moped, col * MOPED_FRAME_W, row * MOPED_FRAME_H, MOPED_FRAME_W, MOPED_FRAME_H,
+      snap(player.x - MOPED_FRAME_W / 2), top);
   } else {
     const sheet = quest.outfit === "sport" ? ART.heroSport : ART.heroCity;
     const { row, col } = heroFrame(time);
-    top = snap(player.y - HERO_FRAME_H + 3);
-    ctx.drawImage(sheet, col * HERO_FRAME_W, row * HERO_FRAME_H, HERO_FRAME_W, HERO_FRAME_H,
-      snap(player.x - HERO_FRAME_W / 2), top, HERO_FRAME_W, HERO_FRAME_H);
+    top = snap(player.y + 1 - HERO_SOLES);
+    drawArtPart(ctx, sheet, col * HERO_FRAME_W, row * HERO_FRAME_H, HERO_FRAME_W, HERO_FRAME_H,
+      snap(player.x - HERO_FRAME_W / 2), top);
   }
   if (quest.carrying) {
-    ctx.drawImage(ART.crate, snap(player.x - 5), snap(top - 4));
+    drawArt(ctx, ART.crate, snap(player.x - 5), snap(top - 1));
   }
 }
 
@@ -753,7 +852,8 @@ function drawPlayer(ctx, time) {
 function drawNight(ctx, worldView, camX, camY) {
   const indoor = here().indoor;
   ctx.globalCompositeOperation = "multiply";
-  ctx.fillStyle = indoor ? "#6f6a86" : "#3a4a86";
+  // A little lighter than a true night, so faces and planks stay readable (designer reviews).
+  ctx.fillStyle = indoor ? "#6f6a86" : "#4a5a94";
   ctx.fillRect(camX, camY, worldView.width, worldView.height);
   ctx.globalCompositeOperation = "lighter";
   here().lights.forEach(({ x, y, radius }) => {
@@ -763,6 +863,18 @@ function drawNight(ctx, worldView, camX, camY) {
     ctx.fillStyle = glow;
     ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
   });
+  ctx.globalCompositeOperation = "source-over";
+}
+
+// Evening: the low sun turns everything a little warmer and darker, while shadows stay cool
+// (the designer's review: a strong amber wash made paving, grass and people one brown).
+function drawEvening(ctx, worldView, camX, camY) {
+  ctx.globalCompositeOperation = "multiply";
+  ctx.fillStyle = here().indoor ? "#efe4d6" : "#f3d6b8";
+  ctx.fillRect(camX, camY, worldView.width, worldView.height);
+  ctx.globalCompositeOperation = "soft-light";
+  ctx.fillStyle = "rgba(70, 90, 130, 0.18)";
+  ctx.fillRect(camX, camY, worldView.width, worldView.height);
   ctx.globalCompositeOperation = "source-over";
 }
 
@@ -778,7 +890,8 @@ function drawNpc(ctx, npc, time) {
   }
   if (npc.sprite === "grandpa") {
     const beat = PETRO_SMOKING[Math.floor(time / 500) % PETRO_SMOKING.length];
-    drawFrame(ctx, ART.petroBench, beat, PETRO_FRAME_W, npc.x - PETRO_FRAME_W / 2, npc.y - ART.petroBench.height + 2);
+    drawFootShadow(ctx, npc.x, npc.y, 18);
+    drawFrame(ctx, ART.petroBench, beat, PETRO_FRAME_W, npc.x - PETRO_FRAME_W / 2, npc.y - ART.petroBench.h + 2);
     return;
   }
   drawStanding(ctx, ART[npc.sprite], npc.x, npc.y, npc.x > player.x + 30);
@@ -789,7 +902,7 @@ function drawNpc(ctx, npc, time) {
 const MIN_WORLD_VIEW = 120;
 
 function worldZoom() {
-  const { width, height } = ART[here().art];
+  const { w: width, h: height } = ART[locationArt(here())];
   const dpr = window.devicePixelRatio || 1;
   const cover = Math.ceil(Math.max(window.innerWidth / width, window.innerHeight / height));
   const limit = Math.floor(Math.min(window.innerWidth, window.innerHeight) / MIN_WORLD_VIEW);
@@ -799,29 +912,30 @@ function worldZoom() {
 
 function drawWorld(ctx, view, time, target) {
   const location = here();
-  const picture = ART[location.art];
+  const picture = ART[locationArt(location)];
   const zoom = worldZoom();
   const worldView = { width: view.width / zoom, height: view.height / zoom };
 
   // snap() rounds to real screen pixels, and those change with the zoom.
   const basePixel = PIXEL;
   PIXEL = basePixel * zoom;
+  setArtSmoothing(ctx);
 
-  const camX = cameraOffset(player.x, worldView.width, picture.width);
-  const camY = cameraOffset(player.y, worldView.height, picture.height);
+  const camX = cameraOffset(player.x, worldView.width, picture.w);
+  const camY = cameraOffset(player.y, worldView.height, picture.h);
 
   ctx.fillStyle = location.backdrop;
   ctx.fillRect(0, 0, view.width, view.height);
   ctx.save();
   ctx.scale(zoom, zoom);
   ctx.translate(-camX, -camY);
-  ctx.drawImage(picture, 0, 0);
+  drawArt(ctx, picture, 0, 0);
 
   const drawables = [];
   const add = (y, draw) => drawables.push({ y, draw });
   const addPlace = (place, art) => {
     if (place.location === currentLocation && isPlaceAvailable(place)) {
-      add(place.y, () => drawStanding(ctx, art, place.x, place.y));
+      add(place.y, () => atDepth(ctx, place.x, place.y, () => drawStanding(ctx, art, place.x, place.y)));
     }
   };
 
@@ -829,50 +943,55 @@ function drawWorld(ctx, view, time, target) {
   if (currentLocation === "house") {
     // Food sits on the furniture, so it sorts just in front of it.
     const plate = quest.ateVarenyky ? ART.housePlate : ART.houseVarenyky;
-    add(205.5, () => ctx.drawImage(plate, snap(250 - plate.width / 2), 182));
+    add(205.5, () => drawArt(ctx, plate, snap(250 - plate.w / 2), 182));
   }
-  npcsHere().forEach((npc) => add(npc.y, () => drawNpc(ctx, npc, time)));
+  npcsHere().forEach((npc) => add(npc.y, () => atDepth(ctx, npc.x, npc.y, () => drawNpc(ctx, npc, time))));
   (location.scenery || []).forEach((person) => {
-    if (!(person.dayOnly && isNight())) add(person.y, () => drawNpc(ctx, person, time));
+    if (!(person.dayOnly && isNight())) add(person.y, () => atDepth(ctx, person.x, person.y, () => drawNpc(ctx, person, time)));
   });
-  add(player.y, () => drawPlayer(ctx, time));
+  add(player.y, () => atDepth(ctx, player.x, player.y, () => drawPlayer(ctx, time)));
   addPlace(places.backpack, ART.backpack);
   addPlace(places.truck, ART.truck);
-  if (isMopedHere()) add(quest.moped.y, () => drawStanding(ctx, ART.moped, quest.moped.x, quest.moped.y));
+  addPlace(places.car, carState() === "empty" ? ART.carEmpty : ART.car);
+  if (isMopedHere()) {
+    const { x, y } = quest.moped;
+    add(y, () => atDepth(ctx, x, y, () => drawStanding(ctx, ART.moped, x, y)));
+  }
   animals.forEach((animal) => {
-    if (animal.location === currentLocation) add(animal.y, () => drawAnimal(ctx, animal));
+    if (animal.location === currentLocation) add(animal.y, () => atDepth(ctx, animal.x, animal.y, () => drawAnimal(ctx, animal)));
   });
   if (currentLocation === "shop" && canFindBeer()) {
-    add(BEER_BOTTLE.sortY, () => drawStanding(ctx, ART.beerBottle, BEER_BOTTLE.x, BEER_BOTTLE.y));
+    add(BEER_BOTTLE.sortY, () => drawStanding(ctx, ART.beerBottle, BEER_BOTTLE.x, BEER_BOTTLE.y, false, 0, false));
   }
   if (isNight() && location.nightProps) {
-    location.nightProps.forEach((prop) => ctx.drawImage(ART[prop.art], prop.x, prop.y));
+    location.nightProps.forEach((prop) => drawArt(ctx, ART[prop.art], prop.x, prop.y));
   }
 
   if (currentLocation === "yard") chickens.forEach((c) => {
-    add(c.y, () => {
+    add(c.y, () => atDepth(ctx, c.x, c.y, () => {
       const img = ART[c.sprite];
       drawFootShadow(ctx, c.x, c.y + 1, 5);
-      const frameWidth = img.width / CHICKEN_FRAMES;
+      const frameWidth = img.w / CHICKEN_FRAMES;
       ctx.save();
-      ctx.translate(snap(c.x), snap(c.y - img.height + 2));
+      ctx.translate(snap(c.x), snap(c.y - img.h + 2));
       if (c.flip) ctx.scale(-1, 1);
       drawFrame(ctx, img, chickenFrame(c, time), frameWidth, -frameWidth / 2, 0);
       ctx.restore();
-    });
+    }));
   });
 
   if (canCollectBeetles() && currentLocation === "yard") {
     [[301, 191], [344, 207], [370, 185], [323, 215]].forEach(([x, y], i) => {
-      add(y, () => ctx.drawImage(ART.beetleSmall, x, y + (Math.floor(time / 500 + i) % 2)));
+      add(y, () => drawArt(ctx, ART.beetleSmall, x, y + (Math.floor(time / 500 + i) % 2)));
     });
   }
 
-  location.occluders.forEach((o) => add(o.baseY, () => ctx.drawImage(ART[o.art], o.x, o.y)));
+  location.occluders.forEach((o) => add(o.baseY, () => drawArt(ctx, ART[o.art], o.x, o.y)));
 
   drawables.sort((a, b) => a.y - b.y).forEach((d) => d.draw());
 
-  if (!isNight()) butterflies.forEach((b) => {
+  // Butterflies fly by day only: in the evening they read as stray yellow specks (designer review).
+  if (!isNight() && quest.time !== "evening") butterflies.forEach((b) => {
     const t = time / 1000 + b.phase;
     const x = b.x + Math.sin(t * 0.7) * 24 + Math.sin(t * 2.3) * 4;
     const y = b.y + Math.sin(t * 1.1) * 12 - Math.abs(Math.sin(t * 3)) * 4;
@@ -882,6 +1001,7 @@ function drawWorld(ctx, view, time, target) {
   if (isNight()) {
     drawNight(ctx, worldView, camX, camY);
   } else {
+    if (quest.time === "evening") drawEvening(ctx, worldView, camX, camY);
     ctx.fillStyle = "rgba(20, 30, 40, 0.08)";
     cloudShadows.forEach((cloud) => {
       ctx.beginPath();
@@ -892,13 +1012,14 @@ function drawWorld(ctx, view, time, target) {
 
   drawExitArrows(ctx);
   if (DEBUG) drawSolids(ctx);
-  if (target) drawHint(ctx, target, time);
   if (mode === "world" && !dialog.open && !travel.active) drawHeroSpeech(ctx, worldView, camX, camY, zoom);
   else heroSpeech.visible = false;
+  if (target) drawHint(ctx, target, time);
   ctx.restore();
   PIXEL = basePixel;
+  setArtSmoothing(ctx);
 
-  if (!isNight()) drawSunlight(ctx, view, time);
+  if (!isNight()) drawSunlight(ctx, view);
   if (travel.active) {
     ctx.fillStyle = `rgba(10, 8, 6, ${1 - Math.abs(travel.time / FADE_TIME - 1)})`;
     ctx.fillRect(0, 0, view.width, view.height);
@@ -944,7 +1065,10 @@ function drawSolids(ctx) {
 
 function drawHint(ctx, target, time) {
   const x = snap(target.x) - 3;
-  const y = snap(target.y) - 50 + (Math.floor(time / 300) % 2);
+  // High enough to clear the hair of a 40 px person, at the size of the target's depth.
+  const y = snap(target.y - 55 * depthScale(target.y)) + (Math.floor(time / 300) % 2);
+  // Never over the hero's remark: it waits until he has finished saying it.
+  if (heroSpeech.visible && boxesMeet([x - 1, y - 1, x + 7, y + 10], heroSpeech.box)) return;
   ctx.fillStyle = "#2a1d17";
   ctx.fillRect(x - 1, y - 1, 8, 11);
   ctx.fillStyle = "#fbf6ea";
@@ -957,7 +1081,7 @@ function drawHint(ctx, target, time) {
 // Made once per screen size: building a full-screen gradient every frame is slow on phones.
 let vignette = { key: "", gradient: null };
 
-function drawSunlight(ctx, view, time) {
+function drawSunlight(ctx, view) {
   ctx.fillStyle = "rgba(255, 196, 120, 0.06)";
   ctx.fillRect(0, 0, view.width, view.height);
   const key = `${view.width}x${view.height}`;
@@ -972,10 +1096,5 @@ function drawSunlight(ctx, view, time) {
   }
   ctx.fillStyle = vignette.gradient;
   ctx.fillRect(0, 0, view.width, view.height);
-
-  // After a few beers the world sways a little.
-  if (quest.beersDrunk > 0 && !quest.discoDone) {
-    ctx.fillStyle = `rgba(255, 220, 150, ${0.03 * quest.beersDrunk * (1 + Math.sin(time / 600))})`;
-    ctx.fillRect(0, 0, view.width, view.height);
-  }
+  // Nothing here may pulse or flash: a pale wash that came and went after beer read as flicker.
 }

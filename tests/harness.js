@@ -20,7 +20,14 @@ function fakeElement() {
     children: [],
     classList: { toggle() {}, add() {}, remove() {} },
     addEventListener() {},
-    setAttribute() {},
+    attributes: {},
+    setAttribute(name, value) {
+      element.attributes[name] = String(value);
+    },
+    getAttribute: (name) => (name in element.attributes ? element.attributes[name] : null),
+    removeAttribute(name) {
+      delete element.attributes[name];
+    },
     setPointerCapture() {},
     getBoundingClientRect: () => element.rect || { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 },
     append(...items) {

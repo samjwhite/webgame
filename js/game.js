@@ -35,11 +35,15 @@ function finishCloseup() {
   saveGame();
 }
 
-function showPicture(picture, lines, onClose, effect) {
+// speaker: who says the lines that do not name anyone (see readLine in dialog.js).
+function showPicture(picture, lines, onClose, effect, speaker) {
   mode = "closeup";
   startPictureScene(picture, effect);
-  openDialog(lines, onClose || finishCloseup);
+  openDialog(lines, onClose || finishCloseup, speaker);
 }
+
+// Who speaks in each talk picture, unless a line names someone else.
+const TALK_SPEAKERS = { grandma: "grandma", grandpa: "grandpa", valya: "valya" };
 
 function startNewGame() {
   clearSave();
@@ -83,20 +87,101 @@ function getBeaten() {
     }
     enterLocation(WAKE_UP_SPOT.location, WAKE_UP_SPOT);
     heroSay([T().hero.afterBeating]);
-    showPicture("talkGrandma", wakeUpLines());
+    showPicture("talkGrandma", wakeUpLines(), null, null, "grandma");
   }, "hit");
 }
 
-// The lads let the hero in: the evening has come, and night falls over the village.
+// In the garden grandma sees the hero picking beetles by hand and sends him to grandpa for the sprayer.
+function grandmaStopsHandPicking() {
+  showPicture("talkGrandma", stopPicking(), finishCloseup, null, "grandma");
+}
+
+// The hero is ready before the evening: he may wait for it by the club. The day stays the same.
+function offerEvening() {
+  openChoice(T().ui.waitTitle, [
+    {
+      label: T().ui.waitEvening,
+      pick: () => {
+        advancePhase("evening");
+        saveGame();
+        showPicture("nightfall", T().evening, () => showPicture("talkLads", T().lads.welcome, goToDisco));
+      },
+    },
+    { label: T().ui.notYet, pick: finishCloseup },
+  ]);
+}
+
+// The lads let the hero in. Inside he notices a girl he does not know and chooses what to do.
+// The disco ends at night; the day changes only after sleeping.
 function goToDisco() {
+  const text = T().disco;
+  showPicture("disco", [...text.start, ...noticeSvetka()], () => {
+    openChoice(text.choiceTitle, [
+      { label: text.goOver, pick: () => showPicture("discoSvetka", discoApproach(), chooseAfterDance) },
+      { label: text.keepDancing, pick: () => showPicture("disco", discoStayWithLads(), endDisco, "disco") },
+    ]);
+  }, "disco");
+}
+
+function chooseAfterDance() {
+  const text = T().disco;
+  openChoice(text.afterTitle, ["stayed", "warned", "left"].map((id) => ({
+    label: text.afterOptions[id],
+    pick: () => showPicture("discoSvetka", discoAfterDance(id), endDisco),
+  })));
+}
+
+function endDisco() {
   quest.time = "night";
-  showPicture("nightfall", T().nightfall, () => {
-    showPicture("disco", T().disco, () => {
-      quest.discoDone = true;
-      finishCloseup();
-      openDialog(T().afterDisco, saveGame);
-    }, "disco");
+  quest.discoDone = true;
+  finishCloseup();
+  openDialog(T().afterDisco, saveGame);
+}
+
+// After their talk by the shop the hero chooses whether to ask Svetka to the river now.
+function offerDateInvite() {
+  const text = T().svetka;
+  openChoice(text.inviteTitle, [
+    { label: text.inviteRiver, pick: () => openDialog(inviteToRiver(), saveGame) },
+    { label: text.inviteLater, pick: () => openDialog([text.notNow], saveGame) },
+  ]);
+}
+
+// Everything is ready but it is still day: he may wait with her for the evening. The day stays the same.
+function offerDateEvening() {
+  const text = T().svetka;
+  openChoice(text.waitTitle, [
+    {
+      label: text.waitHere,
+      pick: () => {
+        advancePhase("evening");
+        saveGame();
+        openDialog(text.eveningFalls, goToRiver);
+      },
+    },
+    { label: T().ui.notYet, pick: saveGame },
+  ]);
+}
+
+// The date: the ride, the bank, his tapes, and one choice: say something or keep quiet.
+function goToRiver() {
+  const text = T().river;
+  showPicture("riverDate", text.start, () => {
+    openChoice(text.choiceTitle, [
+      { label: text.speakChoice, pick: () => showPicture("riverDate", riverDate("spoke"), endDate) },
+      { label: text.silentChoice, pick: () => showPicture("riverDate", riverDate("silent"), endDate) },
+    ]);
   });
+}
+
+// He takes her home and rolls the moped into grandma's yard: night, time for bed.
+function endDate() {
+  quest.time = "night";
+  quest.riding = false;
+  quest.moped = { ...newQuest().moped };
+  enterLocation(WAKE_UP_SPOT.location, WAKE_UP_SPOT);
+  finishCloseup();
+  openDialog(T().river.home, saveGame);
 }
 
 function goToSleep() {
@@ -112,8 +197,92 @@ function goToSleep() {
 function afterTalk(next) {
   if (next === "beaten") getBeaten();
   else if (next === "disco") goToDisco();
+  else if (next === "waitEvening") offerEvening();
   else if (next === "shop") openShopMenu();
+  else if (next === "invite") offerDateInvite();
+  else if (next === "dateWait") offerDateEvening();
+  else if (next === "riverDate") goToRiver();
+  else if (next === "catfishChoice") chooseCatfishWay();
+  else if (next === "rodWait") offerNight(goRodCatch);
+  else if (next === "rodCatch") goRodCatch();
+  else if (next === "carWait") offerNight(() => showAction(useCar()));
+  else if (next === "boardwalkWait") offerNight(() => showAction(useBoardwalk()));
+  else if (next === "sellPlayer") offerPlayerSale();
+  else if (next === "mykolaWait") offerMykolaEvening();
   else finishCloseup();
+}
+
+// ---------- The player and Mykola ----------
+
+// Valya or Vovchik offers fifty for the cassette player; the talk picture shows who asks.
+function offerPlayerSale() {
+  const text = T().player;
+  const buyer = closeup.picture === "talkSeller" ? "valya" : "vovchik";
+  openChoice(text.title, [
+    { label: text.sell[buyer], pick: () => showPicture(closeup.picture, sellPlayer(buyer), finishCloseup) },
+    {
+      label: text.keep,
+      pick: () => (buyer === "valya" ? openShopMenu() : showPicture(closeup.picture, [text.kept], finishCloseup)),
+    },
+  ]);
+}
+
+// Mykola sleeps all day: the hero may wait for the evening at his door. The day stays the same.
+function offerMykolaEvening() {
+  const text = T().mykola;
+  openChoice(text.waitTitle, [
+    {
+      label: text.waitHere,
+      pick: () => {
+        advancePhase("evening");
+        saveGame();
+        openDialog(text.evening, finishCloseup);
+      },
+    },
+    { label: T().ui.notYet, pick: finishCloseup },
+  ]);
+}
+
+// ---------- The catfish ----------
+
+// Grandpa has told both ways: the hero chooses one.
+function chooseCatfishWay() {
+  const text = T().catfish;
+  openChoice(text.choiceTitle, ["rod", "electro"].map((way) => ({
+    label: text[way],
+    pick: () => showPicture("talkGrandpa", chooseCatfish(way), finishCloseup),
+  })));
+}
+
+// The catfish comes out at night: the hero may wait for it where he is. The day stays the same.
+function offerNight(onWait) {
+  const text = T().catfish;
+  openChoice(text.nightTitle, [
+    {
+      label: text.waitNight,
+      pick: () => {
+        advancePhase("night");
+        saveGame();
+        onWait();
+      },
+    },
+    { label: T().ui.notYet, pick: finishCloseup },
+  ]);
+}
+
+function goRodCatch() {
+  showPicture("catfishRod", catchWithRod(), finishCloseup);
+}
+
+// Shows what using a thing gave: over its close-up picture, or as a dialog over the world.
+function showAction(result) {
+  if (result.picture) {
+    showPicture(result.picture, result.lines, () => afterTalk(result.next));
+  } else if (result.next) {
+    openDialog(result.lines, () => afterTalk(result.next));
+  } else {
+    openDialog(result.lines, finishCloseup);
+  }
 }
 
 const TALK_ACTIONS = {
@@ -129,6 +298,13 @@ const TALK_ACTIONS = {
   varenyky: useVarenyky,
   fridge: useFridge,
   beerBottle: useBeerBottle,
+  svetka: talkToSvetka,
+  worms: useWorms,
+  car: useCar,
+  boardwalk: useBoardwalk,
+  driver: talkToDriver,
+  mykola: talkToMykola,
+  mykolaDoor: useMykolaDoor,
 };
 
 function useTarget(target) {
@@ -146,13 +322,20 @@ function useTarget(target) {
   }
   if (target.id === "garden") {
     mode = "closeup";
-    startGardenScene();
+    if (gardenJob() === "spray") {
+      startSprayScene();
+      openDialog(sprayPotatoes(), finishCloseup);
+    } else {
+      startGardenScene();
+    }
     return;
   }
 
   if (TALK_ACTIONS[target.id]) {
     const result = TALK_ACTIONS[target.id]();
-    if (result.next === "ride") {
+    if (result.picture) {
+      showAction(result);
+    } else if (result.next === "ride") {
       showPicture("road", result.lines);
     } else if (result.next === "speak") {
       heroInterrupt(result.lines);
@@ -163,6 +346,8 @@ function useTarget(target) {
       showPicture("fridgeOpen", result.lines, finishCloseup, "fridge");
     } else if (result.next === "tv") {
       showPicture("tsn", result.lines, finishCloseup, "tv");
+    } else if (result.next) {
+      openDialog(result.lines, () => afterTalk(result.next));
     } else {
       openDialog(result.lines, saveGame);
     }
@@ -171,7 +356,7 @@ function useTarget(target) {
 
   if (target.id === "lads") quest.arrivedOnMoped = isMopedNearLads();
   const result = target.talk();
-  showPicture(TALK_PICTURES[target.id], result.lines, () => afterTalk(result.next));
+  showPicture(TALK_PICTURES[target.id], result.lines, () => afterTalk(result.next), null, TALK_SPEAKERS[target.id]);
 }
 
 function getOffMoped() {
@@ -207,8 +392,14 @@ function update(dt) {
     action = false;
     tap = null;
   }
+  if (choice.open && !dialog.open) {
+    updateChoice(action);
+    action = false;
+    tap = null;
+  }
 
-  if (mode === "world" && !dialog.open) {
+  // A choice over the world (talking to Svetka) holds the hero in place until it is answered.
+  if (mode === "world" && !dialog.open && !choice.open) {
     updateWorld(dt);
     const target = nearestTarget();
     actionButton.classList.toggle("ready", target !== null);
@@ -230,7 +421,7 @@ function update(dt) {
 
 function draw(time) {
   ctx.setTransform(PIXEL, 0, 0, PIXEL, 0, 0);
-  ctx.imageSmoothingEnabled = false;
+  setArtSmoothing(ctx);
   placeStage();
   if (mode === "world") {
     const target = dialog.open || travel.active ? null : nearestTarget();
@@ -260,9 +451,11 @@ function setText(element, text) {
 
 function updateHud() {
   setText(objectiveText, currentObjective());
-  setText(dayText, T().ui.day(quest.day, isNight()));
-  setText(bagText, Object.keys(quest.bag).length ? T().shop.bag(bagLine()) : "");
+  setText(dayText, T().ui.day(quest.day, SUMMER_DAYS, T().ui.phases[quest.time]));
+  const bag = bagLine();
+  setText(bagText, bag ? T().shop.bag(bag) : "");
   shopMenuBox.hidden = !shopMenu.open || dialog.open;
+  choiceBox.hidden = !choice.open || dialog.open;
   setText(locationName, T().places[currentLocation]);
   setText(moneyText, quest.money > 0 || quest.metLads ? T().ui.money(quest.money) : "");
   checklist.hidden = !quest.metLads || quest.discoDone;
@@ -295,8 +488,6 @@ function loadHudCollapsed() {
   }
 }
 
-// Location pictures are the map's source picture scaled by 0.65; the map screen scales it by 0.5.
-const LOCATION_TO_MAP = 0.5 / 0.65;
 const VILLAGE_MAP_W = 768;
 const VILLAGE_MAP_H = 512;
 
@@ -331,12 +522,9 @@ function fillMapLabels() {
 }
 
 function openMap() {
-  const { mapOrigin, mapSpot, mapLine } = here();
+  const { mapSpot, mapLine } = here();
   // The road is one long picture, so only the hero's position along it counts on the map.
-  const spot = mapSpot || (mapLine && { x: player.x * mapLine.scale, y: mapLine.y }) || {
-    x: mapOrigin.x + player.x * LOCATION_TO_MAP,
-    y: mapOrigin.y + (player.y - 20) * LOCATION_TO_MAP,
-  };
+  const spot = mapSpot || { x: player.x * mapLine.scale, y: mapLine.y };
   mapMarker.style.left = `${(spot.x / VILLAGE_MAP_W) * 100}%`;
   mapMarker.style.top = `${(spot.y / VILLAGE_MAP_H) * 100}%`;
   fillMapLabels();

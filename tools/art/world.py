@@ -1,8 +1,15 @@
-"""Small world sprites drawn in code: cat, butterflies, beetles, crates."""
+"""Small world sprites drawn in code: cat, butterflies, beetles, crates.
 
-from lib import Sprite, strip
+They are drawn at game size and saved RES times larger with hard pixel edges (lib.upscale)."""
+
+from lib import Sprite, strip, upscale
 
 LEAVES = ["leaf_dark", "leaf", "leaf_mid", "leaf_light"]
+
+
+def save(sprite, path):
+    """Save a sprite drawn at game size as a file RES times larger, pixel for pixel."""
+    upscale(sprite.img).save(path)
 
 
 def cat(frame):
@@ -57,7 +64,6 @@ def crate():
 
 
 def build(out):
-    strip([cat(0), cat(1)]).save(f"{out}/cat.png")
-    strip([butterfly(0), butterfly(1)]).save(f"{out}/butterfly.png")
-    beetle_small().save(f"{out}/beetle.png")
-    crate().save(f"{out}/crate.png")
+    save(strip([cat(0), cat(1)]), f"{out}/cat.png")
+    save(strip([butterfly(0), butterfly(1)]), f"{out}/butterfly.png")
+    save(crate(), f"{out}/crate.png")

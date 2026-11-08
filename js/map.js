@@ -2,7 +2,8 @@
 // Coordinates are game pixels of the location's picture. Rectangles: [left, top, right, bottom].
 //
 // To swap in new art for a location, replace its picture and update its data here:
-//   mapOrigin  where its picture sits on the village map (map pixels), for the map marker
+//   mapSpot    where the map marker stands for it on the village map (map pixels); the road,
+//              one long picture, has mapLine instead: the marker follows the hero along it
 //   solids     where the hero's feet cannot go
 //   exits      area the feet step on, where it leads, and optionally `closed`, which returns
 //              the lines to show while that way is shut (or null when it is open)
@@ -11,25 +12,28 @@
 //   scenery    people from a neighbouring location seen from here, just to look at
 //   occluders  parts of the picture drawn over a hero walking behind them
 //   lights     lamps and windows that glow at night
+//   depth      the picture's perspective: [[farY, farScale], [nearY, nearScale]]. People, animals and
+//              things placed on the ground are drawn bigger the lower their feet are, at scale 1 the
+//              yardstick of docs/PROPORTIONS.md. Measured on the picture: the hero put at several depths
+//              next to its doors, gates, fences and benches. No depth: everyone at scale 1.
 const LOCATIONS = {
   yard: {
     art: "locYard",
     backdrop: "#24452a",
-    mapOrigin: { x: 96, y: 0 },
+    depth: [[100, 0.94], [290, 1.12]],
     mapSpot: { x: 200, y: 110 },
     solids: [
       [0, 0, 568, 22], // trees along the top
       [0, 22, 52, 138], // trees left of the house
       [52, 22, 296, 148], // grandma's house
       [157, 132, 219, 159], // bench and buckets
-      [294, 124, 314, 156], // rain barrel
       [296, 22, 379, 109], // cellar mound and walnut tree
       [379, 22, 436, 95], // woodpile
       [436, 22, 568, 96], // shed
       [0, 138, 129, 217], // apple tree
       [0, 217, 83, 284], [83, 254, 112, 284], // bushes along the west fence
       [83, 219, 124, 241], // chopping block
-      [156, 217, 196, 246], // well ring
+      [155, 247, 188, 258], // the well: concrete ring and posts
       [381, 139, 405, 159], // laundry basket
       [415, 96, 529, 182], // summer kitchen
       [529, 96, 568, 349], // east fence
@@ -50,7 +54,7 @@ const LOCATIONS = {
       },
     ],
     props: [],
-    occluders: [{ art: "occludeYardWell", x: 139, y: 166, baseY: 246 }],
+    occluders: [{ art: "occludeYardWell", x: 147, y: 198, baseY: 257 }],
     lights: [
       { x: 37, y: 108, radius: 52 },
       { x: 118, y: 116, radius: 26 },
@@ -63,7 +67,6 @@ const LOCATIONS = {
     art: "locHouse",
     backdrop: "#1e1610",
     indoor: true,
-    mapOrigin: { x: 96, y: 0 },
     mapSpot: { x: 176, y: 100 },
     solids: [
       [0, 0, 384, 144], // back wall
@@ -91,24 +94,29 @@ const LOCATIONS = {
     lights: [{ x: 250, y: 165, radius: 90 }, { x: 194, y: 60, radius: 40 }],
   },
 
+  // Drawn by Codex in the approved style of the yard (incoming/loc_club_v2.png), scale 0.40.
   club: {
     art: "locClub",
     backdrop: "#24452a",
-    mapOrigin: { x: 340, y: 30 },
+    depth: [[160, 0.9], [400, 1.3]],
+    mapSpot: { x: 450, y: 60 },
     solids: [
-      [0, 0, 286, 142], // Будинок культури
-      [0, 142, 62, 302], [254, 142, 286, 302], // trees on both sides of the square
-      [120, 211, 195, 255], // flower bed with the statue
-      [66, 202, 101, 226], [214, 202, 248, 226], // benches
-      [0, 273, 127, 302], [185, 273, 286, 302], // fence, gap for the gate
+      [0, 0, 614, 150], // Будинок культури, the shed and the trees behind
+      [0, 150, 95, 330], [95, 150, 118, 200], // the big tree on the left
+      [118, 150, 240, 165], // lilac by the steps
+      [100, 306, 114, 316], // street lamp
+      [545, 150, 614, 340], [525, 245, 545, 315], // acacia and lilac on the right
+      [163, 222, 218, 240], [428, 222, 480, 240], // benches
+      [300, 262, 352, 297], // the monument's pedestal
+      [0, 340, 280, 410], [335, 340, 614, 410], // fence, gate in the middle
+      [280, 380, 284, 410], [331, 380, 335, 410], // the path's edges beyond the gate
     ],
-    exits: [{ id: "toStreet", area: [127, 296, 185, 302], to: "street", spawn: { x: 1105, y: 169 }, dir: "down" }],
+    exits: [{ id: "toStreet", area: [284, 402, 331, 410], to: "street", spawn: { x: 1105, y: 169 }, dir: "down" }],
     props: [],
-    occluders: [{ art: "occludeClubStatue", x: 144, y: 156, baseY: 211 }],
+    occluders: [{ art: "occludeClubStatue", x: 300, y: 178, baseY: 297 }],
     lights: [
-      { x: 162, y: 114, radius: 58 },
-      { x: 75, y: 107, radius: 29 },
-      { x: 252, y: 107, radius: 29 },
+      { x: 341, y: 122, radius: 40 }, // the lamp over the door
+      { x: 150, y: 175, radius: 48 }, // street lamp
     ],
   },
 
@@ -117,7 +125,7 @@ const LOCATIONS = {
   shop: {
     art: "locShop",
     backdrop: "#24452a",
-    mapOrigin: { x: 565, y: 49 },
+    depth: [[140, 1], [300, 1.12]],
     mapSpot: { x: 650, y: 130 },
     solids: [
       [0, 0, 333, 126], // shop, shed and trees
@@ -141,43 +149,87 @@ const LOCATIONS = {
     lights: [{ x: 320, y: 50, radius: 62 }],
   },
 
+  // Drawn by Codex in the approved style of the yard (incoming/loc_stop.png), scale 0.27.
+  // The bus leaves the hero on the verge of the highway; the path north leads to the village road.
   stop: {
     art: "locStop",
     backdrop: "#24452a",
-    mapOrigin: { x: 535, y: 296 },
+    depth: [[20, 0.62], [170, 1]],
+    mapSpot: { x: 655, y: 380 },
     solids: [
-      [0, 5, 3, 194], // left edge
-      [29, 5, 303, 12], // top edge
-      [32, 12, 98, 77], // tree
-      [101, 31, 214, 86], // the shelter
-      [221, 64, 237, 82], // the sign
-      [240, 12, 303, 90], // tree on the right
-      [26, 135, 303, 194], // bushes in the south
-      [0, 188, 26, 194], // the path south leads nowhere yet
+      [0, 0, 140, 30], [168, 0, 415, 30], // woods either side of the path
+      [0, 30, 125, 60], [155, 30, 415, 60],
+      [0, 60, 105, 100], [137, 60, 415, 88],
+      [0, 100, 85, 150], // poplars on the left
+      [128, 88, 180, 150], // elder bush
+      [180, 95, 200, 162], [200, 95, 300, 147], [298, 95, 326, 162], // the shelter: side walls and back
+      [312, 140, 332, 166], // bin
+      [332, 88, 415, 150], // bushes on the right
+      [348, 172, 358, 181], // the bus stop sign
+      [340, 150, 366, 172], // grass right behind the sign: nobody stands hidden behind its pole
+      [0, 150, 2, 212], [413, 150, 415, 212], // verge ends
+      [0, 212, 415, 276], // the highway
     ],
-    exits: [{ id: "toStreet", area: [3, 5, 29, 9], to: "street", spawn: { x: 1370, y: 241 }, dir: "up" }],
+    exits: [{ id: "toStreet", area: [140, 3, 168, 8], to: "street", spawn: { x: 1370, y: 241 }, dir: "up" }],
     props: [],
-    occluders: [],
-    lights: [{ x: 158, y: 64, radius: 46 }],
+    occluders: [{ art: "occludeStopSign", x: 341, y: 76, baseY: 181 }],
+    lights: [],
   },
 
+  // Drawn by Codex in the approved style of the yard (incoming/loc_pond.png), scale 0.30.
+  // Did Petro's bench stands right by the way in from the road; the boardwalk goes out over the water.
   pond: {
     art: "locPond",
     backdrop: "#24452a",
-    mapOrigin: { x: 0, y: 296 },
+    depth: [[10, 0.68], [160, 1]],
+    mapSpot: { x: 170, y: 420 },
     solids: [
-      [0, 5, 176, 70], // willow, trees and fence on the left
-      [176, 5, 194, 44], // trees
-      [194, 5, 229, 38], // bench
-      [242, 5, 422, 46], // trees and bushes above the path
-      [0, 70, 218, 281], // reeds and water west of the pier
-      [260, 70, 280, 103], [218, 103, 246, 281], [246, 129, 280, 281], // water around the pier
-      [280, 46, 422, 281], // reeds and bushes in the east: the way to Svetka's goes from the road
+      [0, 0, 145, 60], [178, 0, 461, 50], // trees either side of the path in
+      [195, 50, 290, 66], [290, 50, 380, 80], [380, 50, 461, 92], // shed and fence
+      [0, 60, 112, 118], // the willow
+      [134, 92, 166, 101], // Did Petro's bench
+      [255, 70, 300, 118], // reeds
+      [325, 100, 388, 128], // boat
+      [388, 92, 461, 307], // reeds on the right
+      // Water, with the boardwalk going out over it in steps.
+      [0, 118, 205, 307], [240, 118, 461, 130],
+      [205, 130, 222, 307], [258, 130, 461, 142],
+      [222, 142, 240, 307], [278, 142, 461, 154],
+      [240, 154, 258, 307], [296, 154, 461, 307],
+      [258, 166, 296, 307],
     ],
-    exits: [{ id: "toStreet", area: [229, 5, 242, 10], to: "street", spawn: { x: 415, y: 241 }, dir: "up" }],
+    exits: [{ id: "toStreet", area: [148, 3, 172, 8], to: "street", spawn: { x: 415, y: 241 }, dir: "up" }],
     props: [],
     occluders: [],
-    lights: [{ x: 235, y: 40, radius: 52 }],
+    lights: [{ x: 432, y: 30, radius: 30 }],
+  },
+
+  // Mykola's yard, drawn by Codex in the approved style of the yard (incoming/loc_mykola_v6.png), scale 0.32.
+  // The door stays shut: Mykola sleeps all day and comes out on his porch in the evening.
+  mykola: {
+    art: "locMykola",
+    backdrop: "#24452a",
+    depth: [[160, 1], [310, 1.5]],
+    mapSpot: { x: 79, y: 188 },
+    solids: [
+      [0, 0, 492, 60], // trees behind the house
+      [0, 60, 160, 150], // the woodshed and the trees on the left
+      [160, 60, 400, 135], // the house
+      [146, 128, 196, 152], // the bicycle against the wall (v5: chest high to the hero)
+      [206, 130, 256, 150], // the bench under the window
+      [96, 140, 114, 163], // the chopping block
+      [254, 135, 307, 160], // the porch steps
+      [305, 150, 322, 168], // an old bucket
+      [400, 60, 492, 160], // the apple tree
+      [330, 165, 492, 215], // the overgrown patch
+      [0, 150, 90, 215], // hollyhocks
+      [0, 215, 212, 290], [270, 215, 492, 290], // the fence, the gate open in the middle
+      [0, 290, 215, 328], [265, 290, 492, 328], // grass beyond the fence, the path in between
+    ],
+    exits: [{ id: "toStreet", area: [215, 320, 265, 328], to: "street", spawn: { x: 128, y: 170 }, dir: "down" }],
+    props: [],
+    occluders: [],
+    lights: [{ x: 293, y: 92, radius: 40 }, { x: 222, y: 100, radius: 26 }],
   },
 
   // The road through the village: three approved pictures joined by tools/art/locations.py.
@@ -185,16 +237,17 @@ const LOCATIONS = {
   street: {
     art: "locStreet",
     backdrop: "#24452a",
-    mapOrigin: { x: 0, y: 160 },
+    depth: [[160, 0.88], [270, 1.02]],
     mapLine: { scale: 0.523, y: 285 },
     solids: [
       // North side: fences, with gaps at the gateways.
-      [0, 0, 685, 160], [685, 0, 780, 153], [780, 0, 1039, 160], [1039, 0, 1171, 151],
+      [0, 0, 113, 160], [113, 0, 143, 155], [143, 0, 685, 160], [685, 0, 780, 153], [780, 0, 1039, 160], [1039, 0, 1171, 151],
       [1171, 0, 1304, 160], [1304, 0, 1327, 151], [1327, 0, 1463, 160],
       // South side: grass, the bench, and gaps for the paths.
       [0, 250, 404, 379], [404, 281, 426, 379], [426, 250, 1031, 379], [1031, 253, 1053, 379],
       [1053, 250, 1360, 379], [1360, 255, 1378, 379], [1378, 250, 1463, 379],
       [1397, 239, 1407, 250], // bus stop sign
+      [1181, 241, 1242, 250], // the driver's car, parked on the verge
     ],
     exits: [
       { id: "toYard", area: [697, 153, 768, 160], to: "yard", spawn: { x: 275, y: 274 }, dir: "up" },
@@ -202,15 +255,16 @@ const LOCATIONS = {
         id: "toClub",
         area: [1054, 151, 1156, 160],
         to: "club",
-        spawn: { x: 156, y: 286 },
+        spawn: { x: 307, y: 392 },
         dir: "up",
         closed: () => (isClubOpen() ? null : T().yard.clubClosed),
       },
       { id: "toShop", area: [1304, 151, 1327, 160], to: "shop", spawn: { x: 172, y: 284 }, dir: "up" },
-      { id: "toPond", area: [404, 274, 426, 281], to: "pond", spawn: { x: 235, y: 16 }, dir: "down" },
-      { id: "toStop", area: [1360, 250, 1378, 255], to: "stop", spawn: { x: 16, y: 16 }, dir: "down" },
+      { id: "toPond", area: [404, 274, 426, 281], to: "pond", spawn: { x: 160, y: 14 }, dir: "down" },
+      { id: "toStop", area: [1360, 250, 1378, 255], to: "stop", spawn: { x: 154, y: 14 }, dir: "down" },
       // Locked places: they open as the story goes on (see isPlaceUnlocked).
-      { id: "lockedMykola", area: [113, 155, 143, 160], closed: () => lockedLines("mykola") },
+      // Mykola's gate opens once grandpa has sent the hero for his tool box (summer story, stage 3).
+      { id: "toMykola", area: [113, 155, 143, 160], to: "mykola", spawn: { x: 240, y: 312 }, dir: "up", closed: () => lockedLines("mykola") },
       { id: "lockedLyuba", area: [317, 155, 346, 160], closed: () => lockedLines("lyuba") },
       { id: "lockedSvitka", area: [1031, 250, 1053, 256], closed: () => lockedLines("svitka") },
     ],

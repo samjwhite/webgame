@@ -12,7 +12,17 @@ They run the real game code without a browser (`tests/harness.js`) and play it t
 
 | What is checked | Where | Protects against |
 |---|---|---|
-| The whole story, bus to second morning, in order | `game.test.js` | A change that makes the game impossible to finish |
+| The whole story, bus to second morning and Svetka by the shop, in order: sprayer, beating, saving midway, waiting for the evening | `game.test.js` | A change that makes the game impossible to finish |
+| The disco's other way: asking the unknown girl to dance, every choice after the dance, saved and continued | `game.test.js` | A branch that cannot be finished or forgets what happened |
+| Day parts: shown as "День 1 / 92 · Ранок", only forward, waiting only at a ready scene, a new day only after sleep | `game.test.js` | Free rewinding, or an evening scene that spends a day |
+| Saves from before the summer story load and go on | `game.test.js` | Old players stuck after an update |
+| The date at the river: the task always says what to do and where; the player from the backpack, the moped, waiting for the evening, both endings, saved and continued | `game.test.js` | An invitation that leads nowhere |
+| The catfish with grandpa: worms, waiting for the night, grandpa asleep, the village's news | `game.test.js` | A night scene that cannot be reached |
+| The catfish at night: the driver's battery, the flash, Valya's hundred, the theft as news, a new battery for exactly a hundred, the driver's rant; saved and continued | `game.test.js` | A branch that strands the player without money or a battery |
+| Stage 3: piglet money from the player, grandpa's tool box from Mykola, waiting for the evening at his door, kung fu only over four beers bought into the bag; the player sold to Vovchik plays at the club | `game.test.js` | A stage that needs money the player cannot get |
+| Daily work: two jars and one truck a day pay for the evening's beer with some left, and come back the next day | `game.test.js` | A player with no way to earn, or endless money in one day |
+| The hero's walk follows the ground covered and he stands still when he stops | `game.test.js` | Feet sliding, walking on the spot |
+| Dialogs name who speaks and show their portrait | `game.test.js` | Lines given to the wrong person |
 | Every location: arrivals, exits, people and things reachable; nothing starts inside a wall | `game.test.js` | Walls moved by new art cutting off a path |
 | Walking along the road never triggers a gate or an exit | `game.test.js` | Dialogs popping up when just passing by |
 | Closed gates still say why when walked into | `game.test.js` | Silent walls |
@@ -26,7 +36,8 @@ They run the real game code without a browser (`tests/harness.js`) and play it t
 | The shop's list: prices, not enough money, the bag, beer only when asked for | `game.test.js` | Spending money wrongly, goods with no art or text |
 | Saves load, and old saves land safely | `game.test.js` | Heroes stuck in walls after an update |
 | Developer checkpoints still work | `game.test.js` | The panel going stale |
-| Sizes follow `docs/PROPORTIONS.md` | `proportions.test.js` | Art at the wrong scale |
+| Sizes follow `docs/PROPORTIONS.md`, every frame of the hero too, and he is built like the others | `proportions.test.js` | Art at the wrong scale, a big-headed hero |
+| Art files are 3 times finer than game pixels, the same in the art build and the game | `proportions.test.js` | Art drawn three times too big or blurred |
 
 **Fixing a bug? Add its test first.** The list above is mostly bugs that really happened.
 
@@ -45,7 +56,7 @@ A later step could add a real browser with screenshot comparison (for example Pl
 
 Open the game with `?dev` at the end of the address. A red **DEV** button appears with:
 
-- a jump to each point of the story, from the bus to the second morning;
-- day / night, +10 UAH and showing the walls.
+- a jump to each point of the story, from the bus to the date at the river;
+- the next part of the day (morning, day, evening, night; developers only, players never go back), +10 UAH and showing the walls.
 
 Add a checkpoint to `DEV_CHECKPOINTS` in `js/dev.js` whenever a quest is added. The tests check each one automatically. Jumping overwrites the save in that browser, and players never see the panel.

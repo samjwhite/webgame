@@ -55,6 +55,80 @@ body {
   line-height: 1.35;
 }
 
+#dialog-name {
+  margin-bottom: 4px;
+  color: #f0c64a;
+  font-size: 14px;
+}
+
+#dialog-name[hidden],
+#dialog-portrait[hidden] {
+  display: none;
+}
+
+/* The speaker's bust portrait, left of the text. Portrait files are 192x192 (3x), so 64 CSS px are
+   1:1 on a phone and smoothly scaled elsewhere. */
+#dialog-portrait {
+  float: left;
+  width: 64px;
+  height: 64px;
+  margin: 0 10px 4px 0;
+  border: 2px solid #8a5d3c;
+  background: #26222f;
+  image-rendering: auto;
+}
+
+#dialog.with-portrait {
+  min-height: 96px;
+}
+
+#choice-menu {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  z-index: 5;
+  padding: 8px;
+  background: #2b1d14;
+  border: 4px solid #fff8e8;
+  box-shadow: 0 0 0 4px #2b1d14;
+}
+
+#choice-menu[hidden] {
+  display: none;
+}
+
+#choice-title {
+  margin-bottom: 6px;
+  color: #f0c64a;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.choice-row {
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 2px solid #8a5d3c;
+  background: #3f2c1e;
+  color: #fff8e8;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: bold;
+  text-align: left;
+  touch-action: manipulation;
+}
+
+.choice-row.selected {
+  border-color: #f0c64a;
+  background: #5b4029;
+}
+
 #dialog-next {
   position: absolute;
   right: 12px;
@@ -172,7 +246,7 @@ body {
 
 .check-item img {
   height: 18px;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 .check {
@@ -267,7 +341,7 @@ body {
 #map-frame img {
   display: block;
   width: 100%;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 #map-marker {
@@ -470,7 +544,7 @@ body {
   width: 26px;
   height: 30px;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 .shop-row span {
