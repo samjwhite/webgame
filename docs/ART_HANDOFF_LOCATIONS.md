@@ -12,7 +12,7 @@
 
 **Approved style:** `tools/art/reference/loc_yard.png`. The owner approved this yard and wants everything else in this style. It is in the game on `dev`.
 
-**Done with Codex and in the game on `dev`:** the house room and furniture, the TV close-up with news pictures, the night picture of the club, the monument and roadside trees. Still wanted: **night versions of every location**. Night is still a blue tint with lamps by code; the owner asked for a drawn night village or a good filter.
+**Done with Codex and in the game on `dev`:** the club square, the bus stop and the pond in the approved style (`incoming/loc_club_v2.png`, `loc_stop.png`, `loc_pond.png`, November 2026; they replaced the blurry crops of the old village map and wait for the owner's approval), the house room and furniture, the TV close-up with news pictures, the night picture of the club, the monument and roadside trees. Still wanted: **night versions of every location**. Night is still a blue tint with lamps by code; the owner asked for a drawn night village or a good filter.
 
 **Sizes:** the full table and the scaling rule are in [PROPORTIONS.md](PROPORTIONS.md). Sprites placed on a painted picture need its warm light; ask for no black outline.
 
@@ -86,6 +86,8 @@ Sprites, each separate: **bed** (metal frame, wall rug above it), **TV** (old wo
 
 ### 3. Club and square (A)
 
+**Done with Codex:** `incoming/loc_club_v2.png`, in the game at scale 0.40. Still wanted as separate sprites: the door open and lit at night, the benches and the lamp, so a hero walks behind them.
+
 Exit: gate in the fence south to the road.
 
 Sprites: Будинок культури as one piece, including a door that can look open and lit at night, statue with pedestal (repainted Lenin-to-Shevchenko joke stays, see the art bible), flower bed that looks neglected, benches, fence and gate, faded posters, disco poster, working street lamp.
@@ -102,11 +104,15 @@ Sprites: shop building with **open door by day, closed door with padlock and car
 
 ### 5. Bus stop (B)
 
+**Done with Codex:** `incoming/loc_stop.png`, in the game at scale 0.27. The hero arrives on its verge. Still wanted: the yellow "Богдан" bus for the arrival scene.
+
 Exit: path north to the road.
 
 Sprites: concrete shelter with faded mosaic, bench, bus sign, timetable, bin, old notices, a yellow "Богдан" bus for the arrival scene (optional).
 
 ### 6. Pond with Did Petro (B)
+
+**Done with Codex:** `incoming/loc_pond.png`, in the game at scale 0.30. Did Petro's bench stands on the grass right by the way in; the boardwalk is walkable for the catfish scenes. Still wanted: a night version for both catches.
 
 Exit: north, straight onto the road, right by Did Petro's bench. This is the only way in. The owner found the place hard to find, so the pond, the bench and Did Petro must be visible from the road. Please redraw this entrance: the path on the temporary art is painted on as a stopgap, and it may be shorter or gone if he is simply reached from the road. The older path further east along the pond is not a way to Did Petro; it leads to Svetka's house.
 

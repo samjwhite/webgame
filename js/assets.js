@@ -11,6 +11,7 @@ const ART_FILES = {
   locStreet: "world/loc_street.png",
   occludeYardWell: "world/occlude_yard_well.png",
   occludeClubStatue: "world/occlude_club_statue.png",
+  occludeStopSign: "world/occlude_stop_sign.png",
   occludeStreetSign: "world/occlude_street_sign.png",
   houseBed: "world/house_bed.png",
   houseTv: "world/house_tv.png",

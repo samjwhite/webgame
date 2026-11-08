@@ -399,8 +399,6 @@ function loadHudCollapsed() {
   }
 }
 
-// Location pictures are the map's source picture scaled by 0.65; the map screen scales it by 0.5.
-const LOCATION_TO_MAP = 0.5 / 0.65;
 const VILLAGE_MAP_W = 768;
 const VILLAGE_MAP_H = 512;
 
@@ -435,12 +433,9 @@ function fillMapLabels() {
 }
 
 function openMap() {
-  const { mapOrigin, mapSpot, mapLine } = here();
+  const { mapSpot, mapLine } = here();
   // The road is one long picture, so only the hero's position along it counts on the map.
-  const spot = mapSpot || (mapLine && { x: player.x * mapLine.scale, y: mapLine.y }) || {
-    x: mapOrigin.x + player.x * LOCATION_TO_MAP,
-    y: mapOrigin.y + (player.y - 20) * LOCATION_TO_MAP,
-  };
+  const spot = mapSpot || { x: player.x * mapLine.scale, y: mapLine.y };
   mapMarker.style.left = `${(spot.x / VILLAGE_MAP_W) * 100}%`;
   mapMarker.style.top = `${(spot.y / VILLAGE_MAP_H) * 100}%`;
   fillMapLabels();

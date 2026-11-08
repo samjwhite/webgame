@@ -15,12 +15,6 @@ REFERENCE = os.path.join(HERE, "reference")
 SCENE_WIDTH = 192
 MAP_SCALE = 0.5  # the "Карта" screen: game pixels per pixel of village_map.png
 
-# Areas of reference/village_map.png covered with reference/village_map_old.png where locations are cut from it.
-MAP_PATCHES = [
-    (0, 0, 232, 276),  # legend
-    (1300, 266, 1360, 312),  # quest marker above the shop
-]
-
 # Close-up pictures: output name -> (reference file, crop box or None)
 SCENES = {
     "talk_grandma": ("grandma.png", None),

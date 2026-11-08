@@ -1,8 +1,8 @@
-"""TEMPORARY location art until the art designer's pictures arrive (docs/ART_HANDOFF_LOCATIONS.md).
+"""Location pictures, from the approved yard style (docs/ART_HANDOFF_LOCATIONS.md).
 
-Outdoor locations are crops of reference/village_map.png scaled by LOCATION_SCALE, which makes a
-door a little taller than the 44 px hero. The house interior is drawn here, one sprite per object.
-Coordinates in js/map.js are game pixels of these scaled pictures. Sizes, boxes and shapes here are
+Every location is a picture scaled to game pixels (each with its own scale, so people come out 40 px
+tall), plus the objects cut from it that a hero walks behind. The house interior has one sprite per
+object. Coordinates in js/map.js are game pixels of these scaled pictures. Sizes, boxes and shapes here are
 game pixels too, unless they say they are in a source picture; every file is built RES times larger
 (lib.RES), straight from the source picture, so it keeps RES times more of its detail.
 """
@@ -12,9 +12,8 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from lib import OUTLINE, RES
 from animals import remove_enclosed_background
-from reference import MAP_PATCHES, cut_out, load, limit_palette, scene
+from reference import cut_out, load, limit_palette, scene
 
-LOCATION_SCALE = 0.65
 PICTURE_COLORS = 256  # the most limit_palette can keep: the locations are painted, not pixel art
 
 
@@ -24,26 +23,22 @@ def larger(size):
 
 
 def resample(img, size):
-    """A source picture scaled straight to `size` file pixels: averaged when it shrinks, LANCZOS when it
-    grows a little. A source with much less detail than that (the old map crops, about 2 times) is scaled
-    to game pixels and enlarged with hard edges instead, so it stays crisp pixel art and is not blurred."""
-    if size[0] > img.width * 1.5:
-        game = (size[0] // RES, size[1] // RES)
-        return img.resize(game, Image.Resampling.BOX).resize(size, Image.Resampling.NEAREST)
+    """A source picture scaled straight to `size` file pixels: averaged when it shrinks, LANCZOS when it grows."""
     growing = size[0] > img.width or size[1] > img.height
     return img.resize(size, Image.Resampling.LANCZOS if growing else Image.Resampling.BOX)
 
-# Location name -> crop box in reference/village_map.png. All tall enough to fill a phone screen.
-CROPS = {
-    "club": (680, 60, 1120, 524),
-    "stop": (1070, 592, 1536, 1024),
-    "pond": (0, 592, 650, 1024),
+# Locations drawn by Codex in the approved style of loc_yard.png: name -> (source, scale). Each scale
+# makes a person 40 px tall next to the picture's doors, benches and trees (docs/PROPORTIONS.md).
+# Temporary until the human approves them.
+LOCATION_PICTURES = {
+    "club": ("incoming/loc_club_v2.png", 0.40),
+    "stop": ("incoming/loc_stop.png", 0.27),
+    "pond": ("incoming/loc_pond.png", 0.30),
 }
 
 # Parts of a picture drawn again over characters behind them: name -> (box in game pixels, shapes).
 # Only the object itself is kept, not the ground around it, so the hero vanishes behind its real shape.
 # Shapes are relative to the box: ("rect", box), ("poly", points) or ("ellipse", box).
-# None means the object is told from its background by colour (the statue on the plain paving).
 WELL_SHAPE = [
     ("poly", [(12, 0), (55, 0), (67, 24), (0, 24)]),  # roof
     ("rect", (11, 24, 17, 57)),  # posts
@@ -60,11 +55,18 @@ OCCLUDERS = {
     "yard": {
         "occlude_yard_well": ((139, 166, 206, 247), WELL_SHAPE),
     },
-    "club": {"occlude_club_statue": ((144, 156, 170, 212), None)},
+    "club": {
+        "occlude_club_statue": ((300, 178, 354, 297), [
+            ("rect", (19, 1, 35, 17)),  # head
+            ("poly", [(9, 18), (46, 18), (47, 40), (38, 54), (16, 54), (10, 40)]),  # coat
+            ("rect", (12, 52, 50, 75)),  # legs and base
+            ("rect", (2, 72, 52, 119)),  # pedestal
+        ]),
+    },
+    "stop": {
+        "occlude_stop_sign": ((341, 76, 364, 181), [("rect", (0, 0, 23, 22)), ("rect", (10, 20, 16, 105))]),
+    },
 }
-
-# Bits of a crop covered with another bit of it, before scaling: location -> [(from box, to corner)].
-PATCHES = {}
 
 # Approved art: the village road, three pictures joined side by side with soft seams.
 # (file, left, right) in each picture's pixels. All share one road height and the yard's scale.
@@ -100,14 +102,6 @@ YARD_SCALE = 0.37
 YARD_BOTTOM = 945
 
 
-# Paths painted on the village picture, so they show the same in every location that sees them.
-# (where, in reference/village_map.png pixels). They are filled with the bare earth at PATH_SAMPLE.
-PATH_SAMPLE = (320, 676, 420, 694)
-PAINTED_PATHS = [
-    (350, 600, 376, 684),  # from the road down to Did Petro, between the bench and the tree
-]
-
-
 def tile(sample, width, height):
     """Cover an area with a sample, mirrored every other time to hide the repeat."""
     result = Image.new("RGB", (width, height))
@@ -129,12 +123,6 @@ def lay_texture(picture, box, sample, margin=3, blur=2):
     mask = Image.new("L", (width, height), 0)
     ImageDraw.Draw(mask).rectangle((margin, margin, width - margin - 1, height - margin - 1), fill=255)
     picture.paste(texture, box[:2], mask.filter(ImageFilter.GaussianBlur(blur)))
-
-
-def paint_paths(village):
-    earth = village.crop(PATH_SAMPLE)
-    for box in PAINTED_PATHS:
-        lay_texture(village, box, earth)
 
 
 # ---------- the shop, from the designer's scene ----------
@@ -258,50 +246,24 @@ def shop_closed():
     return result
 
 
-def is_object_pixel(color):
-    """Grass and paths are warm and bright; posts, stone, slate and bronze are dark or grey."""
-    r, g, b = color[:3]
-    return (r + g + b) / 3 < 95 or r - b < 38
-
-
 def occluder(picture, box, shapes):
     """The object inside box as a transparent overlay: the box's part of the picture (RES times the box),
     ground pixels removed. The box and the shapes are game pixels."""
     part = picture.crop(larger(box)).convert("RGBA")
     mask = Image.new("L", part.size, 0)
-    if shapes:
-        draw = ImageDraw.Draw(mask)
-        for kind, shape in shapes:
-            if kind == "poly":
-                draw.polygon([larger(point) for point in shape], fill=255)
-                continue
-            left, top, right, bottom = larger(shape)
-            if kind == "rect":
-                draw.rectangle((left, top, right - 1, bottom - 1), fill=255)
-            else:
-                # An ellipse's box takes in its right and bottom game pixel, as draw.ellipse does.
-                draw.ellipse((left, top, right + RES - 1, bottom + RES - 1), fill=255)
-    else:
-        source = part.load()
-        for y in range(part.height):
-            for x in range(part.width):
-                if is_object_pixel(source[x, y]):
-                    mask.putpixel((x, y), 255)
-        # Close holes in the object and drop specks, up to a game pixel across.
-        size = 2 * RES + 1
-        mask = mask.filter(ImageFilter.MaxFilter(size)).filter(ImageFilter.MinFilter(size))
-        mask = mask.filter(ImageFilter.MinFilter(size)).filter(ImageFilter.MaxFilter(size))
-        mask = fill_holes(mask)
+    draw = ImageDraw.Draw(mask)
+    for kind, shape in shapes:
+        if kind == "poly":
+            draw.polygon([larger(point) for point in shape], fill=255)
+            continue
+        left, top, right, bottom = larger(shape)
+        if kind == "rect":
+            draw.rectangle((left, top, right - 1, bottom - 1), fill=255)
+        else:
+            # An ellipse's box takes in its right and bottom game pixel, as draw.ellipse does.
+            draw.ellipse((left, top, right + RES - 1, bottom + RES - 1), fill=255)
     part.putalpha(mask)
     return part
-
-
-def fill_holes(mask):
-    """Bright spots shut inside the object (light on bronze or stone) are part of it, not ground."""
-    outside = Image.new("L", (mask.width + 2, mask.height + 2), 0)
-    outside.paste(mask, (1, 1))
-    ImageDraw.floodfill(outside, (0, 0), 128)
-    return outside.crop((1, 1, mask.width + 1, mask.height + 1)).point(lambda v: 0 if v == 128 else 255)
 
 
 # ---------- the inside of grandma's house (approved art) ----------
@@ -430,19 +392,10 @@ def fridge_items():
 
 
 def build(out_world):
-    village = load("village_map.png")
-    old = load("village_map_old.png")
-    for box in MAP_PATCHES:
-        village.paste(old.crop(box), box[:2])
-    paint_paths(village)
-
-    for name, box in CROPS.items():
-        crop = village.crop(box)
-        for source, corner in PATCHES.get(name, []):
-            crop.paste(crop.crop(source), corner)
-        size = (round(crop.width * LOCATION_SCALE), round(crop.height * LOCATION_SCALE))
-        # village_map.png has fewer pixels than RES times this size: it is enlarged from the source itself.
-        picture = limit_palette(resample(crop, larger(size)), PICTURE_COLORS)
+    for name, (file, scale) in LOCATION_PICTURES.items():
+        source = load(file)
+        size = (round(source.width * scale), round(source.height * scale))
+        picture = limit_palette(resample(source, larger(size)), PICTURE_COLORS)
         picture.save(f"{out_world}/loc_{name}.png", optimize=True)
         for art, (part, shapes) in OCCLUDERS.get(name, {}).items():
             occluder(picture, part, shapes).save(f"{out_world}/{art}.png", optimize=True)

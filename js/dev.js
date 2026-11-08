@@ -4,7 +4,7 @@
 // Each checkpoint names the quest state that differs from a new game and where the hero stands.
 const DEV_YARD = { location: "yard", x: 240, y: 205 };
 const DEV_READY_FOR_CLUB = { stage: "done", hasGroceries: true, sprayed: true, metLads: true, mopedFound: true, mopedRidden: true, outfit: "sport", beersDrunk: BEERS_NEEDED, time: "day" };
-const DEV_CLUB = { location: "club", x: 192, y: 178 };
+const DEV_CLUB = { location: "club", x: 270, y: 225 };
 const DEV_SHOP = { location: "shop", x: 120, y: 165 };
 const DEV_BY_SVETKA = { location: "shop", x: 240, y: 205 };
 // After the first disco, by the two ways the hero learned who Svetka is.
@@ -19,7 +19,7 @@ const DEV_CHECKPOINTS = [
   { name: "Вода: набрати", quest: { stage: "water" }, at: { location: "yard", x: 176, y: 258 } },
   { name: "Вода: віднести", quest: { stage: "water", hasWater: true }, at: DEV_YARD },
   { name: "Колоради: збирати (баба зупинить)", quest: { stage: "beetles" }, at: { location: "yard", x: 340, y: 230 } },
-  { name: "Обприскувач: до діда Петра", quest: { stage: "sprayer" }, at: { location: "pond", x: 235, y: 16 } },
+  { name: "Обприскувач: до діда Петра", quest: { stage: "sprayer" }, at: { location: "pond", x: 172, y: 96 } },
   { name: "Обприскувач: віднести бабі", quest: { stage: "sprayer", hasSprayer: true, deeds: { heardCatfish: true } }, at: DEV_YARD },
   { name: "Обприскувач: бризкати", quest: { stage: "spray", deeds: { heardCatfish: true } }, at: { location: "yard", x: 340, y: 230 } },
   { name: "Магазин: купити", quest: { stage: "shop", sprayed: true, money: 5, time: "day" }, at: DEV_SHOP },

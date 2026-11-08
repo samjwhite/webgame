@@ -53,7 +53,9 @@ Measure a known object, then pick the scale:
 | Approved style outdoors, 1536×1024 (yard, road) | **0.37** | A gate 140 px tall in the source becomes 52 | Gate is 1.3 people. |
 | House room, 1536×1024 | 0.25 | Doorway 190 px becomes 47 | Room is about 384×256. |
 | Shop scene, 1448×1086 | 0.23 | Door 200 px becomes 46 | Furniture in this scene is still too big and is to be redrawn. |
-| Old map crops (club, stop, pond) | 0.65 | Door about 75 px becomes 49 | To be replaced by the approved style. |
+| Club square, 1536×1024 | 0.40 | Door 105 px becomes 42, bench 55 | Drawn by Codex in the approved style; its door is drawn small, its benches large. |
+| Bus stop, 1536×1024 | 0.27 | The shelter 285 px tall becomes 77, the sign pole 100 | The shelter and sign are drawn large; 0.27 is the least that still fills a phone (276 tall). |
+| Pond, 1536×1024 | 0.30 | The boat 200 px becomes 60, the fence 24 | |
 | Furniture and prop sheets | per object | Each object gets its own target height | Image generation does not hold one scale inside a sheet. |
 
 When ordering art at 1536×1024 for a 0.37 scale, ask for a person of about 108 px and a door of about 125 px. Image generation drifts, so always measure the result.

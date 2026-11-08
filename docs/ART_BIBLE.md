@@ -35,7 +35,9 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 | Place | Reference files |
 |---|---|
 | Whole village map (top-down, 48×32 tiles of 32 px at source size) | `village_map.png` (current), `village_map_old.png` (used only to patch the legend) |
-| Club square and Будинок культури | `club_square.png`, `club_topdown.png`, `disco.png` |
+| Club square and Будинок культури | `incoming/loc_club_v2.png` (the location, temporary until approved), `club_square.png`, `disco.png`. `club_topdown.png` is the old festive look: layout only. |
+| Bus stop | `incoming/loc_stop.png` (temporary until approved) |
+| Pond | `incoming/loc_pond.png` (temporary until approved), `grandpa_pond.png` |
 | Shop "Продукти", houses, bus stop, props | `props_sheet_1.png`, `props_sheet_2.png`, `props_sheet_3.png`, `sheet_club.png` |
 | Well close-up and its animation parts | `well_scene.png`, `well_sheet.png` |
 | Shed with the moped | `shed.png` |
