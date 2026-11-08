@@ -10,12 +10,16 @@ const TALK_PICTURES = {
   lads: "talkLads",
 };
 
-// Same bush list as GARDEN_BUSHES in tools/art/scenes.py: [x, y, size].
+// The potato bushes of the garden picture (tools/art/reference.py, GARDEN_PICTURE): [x, y, size].
 const GARDEN_BUSHES = [
-  [30, 52, 16], [80, 50, 16], [130, 52, 16], [176, 50, 16],
-  [8, 84, 24], [60, 86, 24], [114, 84, 24], [166, 86, 24],
-  [34, 122, 30], [100, 124, 30], [160, 122, 30],
+  [35, 45, 20], [81, 45, 20], [128, 45, 20], [174, 45, 20],
+  [15, 74, 34], [67, 74, 34], [119, 74, 34], [172, 74, 34],
+  [51, 114, 44], [103, 114, 44], [162, 114, 44],
 ];
+// The hand sheet (HAND_CELL in tools/art/reference.py): frames 30 wide, the grab point at (15, 3).
+const HAND_FRAME_W = 30;
+// The sleeve under the hand, by outfit, and where it is on the open and closed hand.
+const SLEEVE = { city: "#d6cdbd", sport: "#2b2e52" };
 const HAND_REST = { x: 172, y: 150 };
 const JAR_POSITION = { x: 4, y: 104 };
 const JAR_MOUTH = { x: 17, y: 108 };
@@ -47,9 +51,11 @@ function startTalkScene(npcId) {
 // The well: each tap turns the crank a quarter, WELL_TURN_FRAMES crank frames move the bucket all the way.
 const WELL_TURN_FRAMES = 16;
 const WELL_CRANK_SPEED = 10; // crank frames per second
-const WELL_CRANK = { frameWidth: 39, x: 129, y: 35 };
-const WELL_BUCKET = { frameWidth: 17, x: 87, topY: 61, deepY: 98 };
-const WELL_ROPE = { x: 95, y: 54 };
+// The concrete-ring well (tools/art/reference.py, WELL_*): the crank on the axle of the right post, the
+// bucket on its chain under the drum, sinking behind the front of the ring.
+const WELL_CRANK = { frameWidth: 38, x: 118, y: 29 };
+const WELL_BUCKET = { frameWidth: 22, x: 88, topY: 56, deepY: 84 };
+const WELL_ROPE = { x: 98, y: 54 };
 const BUCKET_FRAMES = { empty: 0, water: 1, splash: 3 };
 
 // direction "raise" pulls a full bucket up; "lower" lets an empty bucket down (for grandpa's future quest).
@@ -200,13 +206,6 @@ function updateGarden(dt, action, tap) {
 }
 
 // ---------- drawing ----------
-
-function drawSky(ctx, skyName, time) {
-  drawArt(ctx, ART[skyName], 0, 0);
-  const offset = (time * 0.004) % ART.clouds.w;
-  drawArt(ctx, ART.clouds, Math.round(-offset), 2);
-  drawArt(ctx, ART.clouds, Math.round(ART.clouds.w - offset), 2);
-}
 
 function drawPictureScene(ctx, time) {
   const picture = ART[closeup.picture];
@@ -430,7 +429,7 @@ function drawWellScene(ctx) {
   const crankFrame = raising ? step : (8 - step) % 8;
 
   drawArt(ctx, ART.sceneWell, 0, 0);
-  ctx.fillStyle = "#a9823a";
+  ctx.fillStyle = "#4a3a2c"; // the chain
   ctx.fillRect(WELL_ROPE.x, WELL_ROPE.y, 1, bucketY + 1 - WELL_ROPE.y);
   drawFrame(ctx, ART.bucket, bucketFrame, WELL_BUCKET.frameWidth, WELL_BUCKET.x, bucketY);
   drawArt(ctx, ART.wellFront, 0, 0);
@@ -438,7 +437,6 @@ function drawWellScene(ctx) {
 }
 
 function drawGardenScene(ctx, time) {
-  drawSky(ctx, "skyDay", time);
   drawArt(ctx, ART.sceneGarden, 0, 0);
   closeup.beetles.forEach((b, i) => {
     if (b.held) return;
@@ -455,9 +453,9 @@ function drawGardenScene(ctx, time) {
   const hand = closeup.hand;
   const pos = handPosition();
   const closed = hand.state === "grab" || hand.state === "carry";
-  ctx.fillStyle = "#3d6fb6";
-  ctx.fillRect(Math.round(pos.x - 5), Math.round(pos.y + 26), 11, STAGE_H);
-  drawFrame(ctx, ART.hand, closed ? 1 : 0, 22, pos.x - 11, pos.y - 3);
+  ctx.fillStyle = SLEEVE[quest.outfit] || SLEEVE.city;
+  ctx.fillRect(Math.round(pos.x - (closed ? 15 : 9)), Math.round(pos.y + 28), 9, STAGE_H);
+  drawFrame(ctx, ART.hand, closed ? 1 : 0, HAND_FRAME_W, pos.x - 15, pos.y - 3);
   if (closed && hand.beetle) {
     drawArt(ctx, ART.beetleSmall, Math.round(pos.x - 3), Math.round(pos.y - 2));
   }

@@ -66,5 +66,4 @@ def crate():
 def build(out):
     save(strip([cat(0), cat(1)]), f"{out}/cat.png")
     save(strip([butterfly(0), butterfly(1)]), f"{out}/butterfly.png")
-    save(beetle_small(), f"{out}/beetle.png")
     save(crate(), f"{out}/crate.png")

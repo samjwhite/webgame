@@ -29,7 +29,7 @@ const LOCATIONS = {
       [0, 138, 129, 217], // apple tree
       [0, 217, 83, 284], [83, 254, 112, 284], // bushes along the west fence
       [83, 219, 124, 241], // chopping block
-      [156, 217, 196, 246], // well ring
+      [140, 236, 208, 266], // the well: concrete ring and posts
       [381, 139, 405, 159], // laundry basket
       [415, 96, 529, 182], // summer kitchen
       [529, 96, 568, 349], // east fence
@@ -50,7 +50,7 @@ const LOCATIONS = {
       },
     ],
     props: [],
-    occluders: [{ art: "occludeYardWell", x: 139, y: 166, baseY: 246 }],
+    occluders: [{ art: "occludeYardWell", x: 126, y: 162, baseY: 264 }],
     lights: [
       { x: 37, y: 108, radius: 52 },
       { x: 118, y: 116, radius: 26 },

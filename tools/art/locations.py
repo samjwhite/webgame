@@ -41,21 +41,27 @@ LOCATION_PICTURES = {
 # Parts of a picture drawn again over characters behind them: name -> (box in game pixels, shapes).
 # Only the object itself is kept, not the ground around it, so the hero vanishes behind its real shape.
 # Shapes are relative to the box: ("rect", box), ("poly", points) or ("ellipse", box).
+# The yard's well: one concrete ring, a plank lid, two posts with a drum and a chain, a lean-to of
+# corrugated iron (incoming/loc_yard_well.png, the owner asked for a real Poltava well, not stones).
 WELL_SHAPE = [
-    ("poly", [(12, 0), (55, 0), (67, 24), (0, 24)]),  # roof
-    ("rect", (11, 24, 17, 57)),  # posts
-    ("rect", (52, 24, 58, 57)),
-    ("rect", (17, 29, 52, 36)),  # crank axle
-    ("rect", (34, 36, 40, 59)),  # bucket
-    ("ellipse", (17, 49, 58, 65)),  # ring: top, body, bottom
-    ("rect", (17, 57, 58, 76)),
-    ("ellipse", (17, 69, 58, 81)),
+    ("poly", [(1, 4), (6, 1), (69, 7), (87, 26), (79, 28), (19, 22), (4, 12)]),  # the lean-to
+    ("rect", (10, 12, 19, 85)),  # posts
+    ("rect", (73, 25, 82, 83)),
+    ("rect", (19, 28, 74, 43)),  # drum
+    ("rect", (80, 31, 90, 38)),  # crank: the arm, then the handle (no ground around them)
+    ("rect", (86, 42, 104, 49)),
+    ("rect", (85, 36, 92, 45)),
+    ("rect", (50, 34, 71, 70)),  # chain and bucket
+    ("poly", [(5, 47), (13, 44), (31, 61), (31, 71), (22, 71), (5, 53)]),  # the plank lid
+    ("ellipse", (19, 59, 75, 73)),  # the concrete ring: top, body, bottom
+    ("rect", (19, 66, 75, 100)),
+    ("ellipse", (19, 94, 75, 105)),
 ]
 
 
 OCCLUDERS = {
     "yard": {
-        "occlude_yard_well": ((139, 166, 206, 247), WELL_SHAPE),
+        "occlude_yard_well": ((126, 162, 231, 268), WELL_SHAPE),
     },
     "club": {
         "occlude_club_statue": ((300, 178, 354, 297), [
@@ -102,6 +108,8 @@ ROAD_SIGN = ((1389, 218, 1414, 250), [("rect", (0, 0, 25, 26)), ("rect", (10, 26
 # height. The road in the yard picture is cut off.
 YARD_SCALE = 0.37
 YARD_BOTTOM = 945
+# The approved yard, redrawn by Codex only to give it a real concrete-ring well (approved by the owner).
+YARD_PICTURE = "incoming/loc_yard_well_v2.png"
 
 
 def tile(sample, width, height):
@@ -402,7 +410,7 @@ def build(out_world):
         for art, (part, shapes) in OCCLUDERS.get(name, {}).items():
             occluder(picture, part, shapes).save(f"{out_world}/{art}.png", optimize=True)
 
-    yard = load("loc_yard.png")
+    yard = load(YARD_PICTURE)
     yard = yard.crop((0, 0, yard.width, YARD_BOTTOM))
     size = (round(yard.width * YARD_SCALE), round(YARD_BOTTOM * YARD_SCALE))
     yard = limit_palette(resample(yard, larger(size)), PICTURE_COLORS)
@@ -429,7 +437,6 @@ def build(out_world):
     scenes_folder = os.path.join(out_world, "..", "scenes")
     tv_picture().save(os.path.join(scenes_folder, "tsn.png"))
     news_strip().save(os.path.join(scenes_folder, "news_frames.png"), optimize=True)
-    scene(load("club_night.png")).save(os.path.join(scenes_folder, "nightfall.png"))
     scene(load("sleep_room.png")).save(os.path.join(scenes_folder, "sleep.png"))
     scene(load("fridge_inside.png")).save(os.path.join(scenes_folder, "fridge_open.png"))
     for name, (box, height) in GOODS.items():

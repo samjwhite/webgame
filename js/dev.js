@@ -28,7 +28,7 @@ const DEV_MYKOLA_YARD = { location: "mykola", x: 270, y: 190 };
 
 const DEV_CHECKPOINTS = [
   { name: "Початок: автобус", quest: {}, at: START },
-  { name: "Вода: набрати", quest: { stage: "water" }, at: { location: "yard", x: 176, y: 258 } },
+  { name: "Вода: набрати", quest: { stage: "water" }, at: { location: "yard", x: 176, y: 272 } },
   { name: "Вода: віднести", quest: { stage: "water", hasWater: true }, at: DEV_YARD },
   { name: "Колоради: збирати (баба зупинить)", quest: { stage: "beetles" }, at: { location: "yard", x: 340, y: 230 } },
   { name: "Обприскувач: до діда Петра", quest: { stage: "sprayer" }, at: { location: "pond", x: 172, y: 96 } },

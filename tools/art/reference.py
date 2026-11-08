@@ -17,9 +17,11 @@ MAP_SCALE = 0.5  # the "Карта" screen: game pixels per pixel of village_map
 
 # Close-up pictures: output name -> (reference file, crop box or None)
 SCENES = {
-    "talk_grandma": ("grandma.png", None),
+    # Baba Hanya's close-up, redrawn by Codex in the game's style with the same face (approved).
+    "talk_grandma": ("incoming/talk_grandma_v2.png", None),
     "talk_grandpa": ("grandpa_pond.png", None),
-    "talk_seller": ("seller.png", None),
+    # Valya behind the counter: the approved Valya, the sign "Продукти", the same counter as before.
+    "talk_seller": ("incoming/seller_v2.png", None),
     # The club porch with the approved trio (village_lads_everyday_v4.png), drawn by Codex over the
     # composition of lads.png. Approved by the owner.
     "talk_lads": ("incoming/lads_porch_v2.png", None),
@@ -41,8 +43,12 @@ SCENES = {
     # 2003 haircut and tracksuit.
     "mykola_kungfu": ("incoming/mykola_kungfu_v2.png", None),
     "disco": ("disco.png", None),
-    "shed": ("shed.png", None),
-    "title": ("club_square.png", None),
+    # Grandma's shed with the moped under the tarpaulin, in the style of the approved yard.
+    "shed": ("incoming/shed_v2.png", None),
+    # The title: the approved club square (the old festive picture was too much like a postcard).
+    "title": ("incoming/loc_club_v2.png", (180, 40, 1356, 702)),
+    # The evening by the club: the approved club and lads, drawn by Codex.
+    "nightfall": ("incoming/nightfall_v2.png", None),
     "intro": ("collage.png", (544, 350, 1032, 556)),
     "road": ("collage.png", (1054, 350, 1658, 556)),
 }
@@ -131,9 +137,12 @@ ICON_HEIGHT = 32
 # away, sideways (8 frames and one standing frame each), then 4 idle frames. The sideways row faces
 # the given way and is mirrored for the other. Approved by the owner.
 HERO_SHEETS = {
-    "hero_city": ("incoming/hero_city_v5.png", "left"),
-    "hero_sport": ("incoming/hero_sport_v5.png", "left"),
+    "hero_city": ("incoming/hero_city_v5.png", "left", 0),
+    "hero_sport": ("incoming/hero_sport_v5.png", "left", 1),
 }
+# The sideways walk, redrawn by the designer as a classic cycle (the owner found the first one jerky):
+# row 0 in city clothes, row 1 in the tracksuit, 8 frames each, facing right.
+HERO_SIDE_WALK = "incoming/hero_side_walk.png"
 # Game sheet: rows walking down, up, left, right (8 frames), idle (4 frames), standing down, up, left,
 # right. The same layout is read by js/world.js (HERO_*).
 HERO_FRAME = (32, 48)  # room for a full stride, the bob of a step and a foot nearer the viewer
@@ -149,30 +158,31 @@ CHICKEN_WINDOW_W = 130
 CHICKEN_BANDS = {"rooster": (22, 190), "hen_white": (200, 330), "hen_ginger": (350, 475), "hen_black": (492, 625)}
 CHICKEN_SCALE = 0.11
 
-# Hero on the moped (reference/moped_sheet.png): rows right (6), left (6), up (1), down (1).
-MOPED_ROWS = [
-    (255, [284, 504, 732, 956, 1180, 1406]),
-    (418, [278, 506, 736, 956, 1182, 1408]),
-    (595, [232]),
-    (595, [844]),
-]
-MOPED_WINDOW = (180, 152)
-MOPED_FRAME = (45, 38)
+# The hero on grandpa's moped (incoming/hero_moped_v2.png; the old sheet showed another man in a cap):
+# rows: city clothes riding right (6), the tracksuit riding right (6), then back and front views, city and
+# tracksuit. The game sheets hero_moped_city/sport.png: rows right (6), left (6, mirrored), up, down.
+MOPED_SHEET = "incoming/hero_moped_v2.png"
+MOPED_FRAME = (48, 46)
+MOPED_SIDE_LENGTH = 42  # the moped's length in game pixels when seen from the side
+MOPED_FRONT_HEIGHT = 42  # rider and moped seen from the front or back
 
-# Well close-up (reference/well_scene.png and well_sheet.png). Coordinates are in the source pictures.
+# Well close-up: a whitewashed concrete ring with a lid, a drum and a chain (incoming/well_scene_v4.png,
+# drawn without the bucket and the crank handle), and its animation parts (incoming/well_parts_v2.png).
+# Coordinates are in the source pictures. js/closeup.js (WELL_*) places the parts on the scene.
+WELL_SCENE = "incoming/well_scene_v4.png"
+WELL_PARTS = "incoming/well_parts_v2.png"
 WELL_SCENE_BOX = (30, 30, 1506, 994)  # inside the picture frame
-# Baked-in bucket, rope and crank are covered with a copy of the background next to them
-# (fence and bushes repeat sideways). Rows below WELL_RIM_TOP are inside the ring and get blended.
-WELL_ERASE_BUCKET = (684, 444, 826, 684)
-WELL_ERASE_CRANK = (1078, 354, 1252, 526)
-WELL_RIM_TOP = 600
-WELL_RIM = (760, 660, 255, 55)  # centre x, centre y, radius x, radius y of the well ring top
+WELL_RIM = (752, 662, 252, 48)  # centre x, centre y, radius x, radius y of the ring's top
 WELL_FRONT_BOTTOM = 940
-CRANK_HUBS = [(552, 857), (678, 852), (805, 852), (930, 852), (1053, 852), (1179, 852), (1307, 851), (1434, 850)]
-CRANK_WINDOW = (14, 32, 102, 70)  # left, up, right, down from the hub
-CRANK_SCALE = 0.34
-BUCKET_BOXES = [(32, 828, 116, 936), (148, 828, 232, 936), (264, 828, 344, 936), (372, 816, 456, 936)]
-BUCKET_SIZE = (17, 22)
+# The crank handle in 8 turns, by the centre of its hub; the window around a hub; game pixels per pixel.
+CRANK_HUBS = [(76, 235), (273, 238), (459, 231), (651, 235), (886, 236), (1070, 240), (1242, 234), (1399, 239)]
+CRANK_WINDOW = (140, 140, 155, 145)  # left, up, right, down from the hub
+CRANK_SCALE = 0.13
+# The bucket: empty, full, swinging, splashing; each by the x of its chain, cut from BUCKET_TOP down.
+BUCKET_CHAINS = [210, 580, 955, 1325]
+BUCKET_TOP = 556
+BUCKET_WINDOW = (110, 140, 354)  # left and right of the chain, height
+BUCKET_SCALE = 0.0885
 
 
 def load(name):
@@ -355,7 +365,19 @@ def hero_cell(sheet, mask, box, baseline, scale):
     return outlined_sprite(small, 64)
 
 
-def hero_animation(file, side_faces):
+def side_walk_cells(row_index):
+    """The sideways walk from HERO_SIDE_WALK, facing right: scaled so a typical frame is a person's height."""
+    sheet = load(HERO_SIDE_WALK)
+    # A low tolerance: the navy tracksuit is close to the dark background and would fall apart.
+    mask = flat_background_mask(sheet, 6)
+    row = figures_in_rows(mask)[row_index]
+    heights = sorted(box[3] - box[1] for box in row)
+    scale = HERO_HEIGHT / heights[len(heights) // 2]
+    baseline = max(box[3] for box in row) - 1
+    return [hero_cell(sheet, mask, box, baseline, scale) for box in row]
+
+
+def hero_animation(file, side_faces, side_walk_row=None):
     """The game sheet for one outfit, laid out as described at HERO_SHEETS."""
     sheet = load(file)
     mask = flat_background_mask(sheet)
@@ -375,6 +397,11 @@ def hero_animation(file, side_faces):
     down, up, side, idle = cells
     mirrored = [cell.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for cell in side]
     left, right = (side, mirrored) if side_faces == "left" else (mirrored, side)
+    if side_walk_row is not None:
+        walk_right = side_walk_cells(side_walk_row)
+        walk_left = [cell.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for cell in walk_right]
+        left = walk_left + [left[8]]
+        right = walk_right + [right[8]]
     layout = [down[:8], up[:8], left[:8], right[:8], idle, [down[8], up[8], left[8], right[8]]]
     fw, fh = larger(HERO_FRAME)
     result = Image.new("RGBA", (fw * 8, fh * len(layout)))
@@ -409,14 +436,37 @@ def chicken_strips(out_world):
         cut_strip(frames, larger(size)).save(f"{out_world}/{name}.png")
 
 
+def moped_cell(sheet, mask, box, scale, baseline):
+    """One figure on the moped in a cell: wheels on the cell's bottom, centred, with the sprite outline."""
+    own = Image.new("L", mask.size, 0)
+    own.paste(mask.crop(box), box[:2])
+    figure = sheet.convert("RGBA")
+    figure.putalpha(own)
+    w, h = MOPED_FRAME
+    cx = (box[0] + box[2]) / 2
+    window = (cx - w / 2 / scale, baseline + 2 / scale - h / scale, cx + w / 2 / scale, baseline + 2 / scale)
+    small = figure.resize(larger(MOPED_FRAME), Image.Resampling.BOX, box=window)
+    return outlined_sprite(small, 64)
+
+
 def moped_riding(out_world):
-    sheet = load("moped_sheet.png")
-    fw, fh = larger(MOPED_FRAME)
-    result = Image.new("RGBA", (fw * 6, fh * len(MOPED_ROWS)))
-    for r, (top, columns) in enumerate(MOPED_ROWS):
-        for c, x in enumerate(columns):
-            result.alpha_composite(glow_frame(sheet, x, top, MOPED_WINDOW, MOPED_FRAME), (c * fw, r * fh))
-    result.save(f"{out_world}/hero_moped.png")
+    sheet = load(MOPED_SHEET)
+    mask = flat_background_mask(sheet, 20)
+    city, sport, views = figures_in_rows(mask)
+    for name, side, (back, front) in (("city", city, views[0:2]), ("sport", sport, views[2:4])):
+        scale = MOPED_SIDE_LENGTH / (side[0][2] - side[0][0])
+        baseline = max(box[3] for box in side)
+        right = [moped_cell(sheet, mask, box, scale, baseline) for box in side]
+        left = [cell.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for cell in right]
+        view_scale = MOPED_FRONT_HEIGHT / (front[3] - front[1])
+        up = moped_cell(sheet, mask, back, view_scale, back[3])
+        down = moped_cell(sheet, mask, front, view_scale, front[3])
+        fw, fh = larger(MOPED_FRAME)
+        result = Image.new("RGBA", (fw * 6, fh * 4))
+        for r, frames in enumerate([right, left, [up], [down]]):
+            for c, frame in enumerate(frames):
+                result.alpha_composite(frame, (c * fw, r * fh))
+        result.save(f"{out_world}/hero_moped_{name}.png")
 
 
 def app_icons(out_icons):
@@ -446,12 +496,8 @@ def copy_from_right(img, box):
 
 
 def well_pictures():
-    """The well without bucket, rope and crank, plus the front of the ring as a separate layer."""
-    scene = load("well_scene.png")
-    left, top, right, bottom = WELL_ERASE_BUCKET
-    copy_from_right(scene, (left, top, right, WELL_RIM_TOP))
-    fill_rows(scene, (left, WELL_RIM_TOP, right, bottom))
-    copy_from_right(scene, WELL_ERASE_CRANK)
+    """The well (drawn without bucket and crank), plus the front of the ring as a separate layer."""
+    scene = load(WELL_SCENE)
 
     cx, cy, rx, ry = WELL_RIM
     mask = Image.new("L", scene.size, 0)
@@ -490,25 +536,78 @@ def solid_sprite(img, size):
     return color
 
 
+def own_figure(sheet, mask, box):
+    """The sheet with only the figure inside box visible: neighbours on a crowded sheet are left out."""
+    own = Image.new("L", mask.size, 0)
+    own.paste(mask.crop(box), box[:2])
+    figure = sheet.convert("RGBA")
+    figure.putalpha(own)
+    return figure
+
+
 def well_crank_frames():
-    sheet = load("well_sheet.png")
+    sheet = load(WELL_PARTS)
+    mask = flat_background_mask(sheet, 20)
+    boxes = figures_in_rows(mask)[0]
     left, up, right, down = CRANK_WINDOW
     size = larger((round((left + right) * CRANK_SCALE), round((up + down) * CRANK_SCALE)))
     frames = []
-    for hx, hy in CRANK_HUBS:
-        window = cut_out(sheet.crop((hx - left, hy - up, hx + right, hy + down)), 40)
+    for (hx, hy), box in zip(CRANK_HUBS, boxes):
+        window = own_figure(sheet, mask, box).crop((hx - left, hy - up, hx + right, hy + down))
         frames.append(solid_sprite(window, size))
     return cut_strip(frames, size)
 
 
 def well_bucket_frames():
-    sheet = load("well_sheet.png")
+    sheet = load(WELL_PARTS)
+    left, right, height = BUCKET_WINDOW
+    size = larger((round((left + right) * BUCKET_SCALE), round(height * BUCKET_SCALE)))
     frames = []
-    for left, top, right, bottom in BUCKET_BOXES:
-        # all buckets share the bottom line, so crop them to the same height
-        window = cut_out(sheet.crop((left, 808, right, bottom)), 40)
-        frames.append(solid_sprite(window, larger(BUCKET_SIZE)))
-    return cut_strip(frames, larger(BUCKET_SIZE))
+    mask = flat_background_mask(sheet, 20)
+    boxes = figures_in_rows(mask)[1]
+    for chain, box in zip(BUCKET_CHAINS, boxes):
+        window = own_figure(sheet, mask, box).crop((chain - left, BUCKET_TOP, chain + right, BUCKET_TOP + height))
+        frames.append(solid_sprite(window, size))
+    return cut_strip(frames, size)
+
+
+# The potato-beetle mini-game: the plot (incoming/garden_closeup.png) and its parts
+# (incoming/garden_parts.png): the hand open and closed, the glass jar, the beetle big and small.
+GARDEN_PICTURE = "incoming/garden_closeup.png"
+GARDEN_PARTS = "incoming/garden_parts.png"
+# (box in the parts sheet, cell in game pixels, the box's point placed at the cell's point, or None to centre)
+HAND_CELL = (30, 32)
+HAND_FRAMES = [((420, 6, 710, 315), (570, 35)), ((840, 46, 1130, 355), (985, 75))]  # window, grab point
+JAR_BOX, JAR_CELL = (670, 372, 866, 668), (26, 32)
+BEETLE_BIG_BOX, BEETLE_BIG_CELL = (300, 715, 555, 980), (12, 12)
+BEETLE_SMALL_BOX, BEETLE_SMALL_CELL = (712, 792, 838, 924), (6, 6)
+
+
+def fitted(img, cell, colors=48):
+    """A cut-out scaled to fit a cell of game pixels, centred, alpha made hard."""
+    cut = img.crop(img.getchannel("A").getbbox())
+    width, height = larger(cell)
+    scale = min(width / cut.width, height / cut.height)
+    small = cut.resize((max(1, round(cut.width * scale)), max(1, round(cut.height * scale))), Image.Resampling.LANCZOS)
+    alpha = small.getchannel("A").point(lambda a: 255 if a > 110 else 0)
+    color = limit_palette(small.convert("RGB"), colors).convert("RGBA")
+    color.putalpha(alpha)
+    result = Image.new("RGBA", (width, height))
+    result.alpha_composite(color, ((width - color.width) // 2, (height - color.height) // 2))
+    return result
+
+
+def garden_scene(out_scenes, out_world):
+    scene(load(GARDEN_PICTURE)).save(f"{out_scenes}/garden.png")
+    parts = load(GARDEN_PARTS)
+    hands = []
+    for (left, top, right, bottom), _ in HAND_FRAMES:
+        window = cut_out(parts.crop((left, top, right, bottom)), 30)
+        hands.append(solid_sprite(window, larger(HAND_CELL)))
+    cut_strip(hands, larger(HAND_CELL)).save(f"{out_scenes}/hand.png")
+    fitted(cut_out(parts.crop(JAR_BOX), 30), JAR_CELL, 64).save(f"{out_scenes}/jar.png")
+    fitted(cut_out(parts.crop(BEETLE_BIG_BOX), 30), BEETLE_BIG_CELL).save(f"{out_scenes}/beetle.png")
+    fitted(cut_out(parts.crop(BEETLE_SMALL_BOX), 30), BEETLE_SMALL_CELL).save(f"{out_world}/beetle.png")
 
 
 def icon(img):
@@ -539,8 +638,8 @@ def build(out_scenes, out_world, out_ui, out_icons):
     for name, (file, box) in ICONS.items():
         icon(load(file).crop(box)).save(f"{out_ui}/{name}.png")
 
-    for name, (file, side_faces) in HERO_SHEETS.items():
-        hero_animation(file, side_faces).save(f"{out_world}/{name}.png")
+    for name, (file, side_faces, side_walk_row) in HERO_SHEETS.items():
+        hero_animation(file, side_faces, side_walk_row).save(f"{out_world}/{name}.png")
 
     app_icons(out_icons)
     chicken_strips(out_world)
@@ -551,3 +650,4 @@ def build(out_scenes, out_world, out_ui, out_icons):
     front.save(f"{out_scenes}/well_front.png")
     well_crank_frames().save(f"{out_scenes}/crank.png")
     well_bucket_frames().save(f"{out_scenes}/bucket.png")
+    garden_scene(out_scenes, out_world)

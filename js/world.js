@@ -44,7 +44,7 @@ function npcsHere() {
 }
 
 const places = {
-  well: { id: "well", location: "yard", x: 176, y: 256 },
+  well: { id: "well", location: "yard", x: 174, y: 262 },
   shed: { id: "shed", location: "yard", x: SHED_DOOR.x, y: SHED_DOOR.y },
   backpack: { id: "backpack", location: "yard", x: 365, y: 118 },
   truck: { id: "truck", location: "shop", x: 112, y: 208 },
@@ -747,9 +747,9 @@ function heroFrame(time) {
   return { row: HERO_STAND_ROW, col: HERO_ROWS[player.dir] };
 }
 
-// Moped sheet: rows right and left (6 frames each), then up and down (1 frame each).
-const MOPED_FRAME_W = 45;
-const MOPED_FRAME_H = 38;
+// Moped sheets, one per outfit: rows right and left (6 frames each), then up and down (1 frame each).
+const MOPED_FRAME_W = 48;
+const MOPED_FRAME_H = 46;
 const MOPED_ROWS = { right: 0, left: 1, up: 2, down: 3 };
 
 function mopedFrame(time) {
@@ -764,7 +764,8 @@ function drawPlayer(ctx, time) {
   if (quest.riding) {
     const { row, col } = mopedFrame(time);
     top = snap(player.y - MOPED_FRAME_H + 2);
-    drawArtPart(ctx, ART.heroMoped, col * MOPED_FRAME_W, row * MOPED_FRAME_H, MOPED_FRAME_W, MOPED_FRAME_H,
+    const moped = quest.outfit === "sport" ? ART.heroMopedSport : ART.heroMopedCity;
+    drawArtPart(ctx, moped, col * MOPED_FRAME_W, row * MOPED_FRAME_H, MOPED_FRAME_W, MOPED_FRAME_H,
       snap(player.x - MOPED_FRAME_W / 2), top);
   } else {
     const sheet = quest.outfit === "sport" ? ART.heroSport : ART.heroCity;
