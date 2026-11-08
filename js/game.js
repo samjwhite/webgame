@@ -117,7 +117,7 @@ function goToDisco() {
   const text = T().disco;
   showPicture("disco", [...text.start, ...noticeSvetka()], () => {
     openChoice(text.choiceTitle, [
-      { label: text.goOver, pick: () => showPicture("disco", discoApproach(), chooseAfterDance, "disco") },
+      { label: text.goOver, pick: () => showPicture("discoSvetka", discoApproach(), chooseAfterDance) },
       { label: text.keepDancing, pick: () => showPicture("disco", discoStayWithLads(), endDisco, "disco") },
     ]);
   }, "disco");
@@ -127,7 +127,7 @@ function chooseAfterDance() {
   const text = T().disco;
   openChoice(text.afterTitle, ["stayed", "warned", "left"].map((id) => ({
     label: text.afterOptions[id],
-    pick: () => showPicture("disco", discoAfterDance(id), endDisco, "disco"),
+    pick: () => showPicture("discoSvetka", discoAfterDance(id), endDisco),
   })));
 }
 
@@ -136,6 +136,52 @@ function endDisco() {
   quest.discoDone = true;
   finishCloseup();
   openDialog(T().afterDisco, saveGame);
+}
+
+// After their talk by the shop the hero chooses whether to ask Svetka to the river now.
+function offerDateInvite() {
+  const text = T().svetka;
+  openChoice(text.inviteTitle, [
+    { label: text.inviteRiver, pick: () => openDialog(inviteToRiver(), saveGame) },
+    { label: text.inviteLater, pick: () => openDialog([text.notNow], saveGame) },
+  ]);
+}
+
+// Everything is ready but it is still day: he may wait with her for the evening. The day stays the same.
+function offerDateEvening() {
+  const text = T().svetka;
+  openChoice(text.waitTitle, [
+    {
+      label: text.waitHere,
+      pick: () => {
+        advancePhase("evening");
+        saveGame();
+        openDialog(text.eveningFalls, goToRiver);
+      },
+    },
+    { label: T().ui.notYet, pick: saveGame },
+  ]);
+}
+
+// The date: the ride, the bank, his tapes, and one choice: say something or keep quiet.
+function goToRiver() {
+  const text = T().river;
+  showPicture("riverDate", text.start, () => {
+    openChoice(text.choiceTitle, [
+      { label: text.speakChoice, pick: () => showPicture("riverDate", riverDate("spoke"), endDate) },
+      { label: text.silentChoice, pick: () => showPicture("riverDate", riverDate("silent"), endDate) },
+    ]);
+  });
+}
+
+// He takes her home and rolls the moped into grandma's yard: night, time for bed.
+function endDate() {
+  quest.time = "night";
+  quest.riding = false;
+  quest.moped = { ...newQuest().moped };
+  enterLocation(WAKE_UP_SPOT.location, WAKE_UP_SPOT);
+  finishCloseup();
+  openDialog(T().river.home, saveGame);
 }
 
 function goToSleep() {
@@ -153,6 +199,9 @@ function afterTalk(next) {
   else if (next === "disco") goToDisco();
   else if (next === "waitEvening") offerEvening();
   else if (next === "shop") openShopMenu();
+  else if (next === "invite") offerDateInvite();
+  else if (next === "dateWait") offerDateEvening();
+  else if (next === "riverDate") goToRiver();
   else finishCloseup();
 }
 
@@ -209,6 +258,8 @@ function useTarget(target) {
       showPicture("fridgeOpen", result.lines, finishCloseup, "fridge");
     } else if (result.next === "tv") {
       showPicture("tsn", result.lines, finishCloseup, "tv");
+    } else if (result.next) {
+      openDialog(result.lines, () => afterTalk(result.next));
     } else {
       openDialog(result.lines, saveGame);
     }
@@ -259,7 +310,8 @@ function update(dt) {
     tap = null;
   }
 
-  if (mode === "world" && !dialog.open) {
+  // A choice over the world (talking to Svetka) holds the hero in place until it is answered.
+  if (mode === "world" && !dialog.open && !choice.open) {
     updateWorld(dt);
     const target = nearestTarget();
     actionButton.classList.toggle("ready", target !== null);

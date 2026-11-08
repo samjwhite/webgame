@@ -19,13 +19,15 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 
 | Who | Look | Reference files |
 |---|---|---|
-| **Hero**, city grandson | Curly brown hair, white T-shirt, light jeans, olive backpack. Later a navy Adidas tracksuit with white stripes. | `hero_city_sheet.png`, `hero_sport_sheet.png`, `collage.png` |
+| **Hero**, city grandson | Short straight dark-brown hair: an ordinary 2003 school haircut, short at the back and sides, a short flat fringe brushed forward (decided by the owner: no curls, no modern curly top). White T-shirt, clean new light jeans, white sneakers: the city look the lads call a dandy. Later his old school tracksuit, navy with three faded white stripes. A lanky 17-year-old with the same proportions as the approved lads (about 7.5 heads tall, a small head), never a big-headed child. No backpack: it stays by grandma's shed. | `incoming/hero_city_v5.png`, `incoming/hero_sport_v5.png`, portrait `incoming/hero_portrait_v2.png` (temporary, drawn by Codex in the proportions of `village_lads_everyday_v4.png` and the face of `dialogue_cast.png`, waiting for the human's approval). The curly hair of `dialogue_cast.png`, `summer_key_moments_v2.png` and the old sheets is out of date. |
 | **Hero on the moped** | Orange Karpaty moped; the sheet shows a brown jacket and flat cap (a tracksuit version may replace it later). | `moped_sheet.png` |
 | **Baba Hanya**, grandma | Headscarf, floral dress, apron, kind round face. | `grandma.png`, `collage.png` |
-| **Valya**, shop seller | Red headscarf, pink blouse, blue checked apron, arms crossed, loud and warm. | `seller.png`, `collage.png` |
-| **Did Petro**, grandpa | Flat cap, grey moustache, checked shirt, dark vest, rubber boots, cigarette, sits by the pond. | `grandpa_pond.png` (close-up). The world sprite is repainted from the hero idle frames; a full-height picture is still wanted. |
-| **Ostap, Stas, Seryoga**, village lads (formerly Tolik, Vovchyk, Seryi) | Ordinary village youth, sunflower seeds, one squatting. Not gangsters. The current art shows tracksuits and caps; the summer scenario asks for worn everyday clothes (denim or work jackets, old sweaters, trousers), which the human has still to decide. | `lads.png`, `collage.png` |
-| **Svetka**, village girl (temporary) | Chestnut wavy hair in a loose ponytail, faded blue-green sundress with a few large ochre and cream flowers, sandals. Drawn by Codex for stage 1 and checked by the designer review; waits for the human's approval or a ChatGPT concept. | `incoming/svetka_world_v2.png` |
+| **Valya**, shop seller | Sturdy build, red floral headscarf, gold earrings, maroon knitted sweater, blue checked apron, arms crossed, loud and warm. | `incoming/valya_character_v2.png` (approved by the human through ChatGPT: full figure and close-up). `seller.png`, the shop picture and `collage.png` still show the older pink-blouse look. |
+| **Did Petro**, grandpa | Flat cap, grey moustache, checked shirt, dark vest, rubber boots, cigarette, sits by the pond. | `grandpa_pond.png` (close-up), `petro_bench.png` (on his bench in the game), portrait in `incoming/dialogue_cast.png`. `art/world/grandpa.png` is an old repaint of the first hero sheet, no longer built or used; a full-height picture is still wanted. |
+| **Tolik, Vovchyk, Sanya** (Sashko), village lads (for a while the scenario called them Ostap, Stas and Seryoga; on 7 November the owner renamed them back to Tolik and Vovchyk, and Seryoga to Sanya) | Ordinary village youth, not gangsters, in worn everyday clothes: faded colours, stretched knees, nothing new or branded. **Tolik**, the leader: curly reddish-brown hair, a faded blue denim jacket over a brown patterned (Fair Isle) sweater, brown trousers. **Vovchyk**: a faded blue-grey cap, long curly hair, a small goatee, an olive canvas jacket over a navy zip-neck top. **Sanya**: short hair, a brown knitted zip-up sweater over a cream T-shirt, squats. They envy the hero's new city clothes a little but never say so. | `incoming/village_lads_everyday_v4.png` (approved by the human through ChatGPT; left to right Tolik, Vovchyk, Sanya, figures above and portraits below). `incoming/lads_porch_v2.png`: the club porch redrawn by Codex with this trio (temporary, waiting for approval). `lads.png`, `collage.png` and the lower row of `dialogue_cast.png` show the old tracksuit look. |
+| **Svetka**, village girl | Chestnut wavy hair in a low ponytail with a red scrunchie, freckles, a dark red short-sleeved blouse, a faded denim knee-length skirt, sandals. | `incoming/summer_characters_concepts.png` (top left, approved by the human through ChatGPT), `incoming/summer_key_moments_v2.png` |
+| **Mykola**, **the driver**, **the piglet seller** (later stages) | Mykola: thin, balding, a stained vest and old tracksuit trousers, slippers. The driver: a stout man with a flat cap and moustache, a faded blue work shirt. The seller: an old woman in a floral headscarf, a cardigan over a floral dress, rubber boots. | `incoming/summer_characters_concepts.png` (approved concepts: figures above, portraits below) |
+| **The river date** | Hero and Svetka on the grassy bank at sunset sharing one pair of wired earphones from the black cassette player; the orange moped parked on the path. The bank is the river of `summer_locations_concepts.png`. | `incoming/river_date_v4.png` (drawn by Codex from the approved concepts; temporary, waiting for approval) |
 | Chickens | Rooster, white, ginger and black hens: walk, peck, flap. | `chicken_sheet.png` |
 
 ## Places
@@ -38,6 +40,7 @@ The shared design memory for every agent that draws or integrates art (ChatGPT, 
 | Well close-up and its animation parts | `well_scene.png`, `well_sheet.png` |
 | Shed with the moped | `shed.png` |
 | Title screen and app icon | `club_square.png`, `icon.png` |
+| Summer story, approved concepts by ChatGPT | `incoming/summer_locations_concepts.png` (Mykola's yard and room, the district market, the river), `incoming/summer_key_moments_v2.png` (the disco, the night catfish sale, the morning after the break-up, the river with the lads), `incoming/pond_catfish_rod_v3.png`, `incoming/pond_catfish_night.png`, `incoming/mykola_vhs_kungfu.png`, `incoming/summer_props_concepts.png` (sprayer, cassette player, beer, battery, whitewash, fence, potatoes) |
 
 ## Design decisions to keep
 
@@ -71,7 +74,7 @@ The game draws at 1 game pixel = several screen pixels; sources are drawn large 
 | Asset | Game size | Source layout expected |
 |---|---|---|
 | Village map | 768×512 (source 1536×1024, scale 0.5) | One top-down picture; changing layout means changing collisions in `js/map.js`. |
-| Hero walk/idle | frames 28×44 | Rows: down, up, left, right × 8 frames, plus 4 idle frames to the right (see `HERO_*` in `reference.py`). |
+| Hero walk/idle | frames 28×44, person 40 px tall | Source 1536×1024 on flat `#26222f`, no labels: rows walking toward the viewer, away, sideways (8 frames + 1 standing each), then 4 idle frames facing the viewer. Walk cycle: contact, down, passing, up, then the same with the other foot; arms swing against the legs. Figures are found automatically (see `HERO_*` in `reference.py`). |
 | Hero on moped | frames 45×38 | Rows: right ×6, left ×6, one back view, one front view. |
 | Standing NPCs | 40 px tall | Full figure, front view, separated on a flat dark background. |
 | Chickens | ~16–20 px tall, 11 frames | idle, walk ×5, peck ×4, flap. |

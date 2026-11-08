@@ -29,29 +29,30 @@ TEXTS.it = {
     notYet: "Ho ancora da fare",
   },
 
-  // Names over the dialog text. A line "Ostap: ..." is said by Ostap, and so on.
+  // Names over the dialog text. A line "Tolik: ..." is said by Tolik, and so on.
   speakers: {
     hero: "Tu",
     grandma: "Nonna Hanja",
     grandpa: "Nonno Petro",
     valya: "Valja",
-    ostap: "Ostap",
-    stas: "Stas",
-    seryoga: "Serjoga",
+    tolik: "Tolik",
+    vovchik: "Vovchyk",
+    sanya: "Sanja",
     svetka: "Svetka",
     stranger: "Ragazza sconosciuta",
   },
 
   intro: [
     "Estate 2003. Regione di Poltava, Ucraina.",
-    "Il pulmino giallo Bohdan, linea 212, ha tossito, sbuffato e ti ha lasciato con lo zaino alla fermata del villaggio di Makitryne.",
+    "Il pulmino giallo Bohdan, linea 212, ha tossito, sbuffato e ti ha lasciato alla fermata del villaggio di Makitryne.",
+    "Lo zaino l'autista ha promesso di lasciarlo da nonna Hanja: tanto passa davanti a casa sua. E a te, ha detto, fa bene fare due passi e vederti il villaggio.",
     "La nonna abita nella casetta vicino al pozzo, in fondo al villaggio, verso nord. Su, vai.",
   ],
 
   grandma: {
     arrive: [
       "Oh, chi si vede! Il mio nipotino! Ma come sei cresciuto — in città mangiate solo salame, scommetto.",
-      "Lascia la roba lì, vicino alla rimessa. Qui non siamo a Kyiv, non ruba nessuno... o quasi.",
+      "Il tuo zaino l'ha già portato l'autista, è lì vicino alla rimessa. Qui non siamo a Kyiv, non ruba nessuno... o quasi.",
       "E adesso corri al pozzo a prendermi un po' d'acqua. Ci facciamo un tè dopo il viaggio.",
     ],
     waterWait: "Il pozzo è proprio lì, a sinistra. Gira la manovella, non la lingua.",
@@ -99,10 +100,10 @@ TEXTS.it = {
       "Mangia, che sei magro come un palo. In città non vi danno da mangiare?",
     ],
     beerSmell: "Cos'è quest'odore? Ah, figliolo, figliolo... Tutto tuo nonno.",
-    tracksuit: "Ma sei andato con quei jeans! La mamma ti ha messo la tuta nello zaino, quella con le strisce. Lo zaino è vicino alla rimessa.",
+    tracksuit: "Ma sei andato con quei jeans! La mamma ti ha messo la tuta nello zaino, quella vecchia della scuola, con le strisce. Lo zaino è vicino alla rimessa.",
     wakeFirst: [
       "Madonna santa! Chi ti ha conciato così, tesoro?",
-      "I ragazzi del circolo, dici? Saranno Ostap e Stas. Ogni estate accolgono così tutti quelli di città. Prima del matrimonio guarisce.",
+      "I ragazzi del circolo, dici? Saranno Tolik e Vovchyk. Ogni estate accolgono così tutti quelli di città. Prima del matrimonio guarisce.",
     ],
     wakeAgain: ["Di nuovo?! Colleziona bernoccoli come Pinocchio. Mettici sopra una moneta di rame, aiuta."],
   },
@@ -118,6 +119,11 @@ TEXTS.it = {
     unloadAsk: [
       "Senti, tesoro, è arrivato il camion della merce e l'autista, guarda un po', si è bloccato la schiena.",
       "Portami le casse dal camion e ti do quattro grivnie. Il camion è lì, vicino al recinto.",
+    ],
+    // The truck comes every morning; from the second time on.
+    unloadAgain: [
+      "Oh, tesoro, è arrivato di nuovo il camion, e l'autista si tiene di nuovo la schiena.",
+      "Me le porti le casse? Quattro grivnie, come ieri.",
     ],
     idle: "Pane c'è, zucchero c'è, fiammiferi ci sono. Fidanzati no — sono andati tutti a Poltava.",
     noMoney: "Non ti bastano, tesoro. Gratis c'è solo il formaggio nella trappola. Vai a raccogliere dorifore dalla nonna Hanja.",
@@ -145,7 +151,7 @@ TEXTS.it = {
       "Nella rimessa di Hanja c'è un motorino, un Karpaty. Va ancora — lo accendo ogni primavera.",
       "La moglie sceglila dal borsch, non da come balla. Il ballo finisce, il borsch è tutti i giorni.",
       "Ho fatto tre anni di militare, e sai cosa ho capito? Che a casa si sta meglio. Tutto qui.",
-      "Non fare il passo più lungo della gamba. E non entrare al circolo prima di Ostap.",
+      "Non fare il passo più lungo della gamba. E non entrare al circolo prima di Tolik.",
       "Avevo una Zaporozhets, quella gobba. L'ho guidata trent'anni e non sono mai arrivato da nessuna parte senza un guasto. Però che risate.",
       "Il pane non si butta sul tavolo, e col temporale la televisione non si accende. Qui non è la città, i fulmini sono cattivi.",
       "Il mio vicino Mykola si è giocato mezza pensione alla lotteria Loto-Zabava. Ha vinto una volta — una maglietta. Adesso ci porta al pascolo la mucca.",
@@ -167,9 +173,14 @@ TEXTS.it = {
   yard: {
     backpackEmpty: "Nello zaino sono rimasti uno spazzolino e un panino di tre giorni fa.",
     backpackOpen: [
-      "Apri lo zaino: uno spazzolino, un walkman con una cassetta degli Okean Elzy... e sul fondo una tuta Adidas nuova di zecca, con le tre strisce.",
+      "Apri lo zaino: uno spazzolino, il walkman, delle cassette... e sul fondo la tua vecchia tuta Adidas della scuola, con le tre strisce e le ginocchia sformate.",
       "Altri vestiti di ricambio non ne hai: la mamma l'aveva messa \"per ogni evenienza\". Ti cambi. Adesso sembri quasi uno del posto... quasi.",
     ],
+    takePlayer: [
+      "Tiri fuori dallo zaino il walkman, le cuffie e le tue cassette: gli Okean Elzy e una di Skriabin, registrata dalla radio.",
+      "Sulla cassetta di Skriabin c'è \"Movchaty\", quella con Iryna Bilyk. L'inizio è un po' tagliato: lo speaker parlava ancora e non hai fatto in tempo a premere REC.",
+    ],
+    jarsDone: "Per oggi di dorifore ne hai raccolte abbastanza. Domani ne arriveranno di nuove dall'orto di Mykola.",
     shedChickens: "La rimessa è aperta, ma le galline non entrano. Bisogna spingerle dentro.",
     shedLocked: "La rimessa è chiusa col chiavistello. Puzza di benzina e di cacca di gallina.",
     shedFound: [
@@ -204,40 +215,45 @@ TEXTS.it = {
   },
 
   lads: {
-    noSuit: "Ostap: In jeans in discoteca? Che fai, vai al mercato in città? Mettiti qualcosa di più semplice, che brilli come una vetrina di Poltava.",
-    sober: "Stas: Sobrio come il nostro agronomo di lunedì. Almeno una birra per farti coraggio.",
-    weakBeer: "Stas: Sai di birra, ma come se l'avessi solo annusata.",
-    onFoot: "Serjoga: A piedi? Perfino il vecchio Petro veniva in discoteca in bicicletta.",
-    noticeSuit: "Ostap: Ti sei messo l'Adidas — oh, adesso sembri una persona.",
-    noticeBeer: "Stas: Sai di birra, come dopo la fienagione. Uno dei nostri.",
-    noticeMoped: "Serjoga: E sei arrivato col Karpaty del nonno! Pensavo l'avessero venduto a pezzi da un pezzo.",
+    // They envy his new city clothes a little, but never say so: he just "doesn't fit in".
+    noSuit: [
+      "Tolik: Però, che jeans. Nuovi nuovi, scommetto che sanno ancora di negozio.",
+      "Tolik lo dice come se niente fosse, ma le tue scarpe da ginnastica le guarda un po' più a lungo del necessario.",
+      "Tolik: Solo che così non sei dei nostri. Un damerino fatto e finito. Da noi conciato così non si viene — vai a metterti qualcosa da cristiani.",
+    ],
+    sober: "Vovchyk: Sobrio come il nostro agronomo di lunedì. Almeno una birra per farti coraggio.",
+    weakBeer: "Vovchyk: Sai di birra, ma come se l'avessi solo annusata.",
+    onFoot: "Sanja: A piedi? Perfino il vecchio Petro veniva in discoteca in bicicletta.",
+    noticeSuit: "Tolik: Ti sei messo l'Adidas — oh, adesso sembri una persona.",
+    noticeBeer: "Vovchyk: Sai di birra, come dopo la fienagione. Uno dei nostri.",
+    noticeMoped: "Sanja: E sei arrivato col Karpaty del nonno! Pensavo l'avessero venduto a pezzi da un pezzo.",
     friends: [
-      "Ostap: Domattina andiamo allo stagno a pescare carassi. Quando ti svegli, vieni.",
-      "Stas: Papà dice che giovedì portiamo il fieno. Se dai una mano, ti versa il latte appena munto.",
-      "Serjoga: Svetka ha chiesto se torni. Le ho detto che sei di città, non puoi.",
-      "Ostap: Sabato partita sul prato, noi contro Mykhailivka. Vai in porta?",
-      "Stas: Al circolo ho trovato una cassetta dei Ruki Vverkh, consumata fino ai buchi. L'abbiamo ascoltata fino all'alba.",
-      "Serjoga: La mucca va portata al pascolo alle cinque. Ecco la nostra discoteca dopo la discoteca.",
+      "Tolik: Domattina andiamo allo stagno a pescare carassi. Quando ti svegli, vieni.",
+      "Vovchyk: Papà dice che giovedì portiamo il fieno. Se dai una mano, ti versa il latte appena munto.",
+      "Sanja: Svetka ha chiesto se torni. Le ho detto che sei di città, non puoi.",
+      "Tolik: Sabato partita sul prato, noi contro Mykhailivka. Vai in porta?",
+      "Vovchyk: Al circolo ho trovato una cassetta dei Ruki Vverkh, consumata fino ai buchi. L'abbiamo ascoltata fino all'alba.",
+      "Sanja: La mucca va portata al pascolo alle cinque. Ecco la nostra discoteca dopo la discoteca.",
     ],
     readyEarly: [
-      "Ostap: Ecco, così va meglio! Solo che sei arrivato presto. La discoteca è stasera, quando tornano le mucche.",
-      "Stas: Puoi sederti qui con noi. Abbiamo i semi.",
+      "Tolik: Ecco, così va meglio! Solo che sei arrivato presto. La discoteca è stasera, quando tornano le mucche.",
+      "Vovchyk: Puoi sederti qui con noi. Abbiamo i semi.",
     ],
     welcome: [
-      "Ostap: Allora, è sera. Entra, ma non pestare i piedi alle ragazze.",
-      "Stas: Tieni, semi di girasole, li ha tostati nonna Ljuba.",
-      "Ostap: E Svetka non toccarla.",
+      "Tolik: Allora, è sera. Entra, ma non pestare i piedi alle ragazze.",
+      "Vovchyk: Tieni, semi di girasole, li ha tostati nonna Ljuba.",
+      "Tolik: E Svetka non toccarla.",
       "Chi sia Svetka, non lo sai. Ma per sicurezza te lo segni.",
     ],
     firstMeet: [
-      "Ostap: Ehi, e questo chi è, tutto pulito e lucido? Ti sei perso?",
-      "Stas: È il nipote di Hanja, quello di città. Stamattina è sceso dal Bohdan con lo zaino, come un turista.",
-      "Serjoga: Vai in discoteca? Qui non funziona così — prima dimostraci che non sei fatto d'asfalto.",
+      "Tolik: Ehi, e questo chi è, tutto pulito e lucido? Ti sei perso?",
+      "Vovchyk: È il nipote di Hanja, quello di città. Stamattina è sceso dal Bohdan tutto vestito nuovo, come un turista.",
+      "Sanja: Vai in discoteca? Qui non funziona così — prima dimostraci che non sei fatto d'asfalto.",
     ],
-    again: "Ostap: Oh, sei tornato? Testardo come la capra di nonna Hanja.",
+    again: "Tolik: Oh, sei tornato? Testardo come la capra di nonna Hanja.",
     beforeBeating: [
-      "Stas: Non prendertela, da noi si fa così.",
-      "Serjoga: Chi arriva la prima volta e non è dei nostri viene \"presentato\" alla comunità.",
+      "Vovchyk: Non prendertela, da noi si fa così.",
+      "Sanja: Chi arriva la prima volta e non è dei nostri viene \"presentato\" alla comunità.",
     ],
   },
 
@@ -261,14 +277,14 @@ TEXTS.it = {
       "Tu: Balliamo?",
       "Ragazza sconosciuta: Sei tu quello di città, il nipote di Hanja? Dai, va bene. Basta che non mi pesti i piedi.",
       "Ballate sui Ruki Vverkh. Lei sa tutte le parole, tu solo \"la-la-la\".",
-      "Stas: Svetka! Tua madre ha detto a casa entro le undici!",
+      "Vovchyk: Svetka! Tua madre ha detto a casa entro le undici!",
       "Ah. Ecco chi è Svetka.",
       "Svetka: Io non vado da nessuna parte. Ancora una.",
     ],
-    afterTitle: "Ostap ha detto di non toccare Svetka. E adesso?",
+    afterTitle: "Tolik ha detto di non toccare Svetka. E adesso?",
     afterOptions: {
       stayed: "Restare con lei",
-      warned: "Dirle dell'avvertimento di Ostap",
+      warned: "Dirle dell'avvertimento di Tolik",
       left: "Ringraziarla e tornare dai ragazzi",
     },
     afterDance: {
@@ -279,21 +295,21 @@ TEXTS.it = {
       ],
       warned: [
         "Tu: Mi hanno detto di non toccarti.",
-        "Svetka: Chi l'ha detto? Ostap? Che vada a toccare le sue mucche.",
+        "Svetka: Chi l'ha detto? Tolik? Che vada a toccare le sue mucche.",
         "Lei ride, ma per un attimo guarda verso i ragazzi.",
         "Decidi: devi chiederle un appuntamento. Meglio in un posto dove non guarda nessuno.",
       ],
       left: [
         "Tu: Grazie per il ballo. Torno dai miei.",
         "Svetka: E vai, \"uno di loro\".",
-        "Ti allontani, e lei ti guarda andare via. Anche Ostap ti guarda.",
+        "Ti allontani, e lei ti guarda andare via. Anche Tolik ti guarda.",
         "Decidi: la prossima volta le chiederai un appuntamento. Senza testimoni.",
       ],
     },
     withLads: [
       "Resti con i ragazzi. La ragazza con la coda di cavallo gira da sola, come se non avesse bisogno di nessuno.",
-      "Serjoga: Che c'è, ti sei incantato? Quella è Svetka. Proprio lei.",
-      "Ostap: Te l'avevo detto — non toccarla.",
+      "Sanja: Che c'è, ti sei incantato? Quella è Svetka. Proprio lei.",
+      "Tolik: Te l'avevo detto — non toccarla.",
       "Ecco chi è Svetka. Continui a ballare, ma ormai non guardi più i ragazzi.",
     ],
   },
@@ -321,11 +337,71 @@ TEXTS.it = {
     ],
     dateIntent: [
       "La guardi ridere e capisci: devi chiederle un appuntamento. Solo che qui, dove si portano le ragazze?",
+      "E poi ti viene in mente: il fiume fuori dal villaggio, il tramonto, e nello zaino il walkman con Skriabin.",
     ],
+    askAgain: "Svetka: Allora, hai deciso dove portarmi? Basta che non sia allo stagno da nonno Petro.",
+    inviteTitle: "Chiedere a Svetka un appuntamento?",
+    inviteRiver: "Invitarla al fiume stasera, ad ascoltare Skriabin",
+    inviteLater: "Un'altra volta",
+    notNow: "Alla fine non ce la fai. Svetka finisce la sua Sytro e ti guarda come se sapesse lo stesso cosa volevi dirle.",
+    invite: [
+      "Tu: Andiamo al fiume stasera? Col motorino. Ho il walkman, e Skriabin, \"Movchaty\".",
+      "Svetka: Col tuo Karpaty? Ma ci arriva?",
+      "Tu: Nonno Petro lo accende ogni primavera.",
+      "Svetka: Be'... va bene. Quando tramonta il sole, passa a prendermi qui, al negozio. A mia madre dico che sono da Olka.",
+    ],
+    playerAtHome: "Il walkman, tra l'altro, è rimasto nello zaino vicino alla rimessa della nonna. Bisogna andare a prenderlo.",
+    waitPlayer: [
+      "Svetka: E il walkman? Avevi promesso Skriabin.",
+      "Il walkman è rimasto nello zaino vicino alla rimessa della nonna.",
+    ],
+    waitMoped: ["Svetka: Al fiume a piedi? Ma è fuori dal villaggio. Vai a prendere il tuo Karpaty, ti aspetto."],
+    waitEvening: ["Svetka: È ancora giorno. Ho detto stasera. Quando sono passate le mucche."],
+    waitTitle: "Manca ancora tanto alla sera. Aspetti con Svetka?",
+    waitHere: "Restare con lei davanti al negozio fino a sera",
+    eveningFalls: [
+      "Il sole tramonta. Valja porta uno sgabello sulla veranda e sgranocchia semi, mentre Svetka ti racconta chi nel villaggio non si saluta con chi, e perché.",
+      "Svetka: Dai, andiamo, finché mia madre munge la mucca.",
+    ],
+    letsGo: ["Svetka: Oh, sei arrivato. E il walkman l'hai preso? Dai, andiamo, finché mia madre munge la mucca."],
+    // After the river.
     later: [
       "Svetka: Valja mi ha chiesto di nuovo di chi sei. Le ho detto: di Hanja.",
-      "Svetka: Allora, hai deciso dove portarmi? Basta che non sia allo stagno da nonno Petro.",
+      "Svetka: Ieri torno a casa e mia madre: \"Dove sei stata?\" E io: \"Da Olka.\" E intanto avevo l'erba nei capelli.",
       "Svetka: Dovrei andare a casa, mia madre aspetta la mucca. Ma resto ancora un po'.",
+    ],
+  },
+
+  // The date at the river: the song is Skriabin and Iryna Bilyk, "Movchaty" (a 2003 single).
+  // Its words are never quoted, only named.
+  river: {
+    start: [
+      "Il Karpaty borbotta sulla strada sterrata tra i campi. Svetka si tiene stretta a te e ride ogni volta che una buca vi fa sobbalzare.",
+      "Il fiume fuori dal villaggio è rosa di tramonto. Vi sedete sull'erba sotto un salice e le dai un auricolare.",
+      "Premi \"Play\". Il nastro fruscia, poi Kuzma e la Bilyk cantano \"Movchaty\".",
+      "Svetka: Oh, questa la conosco, l'ho sentita alla radio. Zitto, non interromperli.",
+    ],
+    choiceTitle: "La canzone suona. Che fai?",
+    speakChoice: "Dirle quello che pensi",
+    silentChoice: "Stare zitto, come nella canzone",
+    spoke: [
+      "Tu: Svetka, io...",
+      "Svetka: Sst. Ascolta fino alla fine.",
+      "Lei ti appoggia la testa sulla spalla, e capisci che tanto non avresti detto niente di più intelligente.",
+    ],
+    silent: [
+      "Non dici niente. Neanche Svetka. La canzone finisce, il nastro continua a frusciare, e nessuno dei due si toglie l'auricolare.",
+      "Lei ti appoggia la testa sulla spalla. Le zanzare pungono, ma tu non ti muovi.",
+    ],
+    talk: [
+      "Svetka: Resti qui fino alla fine dell'estate?",
+      "Tu: Fino al primo settembre.",
+      "Svetka: Allora c'è ancora tempo. Solo non fare come quelli di città, che partono e non scrivono neanche una lettera.",
+      "Prometti di scriverle. Lei ride: a Makitryne la posta arriva due volte a settimana.",
+    ],
+    home: [
+      "Riaccompagni Svetka fino al suo cancello e spingi piano il Karpaty nel cortile della nonna. È già notte.",
+      "Non riavvolgi la cassetta. Che resti lì dov'è.",
     ],
   },
 
@@ -389,7 +465,7 @@ TEXTS.it = {
 
   afterDisco: ["La discoteca è finita. Notte, grilli, nelle orecchie rimbomba ancora. È ora di tornare a casa: la nonna ha detto che lascerà la cena in casa."],
 
-  sleep: ["Dormi.", "Sogni che Ostap ti vende a Valja per due grivnie, e che una dorifora legge il telegiornale."],
+  sleep: ["Dormi.", "Sogni che Tolik ti vende a Valja per due grivnie, e che una dorifora legge il telegiornale."],
 
   morning: (day) => [`Giorno ${day}. Il sole entra dalla finestra, fuori il gallo urla e dalla cucina arriva odore di fritto.`],
 
@@ -431,7 +507,7 @@ TEXTS.it = {
   hero: {
     places: {
       stop: "Ecco Makitryne. Niente campo per il cellulare, ovvio.",
-      street: "Questa strada dovevano aggiustarla già quando ero piccolo. Le buche sono le stesse.",
+      street: "Qui non ci sono strade, solo direzioni. L'autista ubriaco lo riconosci da lontano: è l'unico che va dritto.",
       yard: "Il cortile della nonna. Il recinto è ancora più rattoppato dell'anno scorso.",
       house: "Ha lo stesso odore di quando ero bambino.",
       club: "La casa della cultura. La cultura non c'è, ma a volte c'è la discoteca.",
@@ -452,7 +528,11 @@ TEXTS.it = {
     morning: "Un nuovo giorno. Parla con la nonna in cortile.",
     findSvetka: "Svetka ha detto che la mattina va al negozio. Cercala lì.",
     meetSvetka: "Svetka sta spesso davanti al negozio. Vai a conoscerla.",
-    dateNext: "Chiedi a Svetka un appuntamento. Continua...",
+    dateNext: "Svetka è davanti al negozio. Chiedile un appuntamento.",
+    datePlayer: "Prendi il walkman dallo zaino vicino alla rimessa della nonna.",
+    dateEvening: "Stasera passa col motorino a prendere Svetka al negozio.",
+    dateGo: "È sera. Passa col motorino a prendere Svetka al negozio.",
+    afterDate: "L'estate va avanti. Continua...",
     carryCrate: "Porta la cassa al negozio di Valja.",
     arrive: "Trova la casa della nonna — vicino al pozzo, a nord del villaggio.",
     water: "Prendi l'acqua dal pozzo.",

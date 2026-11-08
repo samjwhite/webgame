@@ -5,7 +5,7 @@ palette. Sprites are cut out from the dark sprite-sheet backgrounds.
 """
 
 import os
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REFERENCE = os.path.join(HERE, "reference")
@@ -40,7 +40,16 @@ SCENES = {
     "talk_grandma": ("grandma.png", None),
     "talk_grandpa": ("grandpa_pond.png", None),
     "talk_seller": ("seller.png", None),
-    "talk_lads": ("lads.png", None),
+    # The club porch with the approved trio (village_lads_everyday_v4.png), drawn by Codex over the
+    # composition of lads.png. Temporary until the human approves it.
+    "talk_lads": ("incoming/lads_porch_v2.png", None),
+    # The date at the river, drawn by Codex from the approved designs (Svetka, the river, the player).
+    # Temporary until the human approves it.
+    "river_date": ("incoming/river_date_v4.png", None),
+    # He goes over to Svetka at the disco while Tolik watches from the door: the first of the four
+    # approved key moments by ChatGPT (summer_key_moments_v2.png, top left), redrawn by Codex only to
+    # give the hero the 2003 haircut the owner asked for. Temporary until the human approves it.
+    "disco_svetka": ("incoming/disco_svetka_v2.png", None),
     "disco": ("disco.png", None),
     "shed": ("shed.png", None),
     "title": ("club_square.png", None),
@@ -50,20 +59,61 @@ SCENES = {
 
 # Sprites cut from sheets: output name -> (reference file, crop box, height in game pixels, background tolerance)
 SPRITES = {
-    "lad_red": ("collage.png", (456, 565, 534, 760), 40, 25),
-    "lad_squat": ("collage.png", (526, 600, 628, 760), 30, 45),
-    "lad_cap": ("collage.png", (628, 565, 694, 760), 40, 25),
+    # The lads in their everyday clothes, approved designs by ChatGPT (village_lads_everyday_v4.png,
+    # left to right Tolik, Vovchik, Sanya; figures on top, portraits below).
+    "tolik": ("incoming/village_lads_everyday_v4.png", (57, 36, 317, 893), 40, 25),
+    "vovchik": ("incoming/village_lads_everyday_v4.png", (358, 41, 619, 874), 40, 25),
+    "sanya": ("incoming/village_lads_everyday_v4.png", (651, 368, 1005, 867), 23, 25),
     "grandma": ("collage.png", (698, 565, 800, 775), 40, 25),
-    "seller": ("collage.png", (806, 565, 910, 775), 40, 25),
-    # Svetka standing, facing the viewer: the first of four poses drawn by Codex (summer story, stage 1),
-    # second version after the designer's review (stronger contour, simpler print). Temporary until
-    # the human approves her look (docs/ART_HANDOFF_SUMMER.md).
-    "svetka": ("incoming/svetka_world_v2.png", (137, 45, 384, 840), 40, 25),
+    # Valya of sturdy build, approved by ChatGPT (valya_character_v2.png, full figure on the left).
+    "seller": ("incoming/valya_character_v2.png", (136, 13, 533, 1009), 40, 25),
+    # Svetka, approved concept by ChatGPT (summer_characters_concepts.png, top left).
+    "svetka": ("incoming/summer_characters_concepts.png", (108, 20, 272, 574), 40, 25),
     "backpack": ("sheet_club.png", (928, 452, 1108, 624), 14, 45),
     "moped": ("sheet_club.png", (1140, 396, 1488, 640), 28, 60),
     "truck": ("sheet_club.png", (24, 684, 432, 916), 52, 45),
     "shed_open": ("sheet_club.png", (468, 388, 896, 640), 26, 45),
 }
+
+# The lads' sheet is painted dark, muted and warm: at 40 px the denim and the olive jacket turned brown
+# next to the brighter hero. Their sprites lose the warm cast first (red, green, blue factors), then get
+# more light, contrast and a little colour (checked by the designer review, summer_round3).
+SPRITE_LIFT = {name: ((0.92, 1.0, 1.15), 1.3, 1.15, 1.1) for name in ("tolik", "vovchik", "sanya")}
+
+
+def lifted(cut, factors):
+    balance, brightness, contrast, color = factors
+    alpha = cut.getchannel("A")
+    bands = [band.point(lambda v, f=f: min(255, round(v * f))) for band, f in zip(cut.convert("RGB").split(), balance)]
+    rgb = ImageEnhance.Brightness(Image.merge("RGB", bands)).enhance(brightness)
+    rgb = ImageEnhance.Contrast(rgb).enhance(contrast)
+    rgb = ImageEnhance.Color(rgb).enhance(color).convert("RGBA")
+    rgb.putalpha(alpha)
+    return rgb
+
+
+# Bust portraits over the dialog text, by speaker id (js/assets.js, PORTRAIT_FILES): square crops of
+# the designer's approved portraits, scaled to PORTRAIT_SIZE. dialogue_cast.png is the early sheet: the
+# lads and Valya come from their newer sheets.
+PORTRAITS = {
+    # The hero with the 2003 haircut the owner asked for, redrawn by Codex from dialogue_cast.png.
+    "hero": ("incoming/hero_portrait_v2.png", (290, 60, 1000, 770)),
+    "grandma": ("incoming/dialogue_cast.png", (375, 50, 712, 387)),
+    "grandpa": ("incoming/dialogue_cast.png", (734, 31, 1072, 369)),
+    "valya": ("incoming/valya_character_v2.png", (700, 30, 1260, 590)),
+    "tolik": ("incoming/village_lads_everyday_v4.png", (18, 946, 321, 1249)),
+    "vovchik": ("incoming/village_lads_everyday_v4.png", (354, 953, 668, 1267)),
+    "sanya": ("incoming/village_lads_everyday_v4.png", (697, 961, 1008, 1272)),
+    "svetka": ("incoming/summer_characters_concepts.png", (17, 614, 332, 929)),
+}
+PORTRAIT_SIZE = 64
+
+
+def portraits(out_portraits):
+    os.makedirs(out_portraits, exist_ok=True)
+    for name, (file, box) in PORTRAITS.items():
+        small = load(file).crop(box).resize((PORTRAIT_SIZE, PORTRAIT_SIZE), Image.Resampling.BOX)
+        limit_palette(small, 64).save(f"{out_portraits}/{name}.png")
 
 
 # Checklist icons keep their dark background: output name -> (reference file, crop box)
@@ -75,13 +125,20 @@ ICONS = {
 ICON_HEIGHT = 32
 
 
-# Hero animation sheets: 4 walking rows (down, up, left, right) of 8 frames, idle frames on the right.
-HERO_SHEETS = {"hero_city": "hero_city_sheet.png", "hero_sport": "hero_sport_sheet.png"}
-HERO_COLUMNS = [200, 324, 448, 570, 692, 816, 936, 1058]
-HERO_ROW_TOPS = [24, 240, 444, 646]
-HERO_IDLE_COLUMNS = [1350, 1462, 1574, 1686]
-HERO_WINDOW = (124, 194)
-HERO_FRAME = (28, 44)
+# Hero walk sheets drawn by the designer (summer story, version 5: a 2003 school haircut, no backpack, the same proportions
+# as everyone else, a full walk cycle). Flat #26222f background. Source rows: walking toward the viewer,
+# away, sideways (8 frames and one standing frame each), then 4 idle frames. The sideways row faces
+# the given way and is mirrored for the other. Temporary until the human approves them.
+HERO_SHEETS = {
+    "hero_city": ("incoming/hero_city_v5.png", "left"),
+    "hero_sport": ("incoming/hero_sport_v5.png", "left"),
+}
+# Game sheet: rows walking down, up, left, right (8 frames), idle (4 frames), standing down, up, left,
+# right. The same layout is read by js/world.js (HERO_*).
+HERO_FRAME = (32, 48)  # room for a full stride, the bob of a step and a foot nearer the viewer
+HERO_HEIGHT = 40  # a person, docs/PROPORTIONS.md
+HERO_SOLES = 45  # a standing figure's soles end above this cell row; the outline under them is row 45
+HERO_HEAD = 0.16  # the top part of a figure (its head) that keeps it in place in its cell
 
 APP_ICON_SIZES = (180, 192, 512)
 
@@ -220,24 +277,101 @@ def cut_out_gradient(img, step=14, total=80):
     return rgba
 
 
-def hero_frame(sheet, center_x, top):
-    w, h = HERO_WINDOW
-    window = cut_out_gradient(sheet.crop((center_x - w // 2, top, center_x + w // 2, top + h)))
-    small = window.resize(HERO_FRAME, Image.Resampling.BOX)
+def flat_background_mask(img, tolerance=14):
+    """White where a picture on a flat background (its top left pixel) differs from it."""
+    rgb = img.convert("RGB")
+    difference = ImageChops.difference(rgb, Image.new("RGB", rgb.size, rgb.getpixel((0, 0))))
+    r, g, b = difference.split()
+    mask = ImageChops.lighter(ImageChops.lighter(r, g), b).point(lambda v: 255 if v > tolerance else 0)
+    # Close pin holes where a dark pixel of the figure happens to match the background.
+    return mask.filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3))
+
+
+def runs(profile, gap, minimum):
+    """Spans of a projection (one count per row or column) with content, split by empty gaps."""
+    spans, start, empty = [], None, 0
+    for i, count in enumerate(profile + [0] * gap):
+        if count:
+            if start is None:
+                start = i
+            empty = 0
+        elif start is not None:
+            empty += 1
+            if empty >= gap:
+                if i - empty + 1 - start >= minimum:
+                    spans.append((start, i - empty + 1))
+                start, empty = None, 0
+    return spans
+
+
+def figures_in_rows(mask):
+    """Rows of figures on a sheet, each figure as its (left, top, right, bottom) box, rows top to bottom."""
+    w, h = mask.size
+    rows = []
+    for top, bottom in runs([mask.crop((0, y, w, y + 1)).getbbox() is not None for y in range(h)], 12, 60):
+        band = mask.crop((0, top, w, bottom))
+        columns = [band.crop((x, 0, x + 1, band.height)).getbbox() is not None for x in range(w)]
+        boxes = []
+        for left, right in runs(columns, 10, 24):
+            box = band.crop((left, 0, right, band.height)).getbbox()
+            boxes.append((left, top + box[1], right, top + box[3]))
+        rows.append(boxes)
+    return rows
+
+
+def outlined_sprite(small, colors):
+    """A scaled-down figure made fully solid, reduced in colours and given the dark 1px outline of sprite()."""
     alpha = keep_largest_shape(small.getchannel("A").point(lambda a: 255 if a > 90 else 0))
-    color = limit_palette(small.convert("RGB"), 40).convert("RGBA")
+    color = limit_palette(small.convert("RGB"), colors).convert("RGBA")
     color.putalpha(alpha)
-    return color
+    result = Image.new("RGBA", small.size, (34, 24, 20, 255))
+    result.putalpha(alpha.filter(ImageFilter.MaxFilter(3)))
+    result.alpha_composite(color)
+    return result
 
 
-def hero_animation(file):
-    """One sheet: rows down, up, left, right (8 frames each), then 4 idle frames."""
+def hero_cell(sheet, mask, box, baseline, scale):
+    """One figure in a game cell: the soles on HERO_SOLES, the head in the middle, other figures left out."""
+    left, top, right, bottom = box
+    own = Image.new("L", mask.size, 0)
+    own.paste(mask.crop(box), box[:2])
+    figure = sheet.convert("RGBA")
+    figure.putalpha(own)
+    head = own.crop((left, top, right, top + round((baseline - top) * HERO_HEAD)))
+    columns = [head.crop((x, 0, x + 1, head.height)).getbbox() is not None for x in range(head.width)]
+    filled = [x for x, on in enumerate(columns) if on]
+    center = left + (filled[0] + filled[-1] + 1) / 2
+    w, h = HERO_FRAME
+    window_top = baseline + 1 - HERO_SOLES / scale
+    window = (center - w / 2 / scale, window_top, center + w / 2 / scale, window_top + h / scale)
+    small = figure.resize(HERO_FRAME, Image.Resampling.BOX, box=window)
+    return outlined_sprite(small, 40)
+
+
+def hero_animation(file, side_faces):
+    """The game sheet for one outfit, laid out as described at HERO_SHEETS."""
     sheet = load(file)
-    rows = [[hero_frame(sheet, x, top) for x in HERO_COLUMNS] for top in HERO_ROW_TOPS]
-    rows.append([hero_frame(sheet, x, HERO_ROW_TOPS[0]) for x in HERO_IDLE_COLUMNS])
+    mask = flat_background_mask(sheet)
+    rows = figures_in_rows(mask)
+    counts = [len(row) for row in rows]
+    if counts != [9, 9, 9, 4]:
+        raise ValueError(f"{file}: expected rows of 9, 9, 9 and 4 figures, found {counts}")
+    cells = []
+    for row in rows:
+        # Image generation does not keep one scale across rows, so each row is measured by its own
+        # standing figure (the last one; in the idle row, the first). Its soles are the ground: a
+        # walking foot nearer the viewer may reach a little below it, and the head bobs inside the row.
+        standing = row[8] if len(row) == 9 else row[0]
+        scale = HERO_HEIGHT / (standing[3] - standing[1])
+        baseline = standing[3] - 1
+        cells.append([hero_cell(sheet, mask, box, baseline, scale) for box in row])
+    down, up, side, idle = cells
+    mirrored = [cell.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for cell in side]
+    left, right = (side, mirrored) if side_faces == "left" else (mirrored, side)
+    layout = [down[:8], up[:8], left[:8], right[:8], idle, [down[8], up[8], left[8], right[8]]]
     fw, fh = HERO_FRAME
-    result = Image.new("RGBA", (fw * len(HERO_COLUMNS), fh * len(rows)))
-    for r, frames in enumerate(rows):
+    result = Image.new("RGBA", (fw * 8, fh * len(layout)))
+    for r, frames in enumerate(layout):
         for c, frame in enumerate(frames):
             result.alpha_composite(frame, (c * fw, r * fh))
     return result
@@ -417,13 +551,16 @@ def build(out_scenes, out_world, out_ui, out_icons):
         occluder(world_map, shapes).save(f"{out_world}/{name}.png")
 
     for name, (file, box, height, tolerance) in SPRITES.items():
-        sprite(cut_out(load(file).crop(box), tolerance), height).save(f"{out_world}/{name}.png")
+        cut = cut_out(load(file).crop(box), tolerance)
+        if name in SPRITE_LIFT:
+            cut = lifted(cut, SPRITE_LIFT[name])
+        sprite(cut, height).save(f"{out_world}/{name}.png")
 
     for name, (file, box) in ICONS.items():
         icon(load(file).crop(box)).save(f"{out_ui}/{name}.png")
 
-    for name, file in HERO_SHEETS.items():
-        hero_animation(file).save(f"{out_world}/{name}.png")
+    for name, (file, side_faces) in HERO_SHEETS.items():
+        hero_animation(file, side_faces).save(f"{out_world}/{name}.png")
 
     app_icons(out_icons)
     chicken_strips(out_world)

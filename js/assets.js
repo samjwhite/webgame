@@ -28,9 +28,9 @@ const ART_FILES = {
   seller: "world/seller.png",
   svetka: "world/svetka.png",
   petroBench: "world/petro_bench.png",
-  ladRed: "world/lad_red.png",
-  ladSquat: "world/lad_squat.png",
-  ladCap: "world/lad_cap.png",
+  tolik: "world/tolik.png",
+  vovchik: "world/vovchik.png",
+  sanya: "world/sanya.png",
   backpack: "world/backpack.png",
   moped: "world/moped.png",
   truck: "world/truck.png",
@@ -83,7 +83,17 @@ const ART_FILES = {
   sleep: "scenes/sleep.png",
   fridgeOpen: "scenes/fridge_open.png",
   fridgeItems: "scenes/fridge_items.png",
+  riverDate: "scenes/river_date.png",
+  discoSvetka: "scenes/disco_svetka.png",
 };
+
+// Bust portraits over the dialog text, by speaker id (tools/art/reference.py, PORTRAITS). They load with
+// the rest of the art, so a portrait is there the first time someone speaks.
+const PORTRAIT_FILES = {};
+["hero", "grandma", "grandpa", "valya", "tolik", "vovchik", "sanya", "svetka"].forEach((id) => {
+  PORTRAIT_FILES[id] = `portraits/${id}.png`;
+  ART_FILES[`portrait_${id}`] = PORTRAIT_FILES[id];
+});
 
 // Replaced with the commit id on deploy, so phones load fresh files instead of old cached ones.
 const ART_VERSION = "dev";

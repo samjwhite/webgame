@@ -17,9 +17,7 @@ const dialogNext = document.getElementById("dialog-next");
 const dialogName = document.getElementById("dialog-name");
 const dialogPortrait = document.getElementById("dialog-portrait");
 
-// Bust portraits of the people who speak, by speaker id: art/<file>. Until the designer's portraits
-// arrive a speaker shows only a name (docs/ART_HANDOFF_SUMMER.md lists what is needed).
-const PORTRAIT_FILES = {};
+// Portraits come from PORTRAIT_FILES (js/assets.js); a speaker without one shows only a name.
 // Svetka before the hero knows her name: her portrait, captioned "unknown girl".
 const PORTRAIT_OF = { stranger: "svetka" };
 

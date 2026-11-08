@@ -82,12 +82,27 @@ function within(name, value, low, high) {
 }
 
 test("people are the yardstick: 38-42 px tall", () => {
-  within("hero", drawnSize("world/hero_city.png", [0, 0, 28, 44]).height, 38, 42);
-  within("hero in tracksuit", drawnSize("world/hero_sport.png", [0, 0, 28, 44]).height, 38, 42);
+  for (const sheet of ["hero_city", "hero_sport"]) {
+    const cell = (row, column) => drawnSize(`world/${sheet}.png`, [column * 32, row * 48, 32, 48]);
+    // Standing still (row 5): the same height as everyone else; idle (row 4) breathes 1 px more.
+    for (let column = 0; column < 4; column++) {
+      within(`${sheet} standing ${column}`, cell(5, column).height, 38, 42);
+      within(`${sheet} idle ${column}`, cell(4, column).height, 38, 43);
+    }
+    // Walking (rows 0-3): a step may reach up to 3 px further, a foot nearer the viewer and the bob.
+    for (let row = 0; row < 4; row++) {
+      for (let column = 0; column < 8; column++) within(`${sheet} row ${row} frame ${column}`, cell(row, column).height, 38, 45);
+    }
+    // Built like the others too: a standing person is about 16 px wide, not a big-headed child.
+    within(`${sheet} standing, wide`, drawnSize(`world/${sheet}.png`, [0, 5 * 48, 32, 48]).width, 12, 18);
+  }
   const grandma = readPng("world/grandma_walk.png");
   within("grandma", drawnSize("world/grandma_walk.png", [0, 0, grandma.width / 4, grandma.height / 5]).height, 37, 43);
   within("seller", drawnSize("world/seller.png").height, 37, 43);
-  within("lad", drawnSize("world/lad_red.png").height, 37, 43);
+  within("Tolik", drawnSize("world/tolik.png").height, 37, 43);
+  within("Vovchik", drawnSize("world/vovchik.png").height, 37, 43);
+  // Sanya squats: about three fifths of a standing person.
+  within("Sanya squatting", drawnSize("world/sanya.png").height, 22, 28);
 });
 
 test("Did Petro sitting on his bench is not taller than a standing person", () => {

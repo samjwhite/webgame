@@ -194,7 +194,7 @@ function updateGarden(dt, action, tap) {
     hand.state = "idle";
     if (closeup.caught >= BEETLE_COUNT) {
       closeup.done = true;
-      openDialog([finishBeetleJar()], finishCloseup);
+      openDialog(finishBeetleJar(), finishCloseup);
     }
   }
 }

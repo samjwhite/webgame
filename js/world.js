@@ -13,7 +13,8 @@ const FADE_TIME = 0.18;
 const BEER_BOTTLE = { x: 268, y: 139, sortY: 181 };
 let DEBUG = location.search.includes("debug");
 
-const player = { x: START.x, y: START.y, dir: "down", moving: false, walkTime: 0, toldExit: null };
+// walked: ground covered since the hero started walking, in px (0 while standing).
+const player = { x: START.x, y: START.y, dir: "down", moving: false, walked: 0, toldExit: null };
 
 let currentLocation = START.location;
 
@@ -26,9 +27,9 @@ const npcs = [
   { id: "grandma", location: "yard", sprite: "grandma", x: 228, y: 194, talk: talkToGrandma, dayOnly: true, passable: true, walker: true, dir: "down", walking: false },
   { id: "valya", location: "shop", sprite: "seller", x: 112, y: 150, area: SHOP_STEPS, inWindow: true, passable: true, talk: talkToValya, dayOnly: true },
   { id: "grandpa", location: "pond", sprite: "grandpa", x: 212, y: 50, talk: talkToGrandpa, dayOnly: true },
-  { id: "lads", location: "club", sprite: "ladRed", x: 120, y: 163, talk: talkToLads },
-  { id: "lads", location: "club", sprite: "ladSquat", x: 192, y: 164, talk: talkToLads },
-  { id: "lads", location: "club", sprite: "ladCap", x: 234, y: 163, talk: talkToLads },
+  { id: "lads", location: "club", sprite: "tolik", x: 120, y: 163, talk: talkToLads },
+  { id: "lads", location: "club", sprite: "sanya", x: 192, y: 164, talk: talkToLads },
+  { id: "lads", location: "club", sprite: "vovchik", x: 234, y: 163, talk: talkToLads },
   // By the far table of the beer garden, from the day after the first disco.
   { id: "svetka", location: "shop", sprite: "svetka", x: 262, y: 200, talk: talkToSvetka, when: isSvetkaAround },
 ];
@@ -491,6 +492,7 @@ function startTravel(exit) {
   travel.exit = exit;
   travel.switched = false;
   player.moving = false;
+  player.walked = 0;
 }
 
 // Fades to black, swaps the location, fades back.
@@ -541,18 +543,20 @@ function updatePlayer(dt) {
   player.moving = dx !== 0 || dy !== 0;
 
   if (player.moving) {
-    player.walkTime += dt;
     if (Math.abs(input.moveX) > Math.abs(input.moveY)) {
       player.dir = input.moveX < 0 ? "left" : "right";
     } else {
       player.dir = input.moveY < 0 ? "up" : "down";
     }
-  } else {
-    player.walkTime = 0;
   }
 
+  const fromX = player.x;
+  const fromY = player.y;
   stepAxis(dx, 0, speed, dt);
   stepAxis(0, dy, speed, dt);
+  // Walking into a wall leaves the hero standing, not walking on the spot.
+  const covered = Math.hypot(player.x - fromX, player.y - fromY);
+  player.walked = player.moving && covered > 0 ? player.walked + covered : 0;
   checkExits(dx, dy);
 }
 
@@ -625,7 +629,7 @@ function isMopedNearLads() {
 
 function isPlaceAvailable(place) {
   switch (place.id) {
-    case "backpack": return quest.backpackShown;
+    case "backpack": return quest.backpackShown || quest.outfit === "sport";
     case "truck": return quest.unload === "working" && !isNight();
     case "shopDoor": return isNight();
     case "varenyky": return !quest.ateVarenyky;
@@ -709,16 +713,23 @@ function drawStanding(ctx, img, x, y, flip, bob) {
   ctx.restore();
 }
 
-// Hero sheets: rows down, up, left, right (8 walking frames), last row = 4 idle frames.
-const HERO_FRAME_W = 28;
-const HERO_FRAME_H = 44;
+// Hero sheets (tools/art/reference.py, HERO_SHEETS): rows down, up, left, right (8 walking frames),
+// then 4 idle frames facing the viewer, then standing still facing down, up, left, right.
+const HERO_FRAME_W = 32;
+const HERO_FRAME_H = 48; // room for a full stride, the bob of a step and a foot nearer the viewer
+const HERO_SOLES = 45; // a standing hero's soles end above this row of the cell (HERO_SOLES in reference.py)
 const HERO_ROWS = { down: 0, up: 1, left: 2, right: 3 };
 const HERO_IDLE_ROW = 4;
+const HERO_STAND_ROW = 5;
+// The walk follows the ground covered, so the feet do not slide: a step is about 0.4 of a 40 px
+// person, two steps make the 8 frames of a cycle.
+const HERO_STEP_PX = 16;
+const HERO_FRAME_PX = (HERO_STEP_PX * 2) / 8;
 
 function heroFrame(time) {
-  if (player.moving) return { row: HERO_ROWS[player.dir], col: Math.floor(player.walkTime * 10) % 8 };
+  if (player.walked > 0) return { row: HERO_ROWS[player.dir], col: Math.floor(player.walked / HERO_FRAME_PX) % 8 };
   if (player.dir === "down") return { row: HERO_IDLE_ROW, col: Math.floor(time / 400) % 4 };
-  return { row: HERO_ROWS[player.dir], col: 0 };
+  return { row: HERO_STAND_ROW, col: HERO_ROWS[player.dir] };
 }
 
 // Moped sheet: rows right and left (6 frames each), then up and down (1 frame each).
@@ -743,12 +754,12 @@ function drawPlayer(ctx, time) {
   } else {
     const sheet = quest.outfit === "sport" ? ART.heroSport : ART.heroCity;
     const { row, col } = heroFrame(time);
-    top = snap(player.y - HERO_FRAME_H + 3);
+    top = snap(player.y + 1 - HERO_SOLES);
     ctx.drawImage(sheet, col * HERO_FRAME_W, row * HERO_FRAME_H, HERO_FRAME_W, HERO_FRAME_H,
       snap(player.x - HERO_FRAME_W / 2), top, HERO_FRAME_W, HERO_FRAME_H);
   }
   if (quest.carrying) {
-    ctx.drawImage(ART.crate, snap(player.x - 5), snap(top - 4));
+    ctx.drawImage(ART.crate, snap(player.x - 5), snap(top - 1));
   }
 }
 
@@ -914,7 +925,7 @@ function drawWorld(ctx, view, time, target) {
   ctx.restore();
   PIXEL = basePixel;
 
-  if (!isNight()) drawSunlight(ctx, view, time);
+  if (!isNight()) drawSunlight(ctx, view);
   if (travel.active) {
     ctx.fillStyle = `rgba(10, 8, 6, ${1 - Math.abs(travel.time / FADE_TIME - 1)})`;
     ctx.fillRect(0, 0, view.width, view.height);
@@ -960,7 +971,8 @@ function drawSolids(ctx) {
 
 function drawHint(ctx, target, time) {
   const x = snap(target.x) - 3;
-  const y = snap(target.y) - 50 + (Math.floor(time / 300) % 2);
+  // High enough to clear the hair of a 40 px person.
+  const y = snap(target.y) - 55 + (Math.floor(time / 300) % 2);
   ctx.fillStyle = "#2a1d17";
   ctx.fillRect(x - 1, y - 1, 8, 11);
   ctx.fillStyle = "#fbf6ea";
@@ -973,7 +985,7 @@ function drawHint(ctx, target, time) {
 // Made once per screen size: building a full-screen gradient every frame is slow on phones.
 let vignette = { key: "", gradient: null };
 
-function drawSunlight(ctx, view, time) {
+function drawSunlight(ctx, view) {
   ctx.fillStyle = "rgba(255, 196, 120, 0.06)";
   ctx.fillRect(0, 0, view.width, view.height);
   const key = `${view.width}x${view.height}`;
@@ -988,10 +1000,5 @@ function drawSunlight(ctx, view, time) {
   }
   ctx.fillStyle = vignette.gradient;
   ctx.fillRect(0, 0, view.width, view.height);
-
-  // After a few beers the world sways a little.
-  if (quest.beersDrunk > 0 && !quest.discoDone) {
-    ctx.fillStyle = `rgba(255, 220, 150, ${0.03 * quest.beersDrunk * (1 + Math.sin(time / 600))})`;
-    ctx.fillRect(0, 0, view.width, view.height);
-  }
+  // Nothing here may pulse or flash: a pale wash that came and went after beer read as flicker.
 }

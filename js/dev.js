@@ -11,6 +11,8 @@ const DEV_BY_SVETKA = { location: "shop", x: 240, y: 205 };
 const DEV_LADS_BRANCH = { svetkaSeen: "disco", svetkaNamed: true, svetkaDisco: "lads", dancedWithSvetka: false };
 const DEV_DANCE_BRANCH = { svetkaSeen: "disco", svetkaNamed: true, svetkaMet: "disco", dancedWithSvetka: true, svetkaDisco: "stayed", wantsDate: true };
 const DEV_DAY_TWO = { ...DEV_READY_FOR_CLUB, discoDone: true, day: 2, time: "morning", heroSaid: { shop: true } };
+// He has talked with Svetka by the shop and asked her to the river tonight.
+const DEV_INVITED = { ...DEV_DANCE_BRANCH, svetkaShopTalk: true, dateInvited: 2 };
 
 const DEV_CHECKPOINTS = [
   { name: "Початок: автобус", quest: {}, at: START },
@@ -33,6 +35,9 @@ const DEV_CHECKPOINTS = [
   { name: "День 2: ранок", quest: { ...DEV_DAY_TWO, deeds: DEV_LADS_BRANCH }, at: DEV_YARD },
   { name: "День 2: Свєтка (лишився з хлопцями)", quest: { ...DEV_DAY_TWO, metGrandmaToday: true, deeds: DEV_LADS_BRANCH }, at: DEV_BY_SVETKA },
   { name: "День 2: Свєтка (танцювали)", quest: { ...DEV_DAY_TWO, metGrandmaToday: true, deeds: DEV_DANCE_BRANCH }, at: DEV_BY_SVETKA },
+  { name: "Побачення: плеєр у рюкзаку", quest: { ...DEV_DAY_TWO, metGrandmaToday: true, time: "day", deeds: DEV_INVITED }, at: { location: "yard", x: 365, y: 132 } },
+  { name: "Побачення: вдень, на мопеді", quest: { ...DEV_DAY_TWO, metGrandmaToday: true, time: "day", hasPlayer: true, riding: true, deeds: DEV_INVITED }, at: DEV_BY_SVETKA },
+  { name: "Побачення: увечері, на мопеді", quest: { ...DEV_DAY_TWO, metGrandmaToday: true, time: "evening", hasPlayer: true, riding: true, deeds: DEV_INVITED }, at: DEV_BY_SVETKA },
 ];
 
 function devJump(index) {
@@ -43,6 +48,8 @@ function devJump(index) {
   resetChickens();
   travel.active = false;
   dialog.open = false;
+  choice.open = false;
+  shopMenu.open = false;
   closeup.type = null;
   menu.hidden = true;
   mode = "world";

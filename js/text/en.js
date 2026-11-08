@@ -29,29 +29,30 @@ TEXTS.en = {
     notYet: "I've still got things to do",
   },
 
-  // Names over the dialog text. A line "Ostap: ..." is said by Ostap, and so on.
+  // Names over the dialog text. A line "Tolik: ..." is said by Tolik, and so on.
   speakers: {
     hero: "You",
     grandma: "Granny Hanya",
     grandpa: "Did Petro",
     valya: "Valya",
-    ostap: "Ostap",
-    stas: "Stas",
-    seryoga: "Seryoga",
+    tolik: "Tolik",
+    vovchik: "Vovchyk",
+    sanya: "Sanya",
     svetka: "Svetka",
     stranger: "Unknown girl",
   },
 
   intro: [
     "Summer 2003. The Poltava region, Ukraine.",
-    "The yellow Bohdan minibus, route 212, coughed, wheezed and dropped you and your backpack at the stop in the village of Makitryne.",
+    "The yellow Bohdan minibus, route 212, coughed, wheezed and dropped you at the stop in the village of Makitryne.",
+    "The driver promised to drop your backpack off at Granny Hanya's: he goes past her house anyway. And you, he said, could do with a walk and a look round the village.",
     "Grandma lives in the cottage by the well, at the north end of the village. Off you go.",
   ],
 
   grandma: {
     arrive: [
       "Oh my, look who's here! My little grandson! Haven't you grown — all you eat in the city is sausage, I bet.",
-      "Drop your things over there by the shed. Nobody steals here, this isn't Kyiv... well, hardly anybody.",
+      "The driver's already brought your backpack, it's standing by the shed. Nobody steals here, this isn't Kyiv... well, hardly anybody.",
       "Now run to the well and fetch me some water. We'll have a cup of tea after your trip.",
     ],
     waterWait: "The well's right over there, to the left. Turn the crank, not your tongue.",
@@ -99,10 +100,10 @@ TEXTS.en = {
       "Eat up, you're thin as a fence post. Don't they feed you in the city?",
     ],
     beerSmell: "What's that smell on you? Oh, child, child... Just like your grandpa.",
-    tracksuit: "You went in those jeans! Your mum packed a tracksuit in your backpack, the one with the stripes. The backpack's by the shed.",
+    tracksuit: "You went in those jeans! Your mum packed a tracksuit in your backpack, the old one from school, with the stripes. The backpack's by the shed.",
     wakeFirst: [
       "Goodness gracious! Who painted you up like that, dear?",
-      "The club lads, you say? That'll be Ostap and Stas. They welcome every city boy like that each summer. It'll heal before your wedding.",
+      "The club lads, you say? That'll be Tolik and Vovchyk. They welcome every city boy like that each summer. It'll heal before your wedding.",
     ],
     wakeAgain: ["Again?! You collect bumps like Pinocchio. Hold a copper coin on it, it helps."],
   },
@@ -118,6 +119,11 @@ TEXTS.en = {
     unloadAsk: [
       "Listen, sunshine, the delivery truck's come and the driver, wouldn't you know it, put his back out.",
       "Carry the crates from the truck to me and I'll give you four hryvnias. The truck's right there by the fence.",
+    ],
+    // The truck comes every morning; from the second time on.
+    unloadAgain: [
+      "Oh, sunshine, the truck's here again, and the driver's holding his back again.",
+      "Will you carry the crates? Four hryvnias, same as yesterday.",
     ],
     idle: "Got bread, got sugar, got matches. No grooms, though — they've all gone off to Poltava.",
     noMoney: "You're short, sunshine. Only cheese in a mousetrap comes free. Go pick beetles for Granny Hanya.",
@@ -145,7 +151,7 @@ TEXTS.en = {
       "There's a moped in Hanya's shed, a Karpaty. Still runs — I start it up every spring.",
       "Pick a wife by her borscht, not by her dancing. Dancing ends, borscht is every day.",
       "I served three years in the army, and you know what I learned? Home is better. That's the whole lesson.",
-      "Don't rush in where angels fear to tread. And don't rush into the club ahead of Ostap either.",
+      "Don't rush in where angels fear to tread. And don't rush into the club ahead of Tolik either.",
       "I had a Zaporozhets once, the humpback one. Drove it thirty years and never once got anywhere without a breakdown. Never a dull moment, though.",
       "Never toss bread on the table, and never switch on the telly in a thunderstorm. This isn't the city — lightning here is vicious.",
       "My neighbour Mykola lost half his pension on the Loto-Zabava lottery. Won once — a T-shirt. Now he grazes his cow in it.",
@@ -167,9 +173,14 @@ TEXTS.en = {
   yard: {
     backpackEmpty: "All that's left in the backpack is a toothbrush and a three-day-old sandwich.",
     backpackOpen: [
-      "You unzip the backpack: a toothbrush, a cassette player with an Okean Elzy tape... and at the bottom, a brand-new Adidas tracksuit with three stripes.",
+      "You unzip the backpack: a toothbrush, a cassette player, tapes... and at the bottom, your old school Adidas tracksuit with three stripes and baggy knees.",
       "It's the only change of clothes you've got: Mum packed it \"just in case\". You change. Now you look almost like a local... almost.",
     ],
+    takePlayer: [
+      "You take the cassette player, the headphones and your tapes out of the backpack: Okean Elzy, and Skriabin that you taped off the radio.",
+      "On the Skriabin tape there's \"Movchaty\", the one with Iryna Bilyk. The start's clipped a bit: the DJ was still talking and you didn't hit record in time.",
+    ],
+    jarsDone: "That's enough beetles for today. Tomorrow a fresh lot will crawl over from Mykola's patch.",
     shedChickens: "The shed is open, but the chickens won't go in. You have to herd them in.",
     shedLocked: "The shed is bolted shut. It smells of petrol and chicken droppings.",
     shedFound: [
@@ -204,40 +215,45 @@ TEXTS.en = {
   },
 
   lads: {
-    noSuit: "Ostap: Jeans to a disco? What, off to the market in town? Put on something plainer, you're lit up like a shop window in Poltava.",
-    sober: "Stas: Sober as our agronomist on a Monday. Have at least one beer for courage.",
-    weakBeer: "Stas: You smell of beer, but like you've only sniffed it.",
-    onFoot: "Seryoga: On foot? Even old Petro used to ride his bike to the disco.",
-    noticeSuit: "Ostap: Got your Adidas on — oh, now you look like a person.",
-    noticeBeer: "Stas: Smells of beer, like after haymaking. One of us.",
-    noticeMoped: "Seryoga: And you rattled up on your grandpa's Karpaty! I thought they'd sold it for parts long ago.",
+    // They envy his new city clothes a little, but never say so: he just "doesn't fit in".
+    noSuit: [
+      "Tolik: Whoa, look at those jeans. Brand new, bet they still smell of the shop.",
+      "Tolik says it like it's nothing, but his eyes stay on your trainers a bit longer than they need to.",
+      "Tolik: Only in those you're not one of us. A proper dandy. Nobody comes round here dressed like that — go and put on something normal.",
+    ],
+    sober: "Vovchyk: Sober as our agronomist on a Monday. Have at least one beer for courage.",
+    weakBeer: "Vovchyk: You smell of beer, but like you've only sniffed it.",
+    onFoot: "Sanya: On foot? Even old Petro used to ride his bike to the disco.",
+    noticeSuit: "Tolik: Got your Adidas on — oh, now you look like a person.",
+    noticeBeer: "Vovchyk: Smells of beer, like after haymaking. One of us.",
+    noticeMoped: "Sanya: And you rattled up on your grandpa's Karpaty! I thought they'd sold it for parts long ago.",
     friends: [
-      "Ostap: Tomorrow morning we're off to the pond for crucian carp. Come along when you wake up.",
-      "Stas: Dad says we're hauling hay on Thursday. Give us a hand and he'll pour you fresh milk.",
-      "Seryoga: Svetka asked if you're coming back. I told her you're a city boy, you're not allowed.",
-      "Ostap: Football on the common on Saturday, us against Mykhailivka. Will you go in goal?",
-      "Stas: I found a Ruki Vverkh tape at the club, worn to holes. We listened to it till dawn.",
-      "Seryoga: The cow has to go out to pasture at five. That's our disco after the disco.",
+      "Tolik: Tomorrow morning we're off to the pond for crucian carp. Come along when you wake up.",
+      "Vovchyk: Dad says we're hauling hay on Thursday. Give us a hand and he'll pour you fresh milk.",
+      "Sanya: Svetka asked if you're coming back. I told her you're a city boy, you're not allowed.",
+      "Tolik: Football on the common on Saturday, us against Mykhailivka. Will you go in goal?",
+      "Vovchyk: I found a Ruki Vverkh tape at the club, worn to holes. We listened to it till dawn.",
+      "Sanya: The cow has to go out to pasture at five. That's our disco after the disco.",
     ],
     readyEarly: [
-      "Ostap: Now that's more like it! Only you're early. The disco starts in the evening, when the cows come home.",
-      "Stas: You can sit here with us. We've got sunflower seeds.",
+      "Tolik: Now that's more like it! Only you're early. The disco starts in the evening, when the cows come home.",
+      "Vovchyk: You can sit here with us. We've got sunflower seeds.",
     ],
     welcome: [
-      "Ostap: Right, it's evening. Come on in, just don't step on the girls' feet.",
-      "Stas: Have some sunflower seeds, Granny Lyuba roasted them.",
-      "Ostap: And hands off Svetka.",
+      "Tolik: Right, it's evening. Come on in, just don't step on the girls' feet.",
+      "Vovchyk: Have some sunflower seeds, Granny Lyuba roasted them.",
+      "Tolik: And hands off Svetka.",
       "Who Svetka is, you have no idea. But you make a note of it, just in case.",
     ],
     firstMeet: [
-      "Ostap: Hey, who's this all clean and shiny? Lost, are you?",
-      "Stas: That's Hanya's grandson, from the city. Got off the Bohdan this morning with a backpack, like a tourist.",
-      "Seryoga: Going to the disco? That's not how it works here — first show us you're not made of asphalt.",
+      "Tolik: Hey, who's this all clean and shiny? Lost, are you?",
+      "Vovchyk: That's Hanya's grandson, from the city. Got off the Bohdan this morning, all in new stuff, like a tourist.",
+      "Sanya: Going to the disco? That's not how it works here — first show us you're not made of asphalt.",
     ],
-    again: "Ostap: Oh, you're back? Stubborn as Granny Hanya's goat.",
+    again: "Tolik: Oh, you're back? Stubborn as Granny Hanya's goat.",
     beforeBeating: [
-      "Stas: Don't take it personally, it's just how we do things.",
-      "Seryoga: Anyone who turns up for the first time not our way gets \"introduced\" to the community.",
+      "Vovchyk: Don't take it personally, it's just how we do things.",
+      "Sanya: Anyone who turns up for the first time not our way gets \"introduced\" to the community.",
     ],
   },
 
@@ -261,14 +277,14 @@ TEXTS.en = {
       "You: Wanna dance?",
       "Unknown girl: You're that city boy, Hanya's grandson? Go on, then. Just don't step on my feet.",
       "You dance to Ruki Vverkh. She knows all the words; you only know \"la-la-la\".",
-      "Stas: Svetka! Your mum said home by eleven!",
+      "Vovchyk: Svetka! Your mum said home by eleven!",
       "Aha. So that's who Svetka is.",
       "Svetka: I'm not going anywhere. One more.",
     ],
-    afterTitle: "Ostap said hands off Svetka. What now?",
+    afterTitle: "Tolik said hands off Svetka. What now?",
     afterOptions: {
       stayed: "Stay with her",
-      warned: "Tell her about Ostap's warning",
+      warned: "Tell her about Tolik's warning",
       left: "Thank her and go back to the lads",
     },
     afterDance: {
@@ -279,21 +295,21 @@ TEXTS.en = {
       ],
       warned: [
         "You: I've been told to keep my hands off you.",
-        "Svetka: Who said that? Ostap? He can keep his hands on his own cows.",
+        "Svetka: Who said that? Tolik? He can keep his hands on his own cows.",
         "She laughs, but for a moment she glances over at the lads.",
         "You make up your mind: you have to ask her on a date. Somewhere nobody's watching, preferably.",
       ],
       left: [
         "You: Thanks for the dance. I'll get back to my lot.",
         "Svetka: Off you go, then, \"one of them\".",
-        "You walk away, and she watches you go. So does Ostap.",
+        "You walk away, and she watches you go. So does Tolik.",
         "You make up your mind: next time you'll ask her on a date. No witnesses.",
       ],
     },
     withLads: [
       "You stay with the lads. The girl with the ponytail twirls on her own, as if she doesn't need anyone at all.",
-      "Seryoga: Staring, are you? That's Svetka. The very same.",
-      "Ostap: I told you — hands off.",
+      "Sanya: Staring, are you? That's Svetka. The very same.",
+      "Tolik: I told you — hands off.",
       "So that's who Svetka is. You keep dancing, but you're not looking at the lads any more.",
     ],
   },
@@ -320,12 +336,72 @@ TEXTS.en = {
       "Svetka: Twice. But I only counted once.",
     ],
     dateIntent: [
-      "You watch her laugh and it hits you: you have to ask her on a date. Only where do you take a girl round here?",
+      "You watch her laugh and it hits you: you've got to ask her on a date. Only where do you take a girl round here?",
+      "And then you remember: the river past the village, the sunset, and a cassette player with Skriabin in your backpack.",
     ],
+    askAgain: "Svetka: So, worked out where you're taking me? Just not to the pond to sit with old Petro.",
+    inviteTitle: "Ask Svetka on a date?",
+    inviteRiver: "Ask her to the river tonight, to listen to Skriabin",
+    inviteLater: "Some other time",
+    notNow: "You can't quite bring yourself to say it. Svetka finishes her Sytro and looks at you as if she knows what you wanted to say anyway.",
+    invite: [
+      "You: Fancy the river tonight? On the moped. I've got a cassette player, and Skriabin, \"Movchaty\".",
+      "Svetka: On your Karpaty? Will it even make it?",
+      "You: Did Petro starts it up every spring.",
+      "Svetka: Well... all right. When the sun goes down, come and get me here, by the shop. I'll tell Mum I'm at Olka's.",
+    ],
+    playerAtHome: "Your cassette player, by the way, is still in the backpack by Grandma's shed. Better go and get it.",
+    waitPlayer: [
+      "Svetka: So where's the player? You promised Skriabin.",
+      "The cassette player is still in the backpack by Grandma's shed.",
+    ],
+    waitMoped: ["Svetka: Walk to the river? It's way past the village. Go and fetch your Karpaty, I'll wait."],
+    waitEvening: ["Svetka: It's still light out. In the evening, I said. Once the cows have gone by."],
+    waitTitle: "Evening's a long way off yet. Wait with Svetka?",
+    waitHere: "Sit with her by the shop till evening",
+    eveningFalls: [
+      "The sun goes down. Valya brings a stool out onto the porch and cracks sunflower seeds, and Svetka tells you who in the village isn't speaking to whom, and why.",
+      "Svetka: Right, let's go, while Mum's milking the cow.",
+    ],
+    letsGo: ["Svetka: Oh, here you are. Got the player? Right, let's go, while Mum's milking the cow."],
+    // After the river.
     later: [
       "Svetka: Valya was asking again whose you are. I said Hanya's.",
-      "Svetka: So, worked out where you're taking me? Just not to the pond to sit with old Petro.",
+      "Svetka: I got home last night and Mum goes: \"Where've you been?\" And I go: \"At Olka's.\" With grass in my hair.",
       "Svetka: I ought to get home, Mum's waiting on the cow. But I'll sit a bit longer.",
+    ],
+  },
+
+  // The date at the river: the song is Skriabin and Iryna Bilyk, "Movchaty" (a 2003 single).
+  // Its words are never quoted, only named.
+  river: {
+    start: [
+      "The Karpaty rattles along the dirt track through the fields. Svetka holds on to you and laughs every time you bounce over a pothole.",
+      "The river past the village is pink with the sunset. You sit down on the grass under a willow, and you give her one of the earphones.",
+      "You press Play. The tape hisses, and then Kuzma and Bilyk sing \"Movchaty\".",
+      "Svetka: Oh, I know this one off the radio. Shh, don't talk over them.",
+    ],
+    choiceTitle: "The song's playing. What do you do?",
+    speakChoice: "Tell her what you're thinking",
+    silentChoice: "Keep quiet, like in the song",
+    spoke: [
+      "You: Svetka, I...",
+      "Svetka: Shh. Listen to the end.",
+      "She rests her head on your shoulder, and you realise you wouldn't have said anything cleverer anyway.",
+    ],
+    silent: [
+      "You say nothing. Neither does Svetka. The song ends, the tape keeps hissing, and neither of you takes the earphones out.",
+      "She rests her head on your shoulder. The mosquitoes are biting, but you don't move.",
+    ],
+    talk: [
+      "Svetka: Are you here till the end of summer?",
+      "You: Till the first of September.",
+      "Svetka: That's ages yet, then. Just don't be like those city boys who go home and never even write a letter.",
+      "You promise to write. She laughs: in Makitryne the post only comes twice a week.",
+    ],
+    home: [
+      "You drop Svetka off at her gate and quietly wheel the Karpaty into Grandma's yard. It's night already.",
+      "You don't rewind the tape. Let it stay right where it is.",
     ],
   },
 
@@ -389,7 +465,7 @@ TEXTS.en = {
 
   afterDisco: ["The disco's over. Night, crickets, your ears still thumping. Time to go home: Grandma said she'd leave supper in the house."],
 
-  sleep: ["You sleep.", "You dream that Ostap sells you to Valya for two hryvnias, and a Colorado beetle reads the news on TV."],
+  sleep: ["You sleep.", "You dream that Tolik sells you to Valya for two hryvnias, and a Colorado beetle reads the news on TV."],
 
   morning: (day) => [`Day ${day}. The sun climbs in through the window, the rooster's yelling outside and something's frying in the kitchen.`],
 
@@ -431,7 +507,7 @@ TEXTS.en = {
   hero: {
     places: {
       stop: "So this is Makitryne. No mobile signal, of course.",
-      street: "They promised to fix this road when I was little. Same old potholes.",
+      street: "There are no roads here, only directions. You spot a drunk driver a mile off: he's the only one driving straight.",
       yard: "Grandma's yard. The fence has even more patches than last year.",
       house: "It smells just like when I was a kid.",
       club: "The house of culture. No culture, but sometimes a disco.",
@@ -452,7 +528,11 @@ TEXTS.en = {
     morning: "A new day. Talk to Grandma in the yard.",
     findSvetka: "Svetka said she goes to the shop in the mornings. Look for her there.",
     meetSvetka: "Svetka hangs around by the shop. Go over and say hello.",
-    dateNext: "Ask Svetka on a date. To be continued.",
+    dateNext: "Svetka's by the shop. Ask her on a date.",
+    datePlayer: "Get the cassette player from the backpack by Grandma's shed.",
+    dateEvening: "In the evening, ride the moped to the shop to pick up Svetka.",
+    dateGo: "It's evening. Ride the moped to the shop to pick up Svetka.",
+    afterDate: "The summer goes on. To be continued.",
     carryCrate: "Carry the crate to Valya's shop.",
     arrive: "Find Grandma's cottage — by the well, at the north end of the village.",
     water: "Fetch water from the well.",
