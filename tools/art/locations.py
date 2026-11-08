@@ -112,6 +112,15 @@ YARD_BOTTOM = 945
 # The approved yard, redrawn by Codex only to give it a real concrete-ring well (approved by the owner).
 # No rain barrel by the porch, a dog kennel by the shed (the owner, 7 November).
 YARD_PICTURE = "incoming/loc_yard_v6.png"
+# Grandma's fence left of the gate, from the same picture redrawn by Codex with only this part changed: the
+# hole, then the hero's patch. Laid over the yard (`patches` in js/map.js). Box in game pixels; the edges
+# fade over YARD_FENCE_FADE game pixels.
+YARD_FENCE_BOX = (158, 281, 226, 336)
+YARD_FENCE_STATES = {
+    "yard_fence_hole": "incoming/yard_fence_hole.png",
+    "yard_fence_mended": "incoming/yard_fence_mended.png",
+}
+YARD_FENCE_FADE = 2
 
 
 def tile(sample, width, height):
@@ -147,13 +156,17 @@ SHOP_GROUND = "shop_redraw.png"  # natural grass and the footpath, from the redr
 SHOP_GROUND_TOP = 590
 SHOP_BAKED_BOTTLE = (881, 588)
 SHOP_TABLE_CLEAN = (908, 588, 932, 648)
-# Night: the door shut with a padlock and the seller gone from her window. Boxes in the scene's pixels.
+# The seller is inside, not seen from the street (the owner): only the panes she stood behind are taken
+# from the designer's redraw of the window, so the rest of the building stays exactly as approved.
+# The redraw is SHOP_WINDOW_CROP of the scene, enlarged to 1536x1024. Boxes in the scene's pixels.
+SHOP_WINDOW_EMPTY = "incoming/shop_window_empty.png"
+SHOP_WINDOW_CROP = (510, 300, 909, 566)
+SHOP_WINDOW_PANES = (699, 321, 819, 447)
+# Night: the door shut with a padlock. Boxes in the scene's pixels.
 SHOP_CLOSED_BOX = (400, 345, 790, 548)
 SHOP_DOORWAY = (435, 345, 572, 545)
 SHOP_DOOR_LEAF = (412, 360, 490, 550)
 SHOP_WALL_BESIDE_DOOR = (345, 345, 405, 548)
-SHOP_SELLER = (700, 368, 785, 446)
-SHOP_SHELVES = (632, 368, 717, 446)
 
 
 def shrink_road_bench(west):
@@ -198,8 +211,18 @@ def road_picture():
 SHOP_FADE = 10  # game pixels of the scene's bottom edge that fade into the grass
 
 
-def shop_scene():
+def shop_source():
+    """The approved shop scene with the seller gone from her window."""
     scene = load(SHOP_SCENE)
+    left, top, right, bottom = SHOP_WINDOW_CROP
+    window = resample(load(SHOP_WINDOW_EMPTY), (right - left, bottom - top))
+    x0, y0, x1, y1 = SHOP_WINDOW_PANES
+    scene.paste(window.crop((x0 - left, y0 - top, x1 - left, y1 - top)), (x0, y0))
+    return scene
+
+
+def shop_scene():
+    scene = shop_source()
     size = (round(scene.width * SHOP_SCALE), round(SHOP_SCENE_BOTTOM * SHOP_SCALE))
     # The bottle painted on the near table goes: the only bottle is the one the hero can drink.
     scene.paste(scene.crop(SHOP_TABLE_CLEAN), SHOP_BAKED_BOTTLE[:2])
@@ -222,7 +245,7 @@ def shop_closed():
     """Drawn over the shop at night. Lands at the scaled top-left corner of SHOP_CLOSED_BOX.
     The scene's parts are composed in its own pixels; the padlock and the cardboard are drawn after
     scaling, so their outlines are OUTLINE file pixels like every other outline."""
-    scene = load(SHOP_SCENE)
+    scene = shop_source()
     left, top, right, bottom = SHOP_CLOSED_BOX
     part = Image.new("RGBA", (right - left, bottom - top))
     def put(image, x, y):
@@ -232,12 +255,10 @@ def shop_closed():
     put(wall.resize((SHOP_DOORWAY[0] - left, bottom - top)), left, top)
     door = scene.crop(SHOP_DOOR_LEAF).resize((SHOP_DOORWAY[2] - SHOP_DOORWAY[0], SHOP_DOORWAY[3] - SHOP_DOORWAY[1]))
     put(door, SHOP_DOORWAY[0], SHOP_DOORWAY[1])
-    put(scene.crop(SHOP_SHELVES), SHOP_SELLER[0], SHOP_SELLER[1])
-    # Keep only those three parts; the rest of the box stays see-through.
+    # Keep only the doorway; the rest of the box stays see-through.
     mask = Image.new("L", part.size, 0)
     draw = ImageDraw.Draw(mask)
-    for box in ((left, top, SHOP_DOORWAY[2], SHOP_DOORWAY[3]), SHOP_SELLER):
-        draw.rectangle((box[0] - left, box[1] - top, box[2] - left - 1, box[3] - top - 1), fill=255)
+    draw.rectangle((0, 0, SHOP_DOORWAY[2] - left - 1, SHOP_DOORWAY[3] - top - 1), fill=255)
     part.putalpha(mask)
     size = (round(part.width * SHOP_SCALE), round(part.height * SHOP_SCALE))
     result = part.resize(larger(size), Image.Resampling.BOX)
@@ -256,6 +277,18 @@ def shop_closed():
         paint.rectangle((x0, y0, x1, y0 + OUTLINE - 1), fill=(70, 50, 34, 255))
     paint.rectangle((*at(cx + 26, 118), *at(cx + 52, 146)), fill=(120, 120, 116, 255), outline=(30, 26, 26, 255), width=OUTLINE)
     return result
+
+
+def yard_fence_state(source, size):
+    """The fence part of a redrawn yard picture, scaled like the yard, its edges fading into it."""
+    picture = load(source)
+    picture = picture.crop((0, 0, picture.width, YARD_BOTTOM))
+    part = limit_palette(resample(picture, larger(size)), PICTURE_COLORS).crop(larger(YARD_FENCE_BOX)).convert("RGBA")
+    fade = YARD_FENCE_FADE * RES
+    mask = Image.new("L", part.size, 0)
+    ImageDraw.Draw(mask).rectangle((fade, fade, part.width - 1 - fade, part.height - 1 - fade), fill=255)
+    part.putalpha(mask.filter(ImageFilter.GaussianBlur(fade / 2)))
+    return part
 
 
 def occluder(picture, box, shapes):
@@ -419,6 +452,8 @@ def build(out_world):
     yard.save(f"{out_world}/loc_yard.png", optimize=True)
     for art, (part, shapes) in OCCLUDERS["yard"].items():
         occluder(yard, part, shapes).save(f"{out_world}/{art}.png", optimize=True)
+    for art, source in YARD_FENCE_STATES.items():
+        yard_fence_state(source, size).save(f"{out_world}/{art}.png", optimize=True)
 
     road = road_picture()
     road.save(f"{out_world}/loc_street.png", optimize=True)

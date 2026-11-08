@@ -1,4 +1,4 @@
-// Close-up scenes: pictures (dialogs, title, story moments) and the well and garden mini-games.
+// Close-up scenes: pictures (dialogs, title, story moments) and the well, garden and fence mini-games.
 // Mini-game scenes are 192x144; picture scenes take the size of their picture.
 const STAGE_W = 192;
 const STAGE_H = 144;
@@ -104,8 +104,131 @@ function startGardenScene() {
   closeup.beetles = usable.sort(() => Math.random() - 0.5).slice(0, BEETLE_COUNT);
 }
 
+// The fence: five mismatched boards go across the hole, one after another, with a nail through each
+// rail. The hammer moves by itself, like the jar: no hand. tools/art/reference.py, FENCE_*.
+// x: the board's middle at the ground, dy: lower than the ground line, angle: how crooked, in degrees.
+const FENCE_BOARDS = [
+  { x: 56, dy: 0, angle: -1.5 },
+  { x: 76, dy: 3, angle: 2 },
+  { x: 95, dy: -2, angle: -2.5 },
+  { x: 116, dy: 4, angle: 1 },
+  { x: 136, dy: 0, angle: 3 },
+];
+const FENCE_BOARD_CELL = { w: 20, h: 94 };
+const FENCE_GROUND = 112;
+const FENCE_RAILS = [41, 89]; // the rails of the picture, where the nails go
+const FENCE_NAIL_W = 8;
+const FENCE_NAIL_HEAD = 3; // from the top of a nail's frame to the middle of its head
+const NAIL_STAGES = { out: 0, half: 1, flush: 2, bent: 3 };
+// One nail always bends on the first hit and stays that way: the patch is not perfect.
+const FENCE_BENT_NAIL = { board: 2, rail: 1 };
+const FENCE_NAILS_TOTAL = FENCE_BOARDS.length * FENCE_RAILS.length;
+const FENCE_REST = { x: 176, y: 122 };
+const FENCE_HAMMER_FACE = { x: -8, y: -29 }; // the head's striking face, from the end of the handle
+const FENCE_HAMMER_REST_ANGLE = 38; // degrees, the head away from the nail
+const FENCE_TIMES = { reach: 0.12, swing: 0.07, lift: 0.09 }; // seconds
+const FENCE_BOARD_DROP = { height: 16, time: 0.2 };
+const FENCE_THUMP_TIME = 0.08;
+
+function nailsOfBoard(boardIndex) {
+  const board = FENCE_BOARDS[boardIndex];
+  const ground = FENCE_GROUND + board.dy;
+  const lean = Math.sin((board.angle * Math.PI) / 180);
+  return FENCE_RAILS.map((y, rail) => ({
+    x: board.x + lean * (ground - y),
+    y,
+    stage: NAIL_STAGES.out,
+    bends: FENCE_BENT_NAIL.board === boardIndex && FENCE_BENT_NAIL.rail === rail,
+  }));
+}
+
+function startFenceScene() {
+  closeup.type = "fence";
+  closeup.done = false;
+  closeup.fence = {
+    board: 0,
+    nails: nailsOfBoard(0),
+    drop: 0,
+    thump: 0,
+    hammer: { state: "idle", t: 0, from: FENCE_REST, to: FENCE_REST, nail: null },
+  };
+}
+
+function isNailDriven(nail) {
+  return nail.stage === NAIL_STAGES.flush || nail.stage === NAIL_STAGES.bent;
+}
+
+// The end of the hammer's handle, where its head strikes this nail.
+function hammerSpot(nail) {
+  return { x: nail.x - FENCE_HAMMER_FACE.x, y: nail.y - FENCE_HAMMER_FACE.y };
+}
+
+function hammerPosition() {
+  const { from, to, t, state } = closeup.fence.hammer;
+  return state === "reach" ? lerp(from, to, Math.min(1, t)) : to;
+}
+
+function pickNail(tap) {
+  const free = closeup.fence.nails.filter((nail) => !isNailDriven(nail));
+  if (!tap) return free[0];
+  return free.find((nail) => Math.hypot(nail.x - tap.x, nail.y - tap.y) < 14);
+}
+
+function hitNail(nail) {
+  if (nail.bends) nail.stage = NAIL_STAGES.bent;
+  else nail.stage = nail.stage === NAIL_STAGES.out ? NAIL_STAGES.half : NAIL_STAGES.flush;
+  closeup.fence.thump = FENCE_THUMP_TIME;
+}
+
+function updateFence(dt, action, tap) {
+  const fence = closeup.fence;
+  if (closeup.done) return;
+  fence.thump = Math.max(0, fence.thump - dt);
+  showHint(T().ui.fence(fence.nails.filter(isNailDriven).length, FENCE_NAILS_TOTAL));
+  // The new board comes down onto the rails first.
+  if (fence.drop < 1) {
+    fence.drop = Math.min(1, fence.drop + dt / FENCE_BOARD_DROP.time);
+    return;
+  }
+
+  const hammer = fence.hammer;
+  if (hammer.state === "idle") {
+    const nail = (tap || action) && pickNail(tap);
+    if (nail) {
+      Object.assign(hammer, { state: "reach", t: 0, from: hammerPosition(), to: hammerSpot(nail), nail });
+    }
+    return;
+  }
+
+  hammer.t += dt / FENCE_TIMES[hammer.state];
+  if (hammer.t < 1) return;
+  hammer.t = 0;
+  if (hammer.state === "reach") {
+    hammer.state = "swing";
+  } else if (hammer.state === "swing") {
+    hitNail(hammer.nail);
+    hammer.state = "lift";
+  } else {
+    hammer.state = "idle";
+    if (fence.nails.every(isNailDriven)) nextFenceBoard();
+  }
+}
+
+function nextFenceBoard() {
+  const fence = closeup.fence;
+  if (fence.board + 1 < FENCE_BOARDS.length) {
+    fence.board += 1;
+    fence.nails.push(...nailsOfBoard(fence.board));
+    fence.drop = 0;
+    return;
+  }
+  closeup.done = true;
+  openDialog(mendFence(), finishCloseup);
+}
+
 function stageSize() {
   if (closeup.type === "well") return { w: ART.sceneWell.w, h: ART.sceneWell.h };
+  if (closeup.type === "fence") return { w: ART.sceneFence.w, h: ART.sceneFence.h };
   if (closeup.type === "picture") {
     const picture = ART[closeup.picture];
     return { w: picture.w, h: picture.h };
@@ -118,6 +241,7 @@ function stageSize() {
 function updateCloseup(dt, action, tap) {
   if (closeup.type === "well") updateWell(dt, action, tap);
   if (closeup.type === "garden") updateGarden(dt, action, tap);
+  if (closeup.type === "fence") updateFence(dt, action, tap);
 }
 
 function updateWell(dt, action, tap) {
@@ -470,6 +594,57 @@ function drawGardenScene(ctx, time) {
   ctx.restore();
 }
 
+function drawFenceScene(ctx, time) {
+  const fence = closeup.fence;
+  ctx.save();
+  // The whole fence jumps a little under a hit; rotated art is resampled smoothly.
+  if (fence.thump > 0) ctx.translate(0, 1);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  drawArt(ctx, ART.sceneFence, 0, 0);
+  FENCE_BOARDS.slice(0, fence.board + 1).forEach((board, index) => {
+    const falling = index === fence.board ? (1 - fence.drop) * FENCE_BOARD_DROP.height : 0;
+    ctx.save();
+    ctx.translate(board.x, FENCE_GROUND + board.dy - falling);
+    ctx.rotate((board.angle * Math.PI) / 180);
+    drawFrame(ctx, ART.fenceBoards, index, FENCE_BOARD_CELL.w, -FENCE_BOARD_CELL.w / 2, -FENCE_BOARD_CELL.h);
+    ctx.restore();
+  });
+
+  if (fence.drop >= 1 && !closeup.done) {
+    // A soft, slow light on the nail that comes next, as on the beetles.
+    const next = pickNail(null);
+    if (next) {
+      const glow = BEETLE_GLOW.low + (BEETLE_GLOW.high - BEETLE_GLOW.low) * (0.5 + 0.5 * Math.sin(time / BEETLE_GLOW.period));
+      const light = ctx.createRadialGradient(next.x, next.y, 1, next.x, next.y, BEETLE_GLOW.radius);
+      light.addColorStop(0, `rgba(255, 244, 190, ${glow})`);
+      light.addColorStop(1, "rgba(255, 236, 160, 0)");
+      ctx.fillStyle = light;
+      ctx.fillRect(next.x - BEETLE_GLOW.radius, next.y - BEETLE_GLOW.radius, BEETLE_GLOW.radius * 2, BEETLE_GLOW.radius * 2);
+    }
+  }
+  if (fence.drop >= 1 || fence.board > 0) {
+    fence.nails.forEach((nail, index) => {
+      // The nails of a board still coming down are not there yet.
+      if (fence.drop < 1 && index >= fence.board * FENCE_RAILS.length) return;
+      drawFrame(ctx, ART.fenceNails, nail.stage, FENCE_NAIL_W, nail.x - FENCE_NAIL_W / 2, nail.y - FENCE_NAIL_HEAD);
+    });
+  }
+
+  if (!closeup.done) {
+    // The hammer turns about the end of its handle: raised away from the nail, flat against it on a hit.
+    const hammer = fence.hammer;
+    const spot = hammerPosition();
+    let raised = 1;
+    if (hammer.state === "swing") raised = 1 - hammer.t;
+    if (hammer.state === "lift") raised = hammer.t;
+    ctx.translate(spot.x, spot.y);
+    ctx.rotate((raised * FENCE_HAMMER_REST_ANGLE * Math.PI) / 180);
+    drawArt(ctx, ART.hammer, -ART.hammer.w / 2, -ART.hammer.h);
+  }
+  ctx.restore();
+}
+
 function drawStage(ctx, stage, time) {
   const { w, h } = stageSize();
   ctx.fillStyle = "#2a1d17";
@@ -486,5 +661,6 @@ function drawStage(ctx, stage, time) {
   if (closeup.type === "picture") drawPictureScene(ctx, time);
   if (closeup.type === "well") drawWellScene(ctx);
   if (closeup.type === "garden") drawGardenScene(ctx, time);
+  if (closeup.type === "fence") drawFenceScene(ctx, time);
   ctx.restore();
 }

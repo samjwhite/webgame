@@ -10,6 +10,7 @@ TEXTS.en = {
     toggleTasks: "Show or hide tasks",
     money: (n) => `Money: ${n} UAH`,
     checklistTitle: "To get into the disco:",
+    sideTitle: "Side tasks:",
     checkBeer: (n, total) => `Drink 3 beers (${n}/${total})`,
     checkSuit: "Put on the tracksuit",
     checkMoped: "Ride up on the Karpaty moped",
@@ -22,6 +23,7 @@ TEXTS.en = {
     wellFull: "A full bucket of ice-cold water! Makes your teeth ache.",
     wellCold: "The well water is cold, really cold.",
     garden: (n, total) => `Pick the beetles into the jar: ${n}/${total}`,
+    fence: (n, total) => `Drive in the nails: ${n}/${total}`,
     day: (n, total, phase) => `Day ${n} / ${total} · ${phase}`,
     phases: { morning: "Morning", day: "Afternoon", evening: "Evening", night: "Night" },
     waitTitle: "The disco's not till this evening. Wait?",
@@ -110,15 +112,21 @@ TEXTS.en = {
     pigletAsk: [
       "Listen, child. On Saturday we're off for the piglets, I'm taking two. And piglets these days cost like they're made of gold. I'm forty hryvnias short, and my pension's not till next week.",
       "Maybe you can think of something? You're my clever city boy, after all.",
-      "And the fence by the vegetable patch is full of holes: the piglets will be out through that gap inside a day. Petro said he's got the tools. Go and ask him.",
+      "And the fence has a hole in it, there, left of the gate: the piglets will be out through that gap inside a day. Petro said he's got the tools. Go and ask him.",
     ],
-    pigletThought: "You pat your pocket: the cassette player, with Okean Elzy in it. Somebody would give you fifty hryvnias for that, probably.",
+    pigletThought: "You pat your pocket: the cassette player. And you've got two tapes. A player and a tape might fetch fifty hryvnias, probably.",
     pigletWait: "Forty hryvnias, child. No money, no piglets — unless I move into the sty myself.",
     pigletThanks: "Oh, child... Forty hryvnias? Where did you get it? No, don't tell me, don't tell me. The main thing is it's honest money. It is honest, isn't it?",
     pigletHidden: "You nod. Grandma hides the money in a headscarf, the headscarf in the wardrobe, and the wardrobe under lock and key.",
     toolThanks: [
-      "Oh, Petro's tool box! Brought it all the way from Mykola's? Good boy. There's a hammer in there, a saw, nails — you'll have that fence patched up in no time.",
+      "Oh, Petro's tool box! Brought it all the way from Mykola's? Good boy. There's a hammer in there, a saw, nails.",
       "Only if Mykola asks you round for beer — don't you go. Once he's had a few, he starts waving his arms and legs about. Calls it kung fu, if you please.",
+    ],
+    fenceAsk: [
+      "Now take the hammer and nails and patch that fence before the piglets get here. The hole's over there, left of the gate. I've stacked some boards by it.",
+    ],
+    fenceThanks: [
+      "I went and had a look at your fence. Well... it's standing. Crooked as Petro after a christening, but no piglet's getting through. Good boy.",
     ],
     // The morning after the battery went missing.
     morningTheft: [
@@ -168,8 +176,9 @@ TEXTS.en = {
     ],
     batteryNoMoney: "The battery's a hundred hryvnias, sunshine. Not a kopeck less, cry all you like.",
     playerOffer: [
-      "Valya: They say you've got a player, a cassette one? Show us. Oh, Okean Elzy!",
-      "Valya: I'm looking for something for my granddaughter's birthday, as it happens. I'll give you fifty hryvnias. It's not worth a kopeck more, so don't you haggle.",
+      "Valya: They say you've got a player, a cassette one? Show us.",
+      "You: I've got a player. And a tape to go with it.",
+      "Valya: I'm looking for something for my granddaughter's birthday, as it happens. Forty for the player, ten for the tape. It's not worth a kopeck more, so don't you haggle.",
     ],
     beerForMykola: "Is this for Mykola? Well, well. He still owes me for his own since May. Go on, take it, take it.",
     firstBeer: "Beer? Are you eighteen? Oh, I see, I see — there's a moustache coming in already. Two hryvnias.",
@@ -234,7 +243,17 @@ TEXTS.en = {
     ],
   },
 
+  // What the hero may do besides the story (sideTasks in js/story.js).
+  side: {
+    tsn: "In the evening, TSN is on the TV in Grandma's house.",
+  },
+
   yard: {
+    fenceNight: "Hammering at night? Every dog in the village would come running, and Grandma would come out with the oven fork. Tomorrow.",
+    fenceDone: [
+      "You step back and have a look. Crooked. No board matches the next, and one nail bent and stayed that way.",
+      "But the hole's gone. No piglet's getting through. A hen might, but a hen goes wherever she likes anyway.",
+    ],
     backpackEmpty: "All that's left in the backpack is a toothbrush and the sandwich from the journey, which you'd better not eat now.",
     backpackOpen: [
       "You unzip the backpack: a toothbrush, a cassette player, tapes... and at the bottom, your old school Adidas tracksuit with three stripes and baggy knees.",
@@ -300,8 +319,11 @@ TEXTS.en = {
       "Sanya: I've got to take the cow out to the herd at five. That's my disco: dancing till two, grazing from five.",
     ],
     playerOffer: [
-      "Vovchyk: Hey, is that a player you've got? Let's have a look. Oh, Okean Elzy! Will you sell it? I'll give you fifty.",
-      "Vovchyk: We'll play it at the club. All we've got is one Ruki Vverkh tape, and that one's chewed up.",
+      "Vovchyk: Hey, is that a player you've got? Let's have a look. Will you sell it?",
+      "You: I could. The player and a tape.",
+      "Vovchyk: What's on the tape?",
+      "You: Decent music.",
+      "Vovchyk: Forty for the player, ten for the tape. We'll play it at the club. All we've got is one Ruki Vverkh tape, and that one's chewed up.",
     ],
     playerPlays: [
       "Vovchyk: Your old player never gets switched off at the club. We know Okean Elzy by heart now, even Sanya.",
@@ -504,11 +526,36 @@ TEXTS.en = {
 
   // The driver, by his car on the road.
   driver: {
-    idle: [
-      "Driver: Oh, Hanya's grandson! Tell your gran: Saturday we're off for the piglets, like we agreed. The car's a beast!",
-      "Driver: A Zhiguli Kopiyka, nineteen seventy-eight. She'll outlive me yet.",
-      "Driver: Petrol keeps going up, and the pension doesn't. Well, never mind, we'll make the trip on Saturday.",
+    // The first person the hero meets, by his car on the way from the bus stop. A busy village man who
+    // says things as they are and knows how to run the country. What the hero has missed in a year he
+    // tells only this once (talkToDriver in js/story.js). Real events only, see docs/TSN_FACTS.md.
+    firstMeet: [
+      "By an old Zhiguli stands a man in a flat cap, staring under the bonnet as if the bonnet owed him money.",
+      "Driver: Hold it. Whose are you? No, don't tell me. Hanya's grandson, from the city. Hanya's nose, but those trainers aren't from round here.",
+      "You: How do you know?",
+      "Driver: Lad, news is scarce here. Whatever gets off the bus is news. You didn't come last year, did you? So listen, because your grandma will only tell you about the beetles.",
+      "Driver: They repainted the statue on the square. It was Lenin, now it's Shevchenko: painted on a moustache, changed the sign. Cheaper than a new one, they say. Fair enough: Shevchenko won't take offence, and Lenin's not saying anything.",
+      "Driver: Valya's put up an umbrella by the shop, Chernihivske, and tables. Beer on the street now, like in Europe. The toilet's still behind the shed, mind.",
+      "Driver: Did Petro's been after the catfish under the boardwalk for three summers. By now the catfish probably says hello. And Tolik's grown so much he's the village council by the club all on his own.",
+      "Driver: There's only one Bohdan bus for three villages now, the other got stripped for parts. I was there. That's why this one still runs.",
+      "Driver: The wide world's the same, only more of it. Bush went into Iraq, our boys are being sent there, and somehow petrol goes up for me, in Makitryne. That's all the politics you need.",
+      "Driver: I'd fix this country in a week. There's only one way to repair anything: first see where it leaks, then paint. They paint.",
     ],
+    directions: "Driver: Off you go, Hanya's been out on the road twice already. Left along the road, past the club. Blue gates, all rust, a yellow pipe above the fence: that's her yard.",
+    busy: "Driver: Me, I'm going back under here. The main thing is to get it fixed by Saturday, because on Saturday we've got to go to the market.",
+    idle: [
+      "Driver: The main thing is to get it fixed by Saturday, because on Saturday we've got to go to the market.",
+      "Driver: A Zhiguli, 1978. Twenty-five years on the road, and she's never once asked who's president.",
+      "Driver: She's a beast, this car. Just a bit poorly. Like everything here: it runs, and don't ask how.",
+      "Driver: In America, my mate says, it breaks, you bin it, you buy a new one. They do the same with presidents: four years and next. Ours at least knows where everything's kept.",
+      "Driver: You think Bush went into Iraq for democracy? Lad, I've been thirty years at the wheel. Everybody drives to where the petrol is.",
+      "Driver: Studying in the city, are you? Good, study. Just remember: a diploma won't pump up a tyre.",
+      "Driver: They say soon everyone will have a mobile. What for? In a village everybody knows everything anyway, and before you do.",
+      "Driver: A man's like an engine: you only see what he is when he won't start. While it's running, everyone's lovely.",
+      "Driver: Money doesn't stay in your pocket, it stays in your hands. Got hands, you'll get money. Someday.",
+      "Driver: On the telly they say life's got better. Could be. I'm under the bonnet, I can't see from here.",
+    ],
+    piglets: "Driver: Tell your grandma: Saturday we go for the piglets, like we agreed. She's a beast, this car!",
     robbed: [
       "Driver: Did you see? Did you see?! The battery! In the night! Right outside the club!",
       "Driver: If I got my hands on that thief... I'd... Tfoo! Till I get a new one, I'm going nowhere. And where are you meant to find one in a village?",
@@ -528,18 +575,20 @@ TEXTS.en = {
     ],
   },
 
-  // Selling the cassette player with the Okean Elzy tape (stage 3).
+  // Selling the cassette player and, separately, a tape; the buyer never hears which tape (stage 3).
   player: {
-    title: "Sell the cassette player for fifty hryvnias?",
+    title: "Sell the player for forty hryvnias and a tape for ten?",
     sell: { valya: "Sell it to Valya", vovchik: "Sell it to Vovchyk" },
     keep: "No, I'm keeping it",
     kept: "You put the player back in your pocket. You'll think about it.",
     valya: [
-      "You take out the Skriabin tape and put it in your pocket. That one's not for sale, not even for a hundred.",
-      "Valya: There we are. Fifty hryvnias, exactly. My granddaughter will be pleased, and you've got money in your pocket.",
+      "You take the Skriabin tape out of the player and put it in your pocket. That one's not for sale, not even for a hundred.",
+      "You put the player on the counter and, next to it, separately, your other tape.",
+      "Valya: There we are. Forty and ten, fifty hryvnias exactly. My granddaughter will be pleased, and you've got money in your pocket.",
     ],
     vovchik: [
-      "You take out the Skriabin tape and put it in your pocket. That one's not for sale, not even for a hundred.",
+      "You take the Skriabin tape out of the player and put it in your pocket. That one's not for sale, not even for a hundred.",
+      "You hand Vovchyk the player and, separately, your other tape.",
       "Vovchyk: Here's your fifty. That's it, now there'll be music at the club. Come and have a listen — it's on the house.",
     ],
   },
@@ -632,9 +681,12 @@ TEXTS.en = {
   },
 
   house: {
-    bedDay: "Sleep in the daytime? Grandma would decide you're ill and give you a spoonful of some tincture.",
+    bedDay: "Sleep now? Grandma would decide you're ill and give you a spoonful of some tincture.",
     bedNight: ["The bed creaks like an old gate. You drop onto the pillow and never hear that stupid rooster in the yard."],
     tvDay: "It's soap operas on every channel in the daytime. TSN is on in the evening.",
+    tvWaitTitle: "TSN isn't on until the evening. Wait?",
+    tvWait: "Watch the soap until the evening",
+    tvWaited: ["For the third episode running, someone in the soap can't remember whose daughter she is. By now neither can you. It's getting dark outside."],
     tvOver: "That's the end of the bulletin. Next up: washing powder ads and somebody's soap. You switch the TV off.",
     borscht: [
       "A pot of borscht on the stove, still warm. Next to it a note: \"Eat, you're skinny. Sour cream's in the fridge. Gran's asleep.\"",
@@ -763,10 +815,11 @@ TEXTS.en = {
     giveBattery: "Take the new battery to the driver, at his car.",
     afterCatfish: "The summer goes on. To be continued.",
     grandmaNews: "Grandma wanted to tell you something. She's in the yard.",
-    sellPlayer: "Grandma's forty hryvnias short for the piglets. You could sell the cassette player with the Okean Elzy tape to Valya or Vovchyk.",
+    sellPlayer: "Grandma's forty hryvnias short for the piglets. You could sell the player and a tape to Valya or Vovchyk.",
     earnMoney: "Grandma's forty hryvnias short for the piglets. You can earn money in the vegetable patch and at Valya's.",
     giveMoney: "Take Grandma the forty hryvnias for the piglets.",
     askTool: "The fence needs tools. Ask Did Petro at the pond.",
+    fixFence: "Patch the hole in the fence: in Grandma's yard, left of the gate.",
     toMykola: "Mykola has the tool box: his gate is on the road, at the west end of the village. He sleeps in the daytime.",
     toolHome: "Take Did Petro's tool box to Grandma.",
     beerForMykola: "Mykola only teaches kung fu over beer. Buy four bottles at Valya's.",

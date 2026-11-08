@@ -221,14 +221,16 @@ body {
   display: none;
 }
 
-#checklist {
+#checklist,
+#side-tasks {
   margin-top: 6px;
   padding-top: 6px;
   border-top: 2px solid #8a5d3c;
   font-size: 12px;
 }
 
-#checklist[hidden] {
+#checklist[hidden],
+#side-tasks[hidden] {
   display: none;
 }
 

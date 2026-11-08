@@ -15,7 +15,8 @@ const BATTERY_PRICE = 100;
 // Stage 3: the hero's share for grandma's piglets, the price of his cassette player, and the beer
 // Mykola wants before he teaches anything (two bottles each). See docs/ECONOMY.md.
 const PIGLET_SHARE = 40;
-const PLAYER_PRICE = 50;
+const PLAYER_PRICE = 40; // the cassette player, and on top of it...
+const TAPE_PRICE = 10; // ...a tape, sold separately
 const MYKOLA_BEERS = 4;
 // Grandma stops the hand-picking after this many beetles and sends the hero for grandpa's sprayer.
 const BEETLES_BEFORE_SPRAYER = 3;
@@ -92,7 +93,8 @@ function newQuest() {
     // catfishHookTold, rodNewsTold, theftNewsTold: grandma has said her piece about each.
     // Stage 3: pigletAsked: the day grandma asked for the piglet money; pigletMoney: he gave it;
     // playerSoldTo: "valya" or "vovchik"; toolAsked: grandpa sent him to Mykola; mykolaMet;
-    // toolHome: the tool box is at grandma's; kungfu: Mykola's lesson, over beer.
+    // toolHome: the tool box is at grandma's; fenceAsked, fenceMended (the day), fenceThanked: the hole in
+    // her fence; tsnSeen: every bulletin watched; kungfu: Mykola's lesson, over beer.
     deeds: {},
   };
 }
@@ -217,6 +219,15 @@ function grandmaSummer() {
     quest.hasTool = false;
     deeds.toolHome = true;
     lines.push(...text.toolThanks);
+  }
+  // With the tools home she sends him to the hole in the fence, and later has her say about his patch.
+  if (deeds.toolHome && !deeds.fenceAsked) {
+    deeds.fenceAsked = true;
+    lines.push(...text.fenceAsk);
+  }
+  if (deeds.fenceMended && !deeds.fenceThanked) {
+    deeds.fenceThanked = true;
+    lines.push(...text.fenceThanks);
   }
   if (deeds.pigletAsked && !deeds.pigletMoney) {
     if (quest.money < PIGLET_SHARE) return [...lines, text.pigletWait];
@@ -459,19 +470,33 @@ function useShopDoor() {
 
 // ---------- Inside grandma's house ----------
 
+// From the evening on he may go to bed, once the first disco is behind him.
 function useBed() {
-  if (!isNight() || !quest.discoDone) return say([T().house.bedDay]);
+  if (!isEveningOrLater() || !quest.discoDone) return say([T().house.bedDay]);
   return say(T().house.bedNight, "sleep");
 }
 
-// The evening news comes on at night; each bulletin is told once, then it is over.
+function isEveningOrLater() {
+  return phaseIndex() >= phaseIndex("evening");
+}
+
+// The news is on from the evening; each bulletin is told once, then it is over. By day he may sit it out
+// in front of the soap, once the first day's errands and the disco are behind him.
 function useTv() {
   const text = T().house;
-  if (!isNight()) return say([text.tvDay]);
+  if (!isEveningOrLater()) return say([text.tvDay], quest.discoDone ? "tvWait" : null);
   const bulletin = T().tsn[quest.newsWatched];
   if (!bulletin) return say([text.tvOver]);
   quest.newsWatched += 1;
+  if (quest.newsWatched >= T().tsn.length) quest.deeds.tsnSeen = true;
   return say(bulletin, "tv");
+}
+
+// Things the hero may do besides the story, shown under the tasks. Each leaves the list once done.
+function sideTasks() {
+  const tasks = [];
+  if (quest.stage !== "arrive" && !quest.deeds.tsnSeen) tasks.push(T().side.tsn);
+  return tasks;
 }
 
 function useBorscht() {
@@ -736,13 +761,33 @@ function talkToDriver() {
   const deeds = quest.deeds;
   if (quest.hasNewBattery) {
     quest.hasNewBattery = false;
+    deeds.driverMet = true;
     deeds.batteryReturned = true;
     addTrust("driver", 1);
     return shown("batteryRant", text.rant);
   }
-  if (carState() === "empty") return say(text.robbed);
-  if (deeds.batteryReturned) return say([pickRandom("driver", text.after)]);
-  return say([pickRandom("driver", text.idle)]);
+  if (carState() === "empty") {
+    deeds.driverMet = true;
+    return say(text.robbed);
+  }
+  // Only the first time does he tell what the hero has missed in a year, and on arrival the way to grandma's.
+  if (!deeds.driverMet) {
+    deeds.driverMet = true;
+    return say(quest.stage === "arrive" ? [...text.firstMeet, text.directions, text.busy] : [...text.firstMeet, text.busy]);
+  }
+  const lines = [...text.idle];
+  if (deeds.pigletAsked) lines.push(text.piglets);
+  if (deeds.batteryReturned) lines.push(...text.after);
+  return say([pickRandom("driver", lines)]);
+}
+
+// On his way from the bus stop the hero walks past the driver, who calls him over. It happens once.
+const DRIVER_HAILS_WITHIN = 50;
+
+function driverHails() {
+  if (currentLocation !== "street" || quest.stage !== "arrive" || quest.deeds.driverMet) return false;
+  const driver = npcs.find((npc) => npc.id === "driver");
+  return Math.abs(driver.x - player.x) < DRIVER_HAILS_WITHIN;
 }
 
 // The catfish task that can be done right now, at night; null when there is none.
@@ -782,10 +827,11 @@ function canSellPlayer() {
   return quest.hasPlayer && Boolean(quest.deeds.pigletAsked) && !quest.deeds.playerSoldTo;
 }
 
-// He sells his cassette player with the Okean Elzy tape; the Skriabin tape from the river stays his.
+// He takes the Skriabin tape out, then sells the cassette player and, separately, his other tape. The
+// buyer only hears "a player and a tape": what is on it comes out later (playerPlays).
 function sellPlayer(buyer) {
   quest.hasPlayer = false;
-  quest.money += PLAYER_PRICE;
+  quest.money += PLAYER_PRICE + TAPE_PRICE;
   quest.deeds.playerSoldTo = buyer;
   return T().player[buyer];
 }
@@ -823,11 +869,24 @@ function talkToMykola() {
   return say([pickRandom("mykola", text.later)]);
 }
 
+// The fence: the hole by the gate, once grandma has the tools. Each nail takes the hammer a few hits.
+function canMendFence() {
+  return Boolean(quest.deeds.fenceAsked) && !quest.deeds.fenceMended;
+}
+
+function mendFence() {
+  quest.deeds.fenceMended = quest.day;
+  advancePhase("day");
+  addTrust("grandma", 1);
+  return T().yard.fenceDone;
+}
+
 function stage3Objective() {
   const text = T().objective;
   const deeds = quest.deeds;
   if (!deeds.pigletAsked) return text.grandmaNews;
   if (quest.hasTool) return text.toolHome;
+  if (deeds.toolHome && !deeds.fenceMended) return deeds.fenceAsked ? text.fixFence : text.grandmaNews;
   if (!deeds.pigletMoney) {
     if (quest.money >= PIGLET_SHARE) return text.giveMoney;
     return canSellPlayer() ? text.sellPlayer : text.earnMoney;

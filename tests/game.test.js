@@ -857,10 +857,10 @@ test("stage 3: piglet money from the player, grandpa's tool box from Mykola, kun
     kitFinishDialogs();
     kitChoose(0);
     kitFinishDialogs();
-    out.sold = !quest.hasPlayer && quest.deeds.playerSoldTo === "valya" && quest.money === 3 + PLAYER_PRICE;
+    out.sold = !quest.hasPlayer && quest.deeds.playerSoldTo === "valya" && quest.money === 3 + PLAYER_PRICE + TAPE_PRICE;
     kitGo("yard");
     kitTalk("grandma");
-    out.paid = quest.deeds.pigletMoney && quest.money === 3 + PLAYER_PRICE - PIGLET_SHARE && currentObjective() === T().objective.askTool;
+    out.paid = quest.deeds.pigletMoney && quest.money === 3 + PLAYER_PRICE + TAPE_PRICE - PIGLET_SHARE && currentObjective() === T().objective.askTool;
     // Grandpa: the tool box is at Mykola's; his gate opens.
     kitGo("street");
     const gateShut = Boolean(closedExitAhead(0, -1)) || isClosedExit(here().exits.find((e) => e.id === "toMykola"));
@@ -880,7 +880,12 @@ test("stage 3: piglet money from the player, grandpa's tool box from Mykola, kun
     out.dry = !quest.deeds.kungfu;
     kitGo("yard");
     kitTalk("grandma");
-    out.home = quest.deeds.toolHome && !quest.hasTool && currentObjective() === T().objective.beerForMykola;
+    out.home = quest.deeds.toolHome && !quest.hasTool && currentObjective() === T().objective.fixFence;
+    // Grandma sends him to the hole in the fence; he mends it and she has her say.
+    kitMendFence();
+    out.mended = quest.deeds.fenceMended === 4 && currentObjective() === T().objective.beerForMykola;
+    kitTalk("grandma");
+    out.fenceThanks = quest.deeds.fenceThanked === true;
     // Beer for Mykola goes into the bag, not into the hero.
     quest.money = 10;
     kitGo("shop");
@@ -901,7 +906,7 @@ test("stage 3: piglet money from the player, grandpa's tool box from Mykola, kun
   }`);
   assert.deepStrictEqual(result, {
     asked: true, kept: true, sold: true, paid: true, toMykola: true, asleep: true, evening: true,
-    tool: true, dry: true, home: true, beerOffered: true, bag: true, lesson: true, after: true, saved: true,
+    tool: true, dry: true, home: true, mended: true, fenceThanks: true, beerOffered: true, bag: true, lesson: true, after: true, saved: true,
   });
   game.inGame("() => clearSave()");
 });
@@ -929,6 +934,8 @@ test("the tool box from Mykola before the piglet money: he sees it in the bag an
     kitGo("yard");
     kitTalk("grandma");
     out.home = quest.deeds.toolHome && !quest.hasTool && !bagLine().includes(T().shop.carried.toolBox);
+    out.fenceFirst = quest.deeds.fenceAsked === true && currentObjective() === T().objective.fixFence;
+    kitMendFence();
     out.stillMoney = !quest.deeds.pigletMoney && currentObjective() === T().objective.sellPlayer;
     // With the money she takes it; the tool needs no second trip to Mykola.
     quest.money = PIGLET_SHARE;
@@ -936,7 +943,7 @@ test("the tool box from Mykola before the piglet money: he sees it in the bag an
     out.paid = quest.deeds.pigletMoney && quest.money === 0 && currentObjective() === T().objective.beerForMykola;
     return out;
   }`);
-  assert.deepStrictEqual(result, { sent: true, handed: true, carried: true, home: true, stillMoney: true, paid: true });
+  assert.deepStrictEqual(result, { sent: true, handed: true, carried: true, home: true, fenceFirst: true, stillMoney: true, paid: true });
   game.inGame("() => clearSave()");
 });
 
@@ -969,6 +976,161 @@ test("people grow nearer the bottom of a picture painted in perspective, and the
     return out;
   }`);
   assert.deepStrictEqual(result, { bad: [], flat: true, smaller: true, slower: true, sameSteps: true });
+  game.inGame("() => clearSave()");
+});
+
+test("TSN is on from the evening, by day he may wait for it, and the side task ends once it is watched", () => {
+  const result = game.inGame(`() => {
+    const out = {};
+    kitCheckpoint("Початок: автобус");
+    out.notOnArrival = sideTasks().length === 0;
+    // Day 1: the evening comes with the disco, so no waiting at the TV.
+    kitCheckpoint("Вода: набрати");
+    out.reminded = sideTasks().includes(T().side.tsn);
+    currentLocation = "house";
+    const dayOne = useTv();
+    out.dayOne = dayOne.next === null && dayOne.lines[0] === T().house.tvDay;
+    // Later days: by day it offers to wait, and the wait keeps the same day.
+    kitCheckpoint("ТСН: вечір у хаті");
+    quest.time = "day";
+    kitUse("tv");
+    kitFinishDialogs();
+    out.offered = choice.open;
+    kitChoose(0);
+    out.evening = quest.time === "evening" && quest.day === 2;
+    kitFinishDialogs();
+    out.firstBulletin = quest.newsWatched === 1 && closeup.effect === "tv";
+    finishCloseup();
+    // In the evening it simply comes on; once all is watched the side task is gone for good.
+    out.stillReminded = sideTasks().includes(T().side.tsn);
+    kitUse("tv");
+    kitFinishDialogs();
+    out.allWatched = quest.newsWatched === T().tsn.length && sideTasks().length === 0;
+    kitUse("tv");
+    out.over = dialog.text === T().house.tvOver;
+    kitFinishDialogs();
+    // And from the evening he may go to bed.
+    out.bed = useBed().next === "sleep";
+    quest.time = "day";
+    out.noBedByDay = useBed().next === null;
+    return out;
+  }`);
+  assert.deepStrictEqual(result, {
+    notOnArrival: true, reminded: true, dayOne: true, offered: true, evening: true, firstBulletin: true,
+    stillReminded: true, allWatched: true, over: true, bed: true, noBedByDay: true,
+  });
+  game.inGame("() => clearSave()");
+});
+
+test("the fence: a hole until grandma has the tools and the hero mends it, not at night, and it stays mended", () => {
+  const result = game.inGame(`() => {
+    const out = {};
+    kitCheckpoint("Паркан: принести ящик бабі");
+    const patch = (art) => here().patches.find((p) => p.art === art).when();
+    out.hole = patch("yardFenceHole") && !patch("yardFenceMended");
+    out.noJobYet = !currentTargets().some((t) => t.id === "fence");
+    kitTalk("grandma");
+    out.asked = quest.deeds.fenceAsked === true && quest.hasTool === false && currentObjective() === T().objective.fixFence;
+    out.job = currentTargets().some((t) => t.id === "fence");
+    // At night he would wake the village.
+    quest.time = "night";
+    kitUse("fence");
+    out.notAtNight = dialog.text === T().yard.fenceNight && closeup.type !== "fence";
+    kitFinishDialogs();
+    quest.time = "day";
+    // Every nail gets driven, one of them bends, and the patch replaces the hole.
+    kitUse("fence");
+    out.started = closeup.type === "fence";
+    const trust = quest.trust.grandma || 0;
+    for (let i = 0; i < 4000 && closeup.type === "fence" && !(dialog.open && !dialog.isHint); i++) kitPress();
+    out.nails = closeup.fence.nails.length === FENCE_NAILS_TOTAL && closeup.fence.nails.every(isNailDriven);
+    out.bent = closeup.fence.nails.filter((n) => n.stage === NAIL_STAGES.bent).length === 1;
+    out.said = dialog.text === T().yard.fenceDone[0];
+    kitFinishDialogs();
+    out.back = mode === "world" && quest.deeds.fenceMended === 4 && (quest.trust.grandma || 0) === trust + 1;
+    out.patched = !patch("yardFenceHole") && patch("yardFenceMended");
+    out.noMoreJob = !currentTargets().some((t) => t.id === "fence");
+    saveGame();
+    quest.deeds = {};
+    continueGame();
+    out.saved = quest.deeds.fenceMended === 4 && patch("yardFenceMended");
+    return out;
+  }`);
+  assert.deepStrictEqual(result, {
+    hole: true, noJobYet: true, asked: true, job: true, notAtNight: true, started: true, nails: true, bent: true,
+    said: true, back: true, patched: true, noMoreJob: true, saved: true,
+  });
+  game.inGame("() => clearSave()");
+});
+
+test("the buyers of the player never hear which tape they get, and the two are sold separately", () => {
+  const result = game.inGame(`() => {
+    const names = Object.values(TEXTS).flatMap((lang) => [...lang.valya.playerOffer, ...lang.lads.playerOffer, lang.objective.sellPlayer, lang.grandma.pigletThought, lang.player.title]);
+    const sold = Object.values(TEXTS).flatMap((lang) => [...lang.player.valya, ...lang.player.vovchik]);
+    return {
+      named: names.filter((text) => /Океан|Okean/.test(text)),
+      soldNamed: sold.filter((text) => /Океан|Okean/.test(text)),
+      skriabinKept: Object.values(TEXTS).every((lang) => /Скрябін|Skriabin/.test(lang.player.valya[0]) && /Скрябін|Skriabin/.test(lang.player.vovchik[0])),
+      price: PLAYER_PRICE + TAPE_PRICE >= PIGLET_SHARE + MYKOLA_BEERS * 2,
+    };
+  }`);
+  assert.deepStrictEqual(result, { named: [], soldNamed: [], skriabinKept: true, price: true });
+});
+
+test("the seller is inside the shop: nobody is drawn at its window", () => {
+  const result = game.inGame(`() => {
+    const valya = npcs.find((n) => n.id === "valya");
+    return { inside: valya.inside === true, inWindow: "inWindow" in valya };
+  }`);
+  assert.deepStrictEqual(result, { inside: true, inWindow: false });
+});
+
+test("the player can only be sold after the date, so Skriabin always has something to play on", () => {
+  const result = game.inGame(`() => {
+    kitCheckpoint("Побачення: вдень, на мопеді");
+    const beforeDate = canSellPlayer() || catfishDone() || catfishHookReady();
+    kitCheckpoint("Плеєр: продати Валі");
+    return { beforeDate, afterDate: Boolean(quest.deeds.riverDate) && canSellPlayer() };
+  }`);
+  assert.deepStrictEqual(result, { beforeDate: false, afterDate: true });
+  game.inGame("() => clearSave()");
+});
+
+test("the driver calls the hero over on arrival, tells the year's news only once, and shows the way", () => {
+  const result = game.inGame(`() => {
+    const out = {};
+    kitCheckpoint("Водій: перша зустріч");
+    out.notYet = !quest.deeds.driverMet;
+    player.x = 1262 + DRIVER_HAILS_WITHIN - 1;
+    update(0.02);
+    out.hailed = dialog.open && quest.deeds.driverMet === true && dialog.text === T().driver.firstMeet[0];
+    const said = [];
+    for (let i = 0; i < 60 && dialog.open; i++) { said.push(dialog.text); kitPress(); kitPress(); }
+    out.news = said.includes(T().driver.firstMeet[4].replace(T().speakers.driver + ": ", ""));
+    out.way = said.includes(T().driver.directions.replace(T().speakers.driver + ": ", ""));
+    out.saturday = said.includes(T().driver.busy.replace(T().speakers.driver + ": ", ""));
+    // Only once: later he talks about his car and the world, never the news again.
+    const later = new Set();
+    for (let i = 0; i < 80; i++) talkToDriver().lines.forEach((line) => later.add(line));
+    out.onceOnly = !T().driver.firstMeet.some((line) => later.has(line));
+    out.noPigletsYet = !later.has(T().driver.piglets);
+    update(0.02);
+    out.noSecondHail = !dialog.open;
+    // Met later in the game, he leaves out the way to grandma's.
+    kitCheckpoint("Сом: дід кличе на ставок");
+    const met = talkToDriver().lines;
+    out.lateNoWay = met.includes(T().driver.firstMeet[1]) && !met.includes(T().driver.directions);
+    // Once grandma has spoken of the piglets he may mention the trip.
+    quest.deeds.pigletAsked = quest.day;
+    const trip = new Set();
+    for (let i = 0; i < 200; i++) talkToDriver().lines.forEach((line) => trip.add(line));
+    out.piglets = trip.has(T().driver.piglets);
+    return out;
+  }`);
+  assert.deepStrictEqual(result, {
+    notYet: true, hailed: true, news: true, way: true, saturday: true, onceOnly: true, noPigletsYet: true,
+    noSecondHail: true, lateNoWay: true, piglets: true,
+  });
   game.inGame("() => clearSave()");
 });
 

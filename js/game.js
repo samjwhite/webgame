@@ -4,6 +4,8 @@ const objectiveBox = document.getElementById("objective");
 const objectiveText = document.getElementById("objective-text");
 const moneyText = document.getElementById("money");
 const checklist = document.getElementById("checklist");
+const sideBox = document.getElementById("side-tasks");
+const sideText = document.getElementById("side-text");
 const checkBeer = document.getElementById("check-beer");
 const checkSuit = document.getElementById("check-suit");
 const checkMoped = document.getElementById("check-moped");
@@ -208,6 +210,7 @@ function afterTalk(next) {
   else if (next === "carWait") offerNight(() => showAction(useCar()));
   else if (next === "boardwalkWait") offerNight(() => showAction(useBoardwalk()));
   else if (next === "sellPlayer") offerPlayerSale();
+  else if (next === "tvWait") offerTvEvening();
   else if (next === "mykolaWait") offerMykolaEvening();
   else finishCloseup();
 }
@@ -224,6 +227,22 @@ function offerPlayerSale() {
       label: text.keep,
       pick: () => (buyer === "valya" ? openShopMenu() : showPicture(closeup.picture, [text.kept], finishCloseup)),
     },
+  ]);
+}
+
+// The news is on in the evening: the hero may sit in front of the soap until then. The day stays the same.
+function offerTvEvening() {
+  const text = T().house;
+  openChoice(text.tvWaitTitle, [
+    {
+      label: text.tvWait,
+      pick: () => {
+        advancePhase("evening");
+        saveGame();
+        openDialog(text.tvWaited, () => showPicture("tsn", useTv().lines, finishCloseup, "tv"));
+      },
+    },
+    { label: T().ui.notYet, pick: finishCloseup },
   ]);
 }
 
@@ -331,6 +350,16 @@ function useTarget(target) {
     return;
   }
 
+  if (target.id === "fence") {
+    if (isNight()) {
+      openDialog([T().yard.fenceNight], saveGame);
+    } else {
+      mode = "closeup";
+      startFenceScene();
+    }
+    return;
+  }
+
   if (TALK_ACTIONS[target.id]) {
     const result = TALK_ACTIONS[target.id]();
     if (result.picture) {
@@ -401,6 +430,7 @@ function update(dt) {
   // A choice over the world (talking to Svetka) holds the hero in place until it is answered.
   if (mode === "world" && !dialog.open && !choice.open) {
     updateWorld(dt);
+    if (driverHails()) useTarget(npcs.find((npc) => npc.id === "driver"));
     const target = nearestTarget();
     actionButton.classList.toggle("ready", target !== null);
     if (action && target) useTarget(target);
@@ -454,6 +484,9 @@ function updateHud() {
   setText(dayText, T().ui.day(quest.day, SUMMER_DAYS, T().ui.phases[quest.time]));
   const bag = bagLine();
   setText(bagText, bag ? T().shop.bag(bag) : "");
+  const side = sideTasks();
+  sideBox.hidden = side.length === 0;
+  setText(sideText, side.join(" "));
   shopMenuBox.hidden = !shopMenu.open || dialog.open;
   choiceBox.hidden = !choice.open || dialog.open;
   setText(locationName, T().places[currentLocation]);

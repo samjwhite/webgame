@@ -100,6 +100,15 @@ function kitUseGarden() {
   kitFinishDialogs();
 }
 
+// Mends the hole in grandma's fence: walks up to it and drives every nail.
+function kitMendFence() {
+  kitGo("yard");
+  grandmaWalk.wait = 1e9;
+  kitUse("fence");
+  for (let i = 0; i < 4000 && closeup.type === "fence" && !(dialog.open && !dialog.isHint); i++) kitPress();
+  kitFinishDialogs();
+}
+
 // Picks one of the options of an open choice, by its place in the list.
 function kitChoose(index) {
   if (!choice.open) kitFail(`No choice is open (dialog: ${dialog.open ? dialog.text : "closed"})`);
