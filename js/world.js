@@ -30,7 +30,7 @@ function locationArt(location) {
 // dayOnly: goes home for the night.
 const npcs = [
   { id: "grandma", location: "yard", sprite: "grandma", x: 228, y: 194, talk: talkToGrandma, dayOnly: true, passable: true, walker: true, dir: "down", walking: false },
-  { id: "valya", location: "shop", sprite: "seller", x: 112, y: 150, area: SHOP_STEPS, inWindow: true, passable: true, talk: talkToValya, dayOnly: true },
+  { id: "valya", location: "shop", sprite: "seller", x: 112, y: 150, area: SHOP_STEPS, inside: true, passable: true, talk: talkToValya, dayOnly: true },
   { id: "grandpa", location: "pond", sprite: "grandpa", x: 150, y: 100, talk: talkToGrandpa, when: isGrandpaAtPond },
   // The lads stand together by the club steps, talking among themselves.
   { id: "lads", location: "club", sprite: "tolik", x: 254, y: 188, talk: talkToLads },
@@ -68,6 +68,8 @@ const places = {
   boardwalk: { id: "boardwalk", location: "pond", x: 277, y: 168 },
   // Mykola's door: shut by day, with snoring behind it.
   mykolaDoor: { id: "mykolaDoor", location: "mykola", x: 284, y: 166 },
+  // The hole in grandma's fence, left of the gate.
+  fence: { id: "fence", location: "yard", x: 185, y: 288 },
 };
 
 let chickens = [];
@@ -705,6 +707,7 @@ function isPlaceAvailable(place) {
     case "beerBottle": return canFindBeer();
     case "worms": return needsWorms();
     case "mykolaDoor": return !isMykolaUp();
+    case "fence": return canMendFence();
     default: return true;
   }
 }
@@ -883,7 +886,7 @@ const PETRO_FRAME_W = 36;
 const PETRO_SMOKING = [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 3, 0, 0, 0];
 
 function drawNpc(ctx, npc, time) {
-  if (npc.inWindow) return; // painted into the picture, seen in the shop window
+  if (npc.inside) return; // inside the shop: talked to from its steps, not seen from the street
   if (npc.walker) {
     drawGrandma(ctx, npc, time);
     return;
@@ -930,6 +933,9 @@ function drawWorld(ctx, view, time, target) {
   ctx.scale(zoom, zoom);
   ctx.translate(-camX, -camY);
   drawArt(ctx, picture, 0, 0);
+  (location.patches || []).forEach((patch) => {
+    if (patch.when()) drawArt(ctx, ART[patch.art], patch.x, patch.y);
+  });
 
   const drawables = [];
   const add = (y, draw) => drawables.push({ y, draw });

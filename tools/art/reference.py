@@ -604,6 +604,55 @@ def garden_scene(out_scenes, out_world):
     fitted(cut_out(parts.crop(BEETLE_SMALL_BOX), 30), BEETLE_SMALL_CELL).save(f"{out_world}/beetle.png")
 
 
+# The fence mini-game: the hole seen from the yard (incoming/fence_closeup.png) and its parts
+# (incoming/fence_parts.png): five mismatched boards, a hammer, a nail at each stage of being driven in.
+# Boxes in the parts sheet. Scales are game pixels per source pixel, one for all frames of a strip.
+FENCE_PICTURE = "incoming/fence_closeup.png"
+FENCE_PARTS = "incoming/fence_parts.png"
+FENCE_BOARDS = [(50, 62, 199, 961), (234, 71, 403, 961), (449, 61, 585, 962), (624, 78, 789, 961), (829, 61, 981, 961)]
+FENCE_BOARD_CELL, FENCE_BOARD_SCALE = (20, 94), 0.1045
+FENCE_NAILS = [(1041, 734, 1125, 937), (1161, 761, 1237, 871), (1282, 771, 1359, 827), (1403, 750, 1481, 911)]
+FENCE_NAIL_CELL, FENCE_NAIL_SCALE = (8, 18), 0.085
+FENCE_HAMMER = (1134, 66, 1400, 663)
+FENCE_HAMMER_CELL = (18, 36)
+
+
+def scaled_part(img, scale, cell, colors=64, stand=False, head=False):
+    """A cut-out at a set scale in a cell of game pixels, alpha made hard: standing on the cell's bottom
+    (stand), with its top centred on the cell (head: a nail's head), or centred at the top."""
+    cut = img.crop(img.getchannel("A").getbbox())
+    file_scale = scale * RES
+    small = cut.resize((max(1, round(cut.width * file_scale)), max(1, round(cut.height * file_scale))), Image.Resampling.LANCZOS)
+    alpha = small.getchannel("A").point(lambda a: 255 if a > 110 else 0)
+    color = limit_palette(small.convert("RGB"), colors).convert("RGBA")
+    color.putalpha(alpha)
+    width, height = larger(cell)
+    centre = small.width // 2
+    if head:
+        left_edge, _, right_edge, _ = alpha.crop((0, 0, small.width, max(1, small.height // 6))).getbbox()
+        centre = (left_edge + right_edge) // 2
+    result = Image.new("RGBA", (width, height))
+    result.alpha_composite(color, (max(0, width // 2 - centre), height - color.height if stand else 0))
+    return result
+
+
+def part_strip(parts, boxes, cell, scale, **options):
+    """Several parts side by side, one cell each."""
+    width, height = larger(cell)
+    strip = Image.new("RGBA", (width * len(boxes), height))
+    for index, box in enumerate(boxes):
+        strip.alpha_composite(scaled_part(cut_out(parts.crop(box), 30), scale, cell, **options), (index * width, 0))
+    return strip
+
+
+def fence_scene(out_scenes):
+    scene(load(FENCE_PICTURE)).save(f"{out_scenes}/fence.png")
+    parts = load(FENCE_PARTS)
+    part_strip(parts, FENCE_BOARDS, FENCE_BOARD_CELL, FENCE_BOARD_SCALE, stand=True).save(f"{out_scenes}/fence_boards.png")
+    part_strip(parts, FENCE_NAILS, FENCE_NAIL_CELL, FENCE_NAIL_SCALE, head=True).save(f"{out_scenes}/fence_nails.png")
+    fitted(cut_out(parts.crop(FENCE_HAMMER), 30), FENCE_HAMMER_CELL, 64).save(f"{out_scenes}/hammer.png")
+
+
 def icon(img):
     height = ICON_HEIGHT * RES
     width = round(img.width * height / img.height)
@@ -645,3 +694,4 @@ def build(out_scenes, out_world, out_ui, out_icons):
     well_crank_frames().save(f"{out_scenes}/crank.png")
     well_bucket_frames().save(f"{out_scenes}/bucket.png")
     garden_scene(out_scenes, out_world)
+    fence_scene(out_scenes)

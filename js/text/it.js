@@ -10,6 +10,7 @@ TEXTS.it = {
     toggleTasks: "Mostra o nascondi i compiti",
     money: (n) => `Soldi: ${n} grivnie`,
     checklistTitle: "Per entrare in discoteca:",
+    sideTitle: "Compiti extra:",
     checkBeer: (n, total) => `Bere 3 birre (${n}/${total})`,
     checkSuit: "Mettere la tuta",
     checkMoped: "Arrivare col motorino Karpaty",
@@ -22,6 +23,7 @@ TEXTS.it = {
     wellFull: "Un secchio pieno d'acqua gelida! Fa male ai denti.",
     wellCold: "L'acqua del pozzo è fredda, freddissima.",
     garden: (n, total) => `Metti i coleotteri nel barattolo: ${n}/${total}`,
+    fence: (n, total) => `Pianta i chiodi: ${n}/${total}`,
     day: (n, total, phase) => `Giorno ${n} / ${total} · ${phase}`,
     phases: { morning: "Mattina", day: "Pomeriggio", evening: "Sera", night: "Notte" },
     waitTitle: "La discoteca è solo stasera. Aspetti?",
@@ -110,15 +112,21 @@ TEXTS.it = {
     pigletAsk: [
       "Senti, figliolo. Sabato andiamo a prendere i maialini, ne prendo due. E i maialini, oggi, costano come l'oro. Mi mancano quaranta grivnie, e la pensione arriva solo tra una settimana.",
       "Magari ti inventi qualcosa tu? Sei di città, sei uno sveglio.",
-      "E il recinto vicino all'orto è tutto bucato: da quel buco i maialini scappano in un giorno. Petro diceva che lui gli attrezzi ce li ha. Chiedi a lui.",
+      "E il recinto ha un buco, là, a sinistra del cancello: da quel buco i maialini scappano in un giorno. Petro diceva che lui gli attrezzi ce li ha. Chiedi a lui.",
     ],
-    pigletThought: "Ti tocchi la tasca: il walkman con gli Okean Elzy. Per quello, cinquanta grivnie forse te le danno.",
+    pigletThought: "Ti tocchi la tasca: il walkman. E di cassette ne hai due. Per il walkman con una cassetta, cinquanta grivnie forse te le danno.",
     pigletWait: "Quaranta grivnie, figliolo. Senza quelle niente maialini, a meno che nel porcile non ci vada io.",
     pigletThanks: "Oh, figliolo... Quaranta grivnie? E dove le hai prese? No, non dirmelo, non dirmelo. L'importante è che siano soldi onesti. Sono onesti, vero?",
     pigletHidden: "Annuisci. La nonna nasconde i soldi nel fazzoletto, il fazzoletto nell'armadio, e l'armadio lo chiude a chiave.",
     toolThanks: [
-      "Oh, la cassetta degli attrezzi di Petro! Me l'hai portata fin da Mykola? Bravo. Lì dentro c'è il martello, il seghetto, i chiodi — il recinto lo rattoppi in un attimo.",
+      "Oh, la cassetta degli attrezzi di Petro! Me l'hai portata fin da Mykola? Bravo. Lì dentro c'è il martello, il seghetto, i chiodi.",
       "Solo, se Mykola ti chiama a bere la birra — tu non andarci. Quello, appena beve, comincia ad agitare braccia e gambe. Dice che è kung fu, figurati.",
+    ],
+    fenceAsk: [
+      "Adesso prendi martello e chiodi e rattoppa il recinto, prima che arrivino i maialini. Il buco è là, a sinistra del cancello. Le assi le ho messe lì vicino.",
+    ],
+    fenceThanks: [
+      "Sono andata a vedere il tuo recinto. Be'... sta in piedi. Storto come Petro dopo un battesimo, ma un maialino non ci passa. Bravo.",
     ],
     // The morning after the battery went missing.
     morningTheft: [
@@ -168,8 +176,9 @@ TEXTS.it = {
     ],
     batteryNoMoney: "La batteria costa cento grivnie, tesoro. Senza cento non te la do, piangi pure quanto vuoi.",
     playerOffer: [
-      "Valja: Dicono che hai un walkman, di quelli a cassette? Fammi vedere. Oh, gli Okean Elzy!",
-      "Valja: Cercavo giusto un regalo per il compleanno di mia nipote. Ti do cinquanta grivnie. Di più non vale, non mercanteggiare.",
+      "Valja: Dicono che hai un walkman, di quelli a cassette? Fammi vedere.",
+      "Tu: Il walkman c'è. E anche una cassetta.",
+      "Valja: Cercavo giusto un regalo per il compleanno di mia nipote. Quaranta per il walkman, dieci per la cassetta. Di più non vale, non mercanteggiare.",
     ],
     beerForMykola: "È per Mykola? Eh, sì, sì. Quello mi deve ancora le sue da maggio. Va be', prendi, prendi.",
     firstBeer: "Birra? Hai diciott'anni? Eh, vedo, vedo — già spuntano i baffi. Due grivnie.",
@@ -234,7 +243,17 @@ TEXTS.it = {
     ],
   },
 
+  // What the hero may do besides the story (sideTasks in js/story.js).
+  side: {
+    tsn: "La sera, in casa della nonna, alla TV c'è il TSN.",
+  },
+
   yard: {
+    fenceNight: "Martellare di notte? Arriverebbero tutti i cani del villaggio, e la nonna uscirebbe col forcone da forno. Domani.",
+    fenceDone: [
+      "Fai un passo indietro e guardi. Storto. Nessuna asse va con l'altra, e un chiodo si è piegato ed è rimasto così.",
+      "Però il buco non c'è più. Un maialino non ci passa. Una gallina forse sì, ma una gallina va comunque dove vuole.",
+    ],
     backpackEmpty: "Nello zaino sono rimasti uno spazzolino e il panino del viaggio, che ormai è meglio non mangiare.",
     backpackOpen: [
       "Apri lo zaino: uno spazzolino, il walkman, delle cassette... e sul fondo la tua vecchia tuta Adidas della scuola, con le tre strisce e le ginocchia sformate.",
@@ -300,8 +319,11 @@ TEXTS.it = {
       "Sanja: Io alle cinque devo portare la mucca alla mandria. Ecco la mia discoteca: ballo fino alle due, pascolo dalle cinque.",
     ],
     playerOffer: [
-      "Vovchyk: Ehi, è un walkman quello? Fammi vedere. Oh, gli Okean Elzy! Me lo vendi? Ti do cinquanta.",
-      "Vovchyk: Lo mettiamo su al circolo. Che da noi c'è una cassetta sola dei Ruki Vverkh, e pure masticata.",
+      "Vovchyk: Ehi, è un walkman quello? Fammi vedere. Me lo vendi?",
+      "Tu: Si può fare. Il walkman e una cassetta.",
+      "Vovchyk: E che c'è sulla cassetta?",
+      "Tu: Musica come si deve.",
+      "Vovchyk: Quaranta per il walkman, dieci per la cassetta. Lo mettiamo su al circolo. Che da noi c'è una cassetta sola dei Ruki Vverkh, e pure masticata.",
     ],
     playerPlays: [
       "Vovchyk: Il tuo ex walkman al circolo non lo spegniamo mai. Gli Okean Elzy ormai li sappiamo a memoria, perfino Sanja.",
@@ -504,11 +526,36 @@ TEXTS.it = {
 
   // The driver, by his car on the road.
   driver: {
-    idle: [
-      "Autista: Oh, il nipote di Hanja! Di' alla nonna: sabato andiamo a prendere i maialini, come d'accordo. La macchina è una belva!",
-      "Autista: Una Kopijka, la Zhiguli del settantotto. Mi sopravvivrà, vedrai.",
-      "Autista: La benzina aumenta, la pensione no. Ma pazienza, sabato ci andiamo lo stesso.",
+    // The first person the hero meets, by his car on the way from the bus stop. A busy village man who
+    // says things as they are and knows how to run the country. What the hero has missed in a year he
+    // tells only this once (talkToDriver in js/story.js). Real events only, see docs/TSN_FACTS.md.
+    firstMeet: [
+      "Accanto a una vecchia Zhiguli c'è un tizio col berretto che fissa il cofano come se il cofano gli dovesse dei soldi.",
+      "Autista: Fermo lì. Di chi sei? Zitto, lo dico io. Il nipote di Hanja, quello di città. Il naso è di Hanja, ma quelle scarpe non sono di qui.",
+      "Tu: E lei come lo sa?",
+      "Autista: Ragazzo, qui di notizie ce ne sono poche. Quello che scende dalla corriera è già una notizia. L'anno scorso non sei venuto, vero? Allora ascolta, che tua nonna ti parlerà solo dei coleotteri.",
+      "Autista: Hanno ridipinto la statua in piazza. Era Lenin, adesso è Shevchenko: baffi dipinti, targa cambiata. Costa meno di una nuova, dicono. E hanno ragione: Shevchenko non si offende, e Lenin ormai non parla.",
+      "Autista: Valja davanti al negozio ha messo un ombrellone, Chernihivske, e i tavolini. Adesso la birra si beve in strada, come in Europa. Il gabinetto però è sempre dietro il capanno.",
+      "Autista: Nonno Petro è la terza estate che dà la caccia al siluro sotto il pontile. Ormai il siluro lo saluta da solo. E Tolik è cresciuto tanto che davanti al circolo fa da solo il consiglio del villaggio.",
+      "Autista: Di corriere Bohdan adesso ce n'è una per tre villaggi, l'altra l'hanno smontata per i pezzi. C'ero anch'io. Per questo la mia cammina ancora.",
+      "Autista: Nel mondo è uguale, solo di più. Bush è andato in Iraq, i nostri ci mandano i soldati, e la benzina chissà come rincara a me, a Makitryne. Ecco tutta la politica.",
+      "Autista: Io questo paese lo aggiusterei in una settimana. Le riparazioni sono tutte uguali: prima guardi dove perde, poi dipingi. Loro dipingono.",
     ],
+    directions: "Autista: Su, vai, che Hanja è già uscita due volte sulla strada. Sempre dritto a sinistra, oltre il circolo. Un cancello azzurro tutto ruggine, un tubo giallo sopra il recinto: è il suo cortile.",
+    busy: "Autista: Io torno sotto il cofano. L'importante è aggiustarla entro sabato, che sabato si va al mercato.",
+    idle: [
+      "Autista: L'importante è aggiustarla entro sabato, che sabato si va al mercato.",
+      "Autista: Una Zhiguli del '78. Venticinque anni di strada, e non ha mai chiesto chi è il presidente.",
+      "Autista: È una belva, questa macchina. Solo un po' malata. Come tutto qui: cammina, e non chiedere come.",
+      "Autista: In America, dice mio compare, si rompe, la butti, ne compri una nuova. Fanno così anche coi presidenti: quattro anni e avanti un altro. Il nostro almeno sa dov'è ogni cosa.",
+      "Autista: Credi che Bush sia andato in Iraq per la democrazia? Ragazzo, sono trent'anni che guido. Tutti vanno dove c'è il distributore.",
+      "Autista: Studi in città? Studia, studia. Ma ricordati: il diploma non gonfia una gomma.",
+      "Autista: Dicono che presto tutti avranno il telefonino. E per farne che? In un villaggio si sa già tutto, e prima di te.",
+      "Autista: L'uomo è come il motore: vedi com'è quando non parte. Finché cammina, sono tutti bravi.",
+      "Autista: I soldi non stanno in tasca, stanno nelle mani. Hai le mani, avrai i soldi. Prima o poi.",
+      "Autista: In televisione dicono che si vive meglio. Può darsi. Io sto sotto il cofano, da qui non si vede.",
+    ],
+    piglets: "Autista: Di' a tua nonna: sabato si va per i maialini, come d'accordo. È una belva, questa macchina!",
     robbed: [
       "Autista: Hai visto? Hai visto?! La batteria! Di notte! Proprio davanti al circolo!",
       "Autista: Se lo prendo, quel ladro... Io lo... Puah! Finché non ne trovo una nuova, non vado da nessuna parte. E in un villaggio dove la trovi?",
@@ -528,18 +575,20 @@ TEXTS.it = {
     ],
   },
 
-  // Selling the cassette player with the Okean Elzy tape (stage 3).
+  // Selling the cassette player and, separately, a tape; the buyer never hears which tape (stage 3).
   player: {
-    title: "Vendere il walkman per cinquanta grivnie?",
+    title: "Vendere il walkman per quaranta grivnie e una cassetta per dieci?",
     sell: { valya: "Venderlo a Valja", vovchik: "Venderlo a Vovchyk" },
     keep: "No, non lo vendo",
     kept: "Ti rimetti il walkman in tasca. Ci penserai ancora.",
     valya: [
-      "Tiri fuori la cassetta di Skriabin e te la metti in tasca. Quella non la vendi, neanche per cento.",
-      "Valja: Ecco qua. Cinquanta grivnie, giuste giuste. Mia nipote sarà contenta, e tu hai i soldi in tasca.",
+      "Togli dal walkman la cassetta di Skriabin e te la metti in tasca. Quella non la vendi, neanche per cento.",
+      "Posi il walkman sul banco e, accanto, a parte, l'altra cassetta.",
+      "Valja: Ecco qua. Quaranta e dieci, cinquanta grivnie giuste giuste. Mia nipote sarà contenta, e tu hai i soldi in tasca.",
     ],
     vovchik: [
-      "Tiri fuori la cassetta di Skriabin e te la metti in tasca. Quella non la vendi, neanche per cento.",
+      "Togli dal walkman la cassetta di Skriabin e te la metti in tasca. Quella non la vendi, neanche per cento.",
+      "Dai a Vovchyk il walkman e, a parte, l'altra cassetta.",
       "Vovchyk: Tieni, cinquanta. Ecco fatto, adesso al circolo c'è la musica. Vieni ad ascoltare — gratis.",
     ],
   },
@@ -632,9 +681,12 @@ TEXTS.it = {
   },
 
   house: {
-    bedDay: "Dormire di giorno? La nonna penserà che sei malato e ti darà un cucchiaio di qualche intruglio.",
+    bedDay: "Dormire adesso? La nonna penserà che sei malato e ti darà un cucchiaio di qualche intruglio.",
     bedNight: ["Il letto cigola come un vecchio cancello. Cadi sul cuscino e non senti più quello stupido gallo in cortile."],
     tvDay: "Di giorno su tutti i canali ci sono le telenovelas. Il TSN va in onda la sera.",
+    tvWaitTitle: "Il TSN va in onda solo la sera. Aspettare?",
+    tvWait: "Guardare la telenovela fino a sera",
+    tvWaited: ["Da tre puntate qualcuno nella telenovela non ricorda di chi è figlia. Ormai non lo ricordi neanche tu. Fuori si fa sera."],
     tvOver: "Il notiziario è finito. Adesso pubblicità di detersivi e una telenovela qualsiasi. Spegni il televisore.",
     borscht: [
       "Sui fornelli una pentola di borsch ancora calda. Accanto un biglietto: \"Mangia, che sei magro. La panna acida è in frigo. La nonna dorme.\"",
@@ -763,10 +815,11 @@ TEXTS.it = {
     giveBattery: "Porta la batteria nuova all'autista, alla sua macchina.",
     afterCatfish: "L'estate va avanti. Continua...",
     grandmaNews: "La nonna voleva dirti qualcosa. È in cortile.",
-    sellPlayer: "Alla nonna mancano quaranta grivnie per i maialini. Il walkman con gli Okean Elzy si può vendere a Valja o a Vovchyk.",
+    sellPlayer: "Alla nonna mancano quaranta grivnie per i maialini. Il walkman e una cassetta si possono vendere a Valja o a Vovchyk.",
     earnMoney: "Alla nonna mancano quaranta grivnie per i maialini. Si può guadagnare nell'orto e da Valja.",
     giveMoney: "Porta alla nonna le quaranta grivnie per i maialini.",
     askTool: "Per il recinto servono gli attrezzi. Chiedi a nonno Petro allo stagno.",
+    fixFence: "Rattoppa il buco nel recinto: nel cortile della nonna, a sinistra del cancello.",
     toMykola: "La cassetta degli attrezzi è da Mykola: il suo cancelletto è sulla strada, a ovest del villaggio. Di giorno dorme.",
     toolHome: "Porta alla nonna la cassetta degli attrezzi di nonno Petro.",
     beerForMykola: "Mykola insegna il kung fu solo davanti a una birra. Compra quattro bottiglie da Valja.",

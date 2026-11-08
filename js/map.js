@@ -9,6 +9,7 @@
 //              the lines to show while that way is shut (or null when it is open)
 //   props      objects drawn as their own sprites, sorted with the characters by feet line
 //   nightProps pictures laid over the location at night, with their top-left corner
+//   patches    parts of the picture that change with the story: drawn on it when `when()` says so
 //   scenery    people from a neighbouring location seen from here, just to look at
 //   occluders  parts of the picture drawn over a hero walking behind them
 //   lights     lamps and windows that glow at night
@@ -54,6 +55,11 @@ const LOCATIONS = {
       },
     ],
     props: [],
+    // The fence left of the gate: the hole, then the hero's patch (YARD_FENCE_BOX in tools/art/locations.py).
+    patches: [
+      { art: "yardFenceHole", x: 158, y: 281, when: () => !quest.deeds.fenceMended },
+      { art: "yardFenceMended", x: 158, y: 281, when: () => Boolean(quest.deeds.fenceMended) },
+    ],
     occluders: [{ art: "occludeYardWell", x: 147, y: 198, baseY: 257 }],
     lights: [
       { x: 37, y: 108, radius: 52 },
